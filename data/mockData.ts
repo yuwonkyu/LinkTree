@@ -53,16 +53,4 @@ export type TrainerProfile = {
   options?: ProfileOptions; // UI 커스터마이징 옵션
 };
 
-import sampleProfile from "./sample/profile";
-import sample2Profile from "./sample2/profile";
 
-export const trainerProfiles: Record<string, TrainerProfile> = {
-  sample: sampleProfile,
-  sample2: sample2Profile,
-};
-
-export function getTrainerProfile(username: string) {
-  return trainerProfiles[username];
-}
-
-export const defaultUsername = "sample";
