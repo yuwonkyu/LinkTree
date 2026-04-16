@@ -10,8 +10,10 @@ export type User = {
   availability: string;
   ctaLabel: string;
   instagramUrl: string;
+  instagramUrls?: string[];
   kakaoUrl?: string;
   imageSrc: string;
+  ogImageSrc?: string;
   services: ServiceItem[];
   reviews: ReviewItem[];
   instagramHandle: string;
@@ -21,6 +23,9 @@ export type User = {
 // ProfileOptions 기본값
 export const defaultOptions: ProfileOptions = {
   showReviews: true,
+  showServices: true,
+  showCTA: true,
+  showInstagram: true,
   showLocation: true,
   theme: "light",
   highlightColor: "#FEE500",
@@ -94,6 +99,39 @@ export const users: User[] = [
       serviceFooterLabel: "VAT포함",
       theme: "dark",
       highlightColor: "#FEE500",
+    },
+  },
+  {
+    username: "jhj",
+    name: "조형진",
+    brandName: "OMGN",
+    role: "Film · Brand · AD · Event · AI",
+    intro: "Work that makes clients say, \u201cOh my goodness!\u201d",
+    location: "제주특별자치도 제주시 구좌읍 월정1길 70-1",
+    availability: "미정",
+    ctaLabel: "",
+    instagramUrl: "https://www.instagram.com/whdkd2/",
+    instagramUrls: [
+      "https://www.instagram.com/whdkd2/",
+      "https://www.instagram.com/_studiomgn/",
+      "https://www.instagram.com/yoonseul.house",
+    ],
+    imageSrc: "https://res.cloudinary.com/diicetn0t/image/upload/v1776317609/JHJ_scrgqn.png",
+    ogImageSrc: "https://res.cloudinary.com/diicetn0t/image/upload/v1776317475/JHJ-OP_ejmccq.jpg",
+    services: [],
+    reviews: [
+      {
+        author: "30대 남자",
+        content: "사람이 좋아요, 자칭 테토남",
+      },
+    ],
+    instagramHandle: "@whdkd2",
+    options: {
+      theme: "light",
+      showReviews: true,
+      showLocation: true,
+      showEditableFrame: false,
+      serviceFooterLabel: false,
     },
   },
 ];

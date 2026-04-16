@@ -27,6 +27,9 @@ export type ReviewItem = {
 // 프로필 UI 커스터마이징 옵션
 export type ProfileOptions = {
   showReviews?: boolean; // 후기 섹션 표시 여부
+  showServices?: boolean; // 서비스 섹션 표시 여부
+  showCTA?: boolean; // CTA(상담 버튼) 표시 여부
+  showInstagram?: boolean; // 인스타그램 섹션 표시 여부
   showLocation?: boolean; // 위치/운영시간 표시 여부
   customCTA?: string; // CTA(상담 버튼) 문구 커스텀
   theme?: "light" | "dark"; // 테마(라이트/다크)

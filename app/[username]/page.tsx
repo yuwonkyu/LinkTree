@@ -21,8 +21,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `${user.name} | ${user.brandName}`;
-  const description = `${user.role} · ${user.ctaLabel}`;
+  const description = user.ctaLabel ? `${user.role} · ${user.ctaLabel}` : user.role;
   const pageUrl = `/${user.username}`;
+  const shareImage = user.ogImageSrc || user.imageSrc || "/sampleop.png";
 
   return {
     title,
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       url: pageUrl,
       images: [
         {
-          url: user.imageSrc || "/sampleop.png",
+          url: shareImage,
           width: 1200,
           height: 630,
           alt: `${user.name} 프로필 이미지`,
@@ -44,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: "summary_large_image",
       title,
       description,
-      images: [user.imageSrc || "/sampleop.png"],
+      images: [shareImage],
     },
   };
 }
@@ -73,6 +74,7 @@ export default async function UsernamePage({ params }: PageProps) {
             availability={user.availability}
             ctaLabel={user.ctaLabel}
             instagramUrl={user.instagramUrl}
+            instagramUrls={user.instagramUrls}
             instagramHandle={user.instagramHandle}
             kakaoUrl={user.kakaoUrl}
             imageSrc={user.imageSrc}

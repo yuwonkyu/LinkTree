@@ -10,6 +10,7 @@ type ProfileProps = {
   availability: string;
   ctaLabel: string;
   instagramUrl: string;
+  instagramUrls?: string[];
   instagramHandle: string;
   imageSrc: string;
   services: ServiceItem[];
@@ -27,6 +28,7 @@ const Profile = ({
   availability,
   ctaLabel,
   instagramUrl,
+  instagramUrls,
   instagramHandle,
   imageSrc,
   services,
@@ -37,6 +39,25 @@ const Profile = ({
   // editable-frame 클래스 적용 헬퍼
   const ef = (base: string) =>
     `${options.showEditableFrame ? "editable-frame " : ""}${base}`;
+
+  const links = instagramUrls?.length ? instagramUrls : [instagramUrl];
+  const validLinks = links.filter(Boolean);
+  const toHandle = (url: string) => {
+    const match = url.match(/instagram\.com\/([^/?#]+)/i);
+    return match?.[1] ? `@${match[1]}` : instagramHandle;
+  };
+
+  const hasCTAData = Boolean(ctaLabel && kakaoUrl);
+  const hasServicesData = services.length > 0;
+  const hasReviewsData = reviews.length > 0;
+  const hasInstagramData = validLinks.length > 0;
+  const hasLocationData = Boolean(location || availability);
+
+  const showCTA = (options.showCTA ?? true) && hasCTAData;
+  const showServices = (options.showServices ?? true) && hasServicesData;
+  const showReviews = (options.showReviews ?? true) && hasReviewsData;
+  const showInstagram = (options.showInstagram ?? true) && hasInstagramData;
+  const showLocation = (options.showLocation ?? true) && hasLocationData;
 
   return (
     <section className="rounded-xl p-8 backdrop-blur">
@@ -80,62 +101,67 @@ const Profile = ({
         {intro}
       </p>
 
-      <div className="mt-5">
-        <a
-          href={kakaoUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="reserve-button flex min-h-12 w-full items-center justify-center overflow-hidden rounded-xl px-2 text-sm font-semibold text-black! shadow-[0_4px_10px_rgba(17,24,39,0.12)] active:translate-y-px"
-          style={{ backgroundColor: options.highlightColor }}
-        >
-          <span className="reserve-button__content">
-            <Image
-              src="/kakaosimbol.svg"
-              alt=""
-              width={18}
-              height={18}
-              className="h-4.5 w-4.5 shrink-0"
-            />
-            <Image
-              src="/kakaoText.svg"
-              alt="Kakao"
-              width={74}
-              height={18}
-              className="h-4.5 w-auto shrink-0"
-              style={{ width: "auto" }}
-            />
-            <span className="text-black! whitespace-nowrap">{ctaLabel}</span>
-          </span>
-        </a>
-      </div>
+      {showCTA && (
+        <div className="mt-5">
+          <a
+            href={kakaoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="reserve-button flex min-h-12 w-full items-center justify-center overflow-hidden rounded-xl px-2 text-sm font-semibold text-black! shadow-[0_4px_10px_rgba(17,24,39,0.12)] active:translate-y-px"
+            style={{ backgroundColor: options.highlightColor }}
+          >
+            <span className="reserve-button__content">
+              <Image
+                src="/kakaosimbol.svg"
+                alt=""
+                width={18}
+                height={18}
+                className="h-4.5 w-4.5 shrink-0"
+              />
+              <Image
+                src="/kakaoText.svg"
+                alt="Kakao"
+                width={74}
+                height={18}
+                className="h-4.5 w-auto shrink-0"
+                style={{ width: "auto" }}
+              />
+              <span className="text-black! whitespace-nowrap">{ctaLabel}</span>
+            </span>
+          </a>
+        </div>
+      )}
 
-      <div className="my-7 h-px bg-black/20" />
+      {showServices && (
+        <>
+          <div className="my-7 h-px bg-black/20" />
+          <section className={ef("")}>
+            <h2 className="text-base font-bold text-foreground">서비스</h2>
+            <ul className="mt-4 space-y-3 ">
+              {services.map((service) => (
+                <li
+                  key={service.name + service.price}
+                  className="flex items-center justify-between gap-3 text-base"
+                >
+                  <span className="font-medium text-foreground">
+                    {service.name}
+                  </span>
+                  <span className="font-semibold text-foreground">
+                    {service.price}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {options.serviceFooterLabel && (
+              <p className="mt-3 text-right text-xs text-(--muted)">
+                {options.serviceFooterLabel}
+              </p>
+            )}
+          </section>
+        </>
+      )}
 
-      <section className={ef("")}>
-        <h2 className="text-base font-bold text-foreground">서비스</h2>
-        <ul className="mt-4 space-y-3">
-          {services.map((service) => (
-            <li
-              key={service.name + service.price}
-              className="flex items-center justify-between gap-3 text-base"
-            >
-              <span className="font-medium text-foreground">
-                {service.name}
-              </span>
-              <span className="font-semibold text-foreground">
-                {service.price}
-              </span>
-            </li>
-          ))}
-        </ul>
-        {options.serviceFooterLabel && (
-          <p className="mt-3 text-right text-xs text-(--muted)">
-            {options.serviceFooterLabel}
-          </p>
-        )}
-      </section>
-
-      {options.showReviews && (
+      {showReviews && (
         <>
           <div className="my-7 h-px bg-black/20" />
           <section className={ef("")}>
@@ -159,41 +185,50 @@ const Profile = ({
         </>
       )}
 
-      {options.showLocation && (
+      {showLocation && (
         <>
           <div className="my-7 h-px bg-black/20" />
-          <p className={ef("text-sm font-medium text-(--muted) mt-0.5")}>
-            운영시간 : {availability}
-          </p>
-          <p className={ef("text-sm font-medium text-(--muted)")}>
-            위치 : {location}
-          </p>
+          {availability && (
+            <p className={ef("text-sm font-medium text-(--muted) mt-0.5")}>
+              운영시간 : {availability}
+            </p>
+          )}
+          {location && (
+            <p className={ef("text-sm font-medium text-(--muted)")}>
+              위치 : {location}
+            </p>
+          )}
         </>
       )}
 
-      <div
-        className={`text-foreground flex items-center gap-2 mt-6 ${ef("text-sm font-medium text-(--muted)")}`}
-      >
-        <a
-          href={instagramUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className=" inline-flex items-center gap-1 text-sm font-semibold hover:underline"
+      {showInstagram && (
+        <div
+          className={`text-foreground mt-6 flex flex-col gap-2 ${ef("text-sm font-medium text-(--muted)")}`}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="currentColor"
-              d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"
-            />
-          </svg>
-          <span>{instagramHandle}</span>
-        </a>
-      </div>
+          {validLinks.map((url, idx) => (
+            <a
+              key={`${url}-${idx}`}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-semibold hover:underline"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"
+                />
+              </svg>
+              <span>{toHandle(url)}</span>
+            </a>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
