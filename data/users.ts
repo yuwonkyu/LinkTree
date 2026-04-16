@@ -189,7 +189,7 @@ export const users: User[] = [
     },
   },
   {
-    username: "kku._.ui",
+    username: "kku",
     name: "원뀨",
     brandName: "Kku UI Studio",
     role: "고객 문의를 만드는 1페이지 사이트 제작",
