@@ -100,6 +100,33 @@ export const users: User[] = [
       theme: "dark",
       highlightColor: "#FEE500",
     },
+  },  {
+    username: "sample3",
+    name: "큐 쌤",
+    brandName: "Q Pilates Center",
+    role: "1:1필라테스수업 · 다이어트 · 자세교정",
+    intro: "전문 필라테스 수업을 통한 자세 교정 및 신체능력 강화\n 성인 맞춤 교육",
+    location: "서울 목2동 00필라테스센터",
+    availability: "15:00~22:00",
+    ctaLabel: "무료 상담 가능(카카오톡 오픈채팅)",
+    instagramUrl: "https://instagram.com/kku._.ui",
+    kakaoUrl: "https://open.kakao.com/o/sample2",
+    imageSrc: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+    services: [
+      { name: "한달 - 10회", price: "50,000원", vat: true },
+      { name: "일일체험", price: "10,000원", vat: true }
+    ],
+    reviews: [
+      { author: "직장인 회원", content: "퇴근 후에도 일정 조율이 편했고, 짧은 기간에도 몸이 가벼워진 게 느껴졌습니다." }
+    ],
+    instagramHandle: "@kku._.ui",
+    options: {
+      showReviews: true,
+      showEditableFrame: false, // sample2 등은 항상 false
+      serviceFooterLabel: "VAT포함",
+      theme: "softsage",
+      highlightColor: "#FEE500",
+    },
   },
   {
     username: "jhj",
@@ -127,10 +154,11 @@ export const users: User[] = [
     ],
     instagramHandle: "@whdkd2",
     options: {
-      theme: "dark",
+      theme: "warmlinen",
       showReviews: true,
       showLocation: true,
       showEditableFrame: false,
+      highlightColor: "#0012ab",
       serviceFooterLabel: false,
     },
   },

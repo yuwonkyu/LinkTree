@@ -32,7 +32,7 @@ export type ProfileOptions = {
   showInstagram?: boolean; // 인스타그램 섹션 표시 여부
   showLocation?: boolean; // 위치/운영시간 표시 여부
   customCTA?: string; // CTA(상담 버튼) 문구 커스텀
-  theme?: "light" | "dark"; // 테마(라이트/다크)
+  theme?: "light" | "dark" | "ucc" | "softsage" | "warmlinen" | "energysteel"; // 테마(라이트/다크/UCC/Soft Sage/Warm Linen/Energy Steel)
   highlightColor?: string; // CTA 버튼 배경색
   showEditableFrame?: boolean; // 반짝이는 테두리 표시
   serviceFooterLabel?: string | false; // 서비스 푸터 라벨(문구/미표시)

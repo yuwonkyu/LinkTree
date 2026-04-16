@@ -1,0 +1,176 @@
+.theme-dark {
+  --base: #121212;
+  --secondary: #121212;
+  --foreground: #f3f4f6;
+  --muted: #cbd5e1;
+  --card: rgba(30, 30, 30, 0.9);
+  --third: #f3f4f6;
+}
+
+.theme-dark .h-px {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-dark .bg-black\/20 {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.theme-ucc {
+  --base: #0d0221;
+  --secondary: #14052e;
+  --foreground: #f8f7ff;
+  --muted: #d8d2f8;
+  --card: rgba(21, 8, 46, 0.78);
+  --third: #ffd60a;
+  background:
+    radial-gradient(circle at 8% 12%, rgba(255, 77, 109, 0.45) 0%, rgba(255, 77, 109, 0) 35%),
+    radial-gradient(circle at 92% 10%, rgba(0, 245, 212, 0.42) 0%, rgba(0, 245, 212, 0) 33%),
+    radial-gradient(circle at 22% 86%, rgba(255, 214, 10, 0.32) 0%, rgba(255, 214, 10, 0) 40%),
+    linear-gradient(145deg, #0d0221 0%, #1a0b3c 50%, #12042d 100%);
+}
+
+.theme-ucc .h-px,
+.theme-ucc .bg-black\/20 {
+  background-color: rgba(255, 255, 255, 0.24);
+}
+
+.theme-ucc .rounded-2xl.bg-\(--card\) {
+  border: 1px solid rgba(255, 214, 10, 0.35);
+  box-shadow:
+    0 16px 44px rgba(7, 2, 19, 0.65),
+    0 0 0 1px rgba(0, 245, 212, 0.12) inset;
+}
+
+.theme-ucc .reserve-button {
+  box-shadow:
+    0 10px 20px rgba(0, 245, 212, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+}
+
+.theme-ucc ::selection {
+  background: rgba(255, 214, 10, 0.55);
+  color: #12042d;
+}
+
+.theme-softsage {
+  --base: #f4f8f5;
+  --secondary: #edf4ef;
+  --foreground: #23352d;
+  --muted: #546a5f;
+  --card: rgba(248, 252, 249, 0.88);
+  --third: #6f9680;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(123, 171, 142, 0.2) 0%, rgba(123, 171, 142, 0) 36%),
+    radial-gradient(circle at 88% 18%, rgba(206, 230, 214, 0.45) 0%, rgba(206, 230, 214, 0) 44%),
+    linear-gradient(160deg, #f4f8f5 0%, #eaf2ec 48%, #f7faf8 100%);
+}
+
+.theme-softsage .h-px,
+.theme-softsage .bg-black\/20 {
+  background-color: rgba(35, 53, 45, 0.18);
+}
+
+.theme-softsage .rounded-2xl.bg-\(--card\) {
+  border: 1px solid rgba(111, 150, 128, 0.32);
+  box-shadow:
+    0 14px 30px rgba(73, 98, 84, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.theme-softsage .profile-brand {
+  background: rgba(111, 150, 128, 0.14);
+  border-radius: 999px;
+}
+
+.theme-softsage .reserve-button {
+  box-shadow:
+    0 10px 20px rgba(93, 126, 108, 0.22),
+    0 0 0 1px rgba(255, 255, 255, 0.65) inset;
+}
+
+.theme-softsage ::selection {
+  background: rgba(111, 150, 128, 0.38);
+  color: #172820;
+}
+
+.theme-warmlinen {
+  --base: #f8f2e9;
+  --secondary: #f2e7d8;
+  --foreground: #3a2c22;
+  --muted: #725b49;
+  --card: rgba(255, 249, 240, 0.86);
+  --third: #b58458;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(206, 162, 116, 0.26) 0%, rgba(206, 162, 116, 0) 34%),
+    radial-gradient(circle at 90% 22%, rgba(236, 215, 189, 0.4) 0%, rgba(236, 215, 189, 0) 42%),
+    linear-gradient(150deg, #fbf6ef 0%, #efe1cd 52%, #f8f0e4 100%);
+}
+
+.theme-warmlinen .h-px,
+.theme-warmlinen .bg-black\/20 {
+  background-color: rgba(58, 44, 34, 0.18);
+}
+
+.theme-warmlinen .rounded-2xl.bg-\(--card\) {
+  border: 1px solid rgba(181, 132, 88, 0.38);
+  box-shadow:
+    0 16px 34px rgba(120, 88, 58, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.45) inset;
+}
+
+.theme-warmlinen .profile-brand {
+  background: rgba(181, 132, 88, 0.15);
+  border-radius: 999px;
+}
+
+.theme-warmlinen .reserve-button {
+  box-shadow:
+    0 10px 22px rgba(181, 132, 88, 0.28),
+    0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+}
+
+.theme-warmlinen ::selection {
+  background: rgba(181, 132, 88, 0.35);
+  color: #2d2119;
+}
+
+.theme-energysteel {
+  --base: #0f172a;
+  --secondary: #111b31;
+  --foreground: #e2e8f0;
+  --muted: #94a3b8;
+  --card: rgba(30, 41, 59, 0.86);
+  --third: #a3e635;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(163, 230, 53, 0.18) 0%, rgba(163, 230, 53, 0) 34%),
+    radial-gradient(circle at 90% 14%, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0) 36%),
+    linear-gradient(150deg, #0b1222 0%, #111b31 52%, #0f172a 100%);
+}
+
+.theme-energysteel .h-px,
+.theme-energysteel .bg-black\/20 {
+  background-color: rgba(226, 232, 240, 0.22);
+}
+
+.theme-energysteel .rounded-2xl.bg-\(--card\) {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow:
+    0 18px 40px rgba(2, 6, 23, 0.45),
+    0 0 0 1px rgba(163, 230, 53, 0.12) inset;
+}
+
+.theme-energysteel .profile-brand {
+  background: rgba(163, 230, 53, 0.12);
+  border-radius: 999px;
+}
+
+.theme-energysteel .reserve-button {
+  box-shadow:
+    0 12px 24px rgba(163, 230, 53, 0.24),
+    0 0 0 1px rgba(255, 255, 255, 0.24) inset;
+}
+
+.theme-energysteel ::selection {
+  background: rgba(163, 230, 53, 0.45);
+  color: #0b1222;
+}
