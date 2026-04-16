@@ -27,6 +27,7 @@ export const defaultOptions: ProfileOptions = {
   showServices: true,
   showCTA: true,
   showInstagram: true,
+  showExternalLinks: true,
   showLocation: true,
   theme: "light",
   highlightColor: "#FEE500",

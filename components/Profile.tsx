@@ -80,7 +80,7 @@ const Profile = ({
   const showServices = (options.showServices ?? true) && hasServicesData;
   const showReviews = (options.showReviews ?? true) && hasReviewsData;
   const showExternalLinks =
-    (options.showInstagram ?? true) && hasExternalLinksData;
+    (options.showExternalLinks ?? true) && hasExternalLinksData;
   const showInstagram = (options.showInstagram ?? true) && hasInstagramData;
   const showLocation = (options.showLocation ?? true) && hasLocationData;
 
