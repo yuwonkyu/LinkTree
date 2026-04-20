@@ -1,19 +1,18 @@
-# LinkTree
+# InstaLink
 
 1인 사업자·프리랜서를 위한 링크 페이지 서비스입니다.  
 PT 트레이너, 필라테스 강사, 미용실, 프리랜서 등 누구든 링크 하나로 자신을 소개하고 고객 상담까지 연결할 수 있습니다.
 
-현재 기본 진입 URL(/)은 원뀨 프로필을 직접 렌더링합니다.
+현재 공개 프로필은 `/{slug}` 동적 라우팅으로 제공되며, 데이터는 Supabase `profiles` 테이블에서 조회합니다.
 
 ## 주요 기능
 
-- 기본 홈 페이지(/): 원뀨 프로필 직접 렌더링
-- 사용자 프로필 페이지(`/username`)
+- 공개 프로필 페이지(`/{slug}`)
 - 서비스·가격 안내
 - 카카오톡 상담 연결 CTA
 - 인스타그램 링크 연결
 - 모바일 우선 반응형 UI
-- 다중 테마 지원 (라이트/다크/브랜드 테마)
+- 활성/비활성 상태 분기 (`is_active=false` 시 준비중 화면)
 
 ## 기술 스택
 
@@ -45,17 +44,13 @@ options: {
 }
 ```
 
-테마 값은 다음 타입에 정의되어 있습니다.
+### 라우팅 및 데이터 위치
 
-- data/mockData.ts 의 ProfileOptions.theme
-
-### 테마 스타일 위치
-
-- 공통 스타일: app/globals.css
-- 테마 스타일 모음: app/themes.css
-- 테마 클래스 분기:
-  - app/page.tsx (홈)
-  - app/[username]/page.tsx (동적 사용자 페이지)
+- 공개 페이지: app/[slug]/page.tsx
+- 렌더링 컴포넌트: components/ProfilePage.tsx
+- 타입 정의: lib/types.ts
+- Supabase 클라이언트: lib/supabase.ts
+- DB 스키마/RLS/샘플 SQL: supabase/week1_profiles.sql
 
 ### 홈 전용 링크 강조 스타일
 
@@ -69,14 +64,12 @@ options: {
 3. app/[username]/page.tsx 의 themeClass 분기에 클래스 매핑 추가
 4. data/users.ts 의 각 사용자 options.theme 에 테마 지정
 
-### 판매용 템플릿 운영 팁
+### 환경변수
 
-- 직군별 기본 추천
-  - PT: energysteel
-  - 필라테스: softsage
-  - 프리미엄 브랜딩: warmlinen
-- 서비스/후기/CTA/인스타/위치는 데이터가 없으면 자동으로 숨김 처리됩니다.
-- 필요 시 options.showServices, options.showReviews, options.showCTA, options.showInstagram, options.showLocation 으로 강제 노출/숨김을 제어할 수 있습니다.
+`.env.local`에 아래 값을 설정하세요.
+
+- NEXT_PUBLIC_SUPABASE_URL
+- NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ## 저작권 및 사용 제한
 
@@ -90,4 +83,10 @@ All rights reserved. Unauthorized use is strictly prohibited.
 ```bash
 npm install
 npm run dev
+```
+
+공개 프로필 확인 예시:
+
+```bash
+http://localhost:3000/sample-gym
 ```
