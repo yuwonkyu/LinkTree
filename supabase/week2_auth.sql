@@ -76,7 +76,7 @@ begin
     '[]'::jsonb,
     false   -- 온보딩 완료 후 true로 변경
   )
-  on conflict (owner_id) do nothing;   -- 중복 방지
+  on conflict (slug) do nothing;   -- slug 중복 방지 (owner_id UNIQUE 제약 없음)
 
   return new;
 end;
@@ -90,24 +90,7 @@ create trigger on_auth_user_created
 
 
 -- ─────────────────────────────────────────────
--- 2. profiles 테이블에 owner_id UNIQUE 제약 추가
---    (1인 1계정 1페이지 구조)
--- ─────────────────────────────────────────────
-do $$
-begin
-  if not exists (
-    select 1 from pg_constraint
-    where conname = 'profiles_owner_id_unique'
-      and conrelid = 'public.profiles'::regclass
-  ) then
-    alter table public.profiles
-      add constraint profiles_owner_id_unique unique (owner_id);
-  end if;
-end $$;
-
-
--- ─────────────────────────────────────────────
--- 3. 대시보드용 RLS 확인 (week1에서 이미 설정됐지만 누락 대비)
+-- 2. 대시보드용 RLS 확인 (week1에서 이미 설정됐지만 누락 대비)
 -- ─────────────────────────────────────────────
 
 -- 본인 row 읽기 (대시보드에서 본인 데이터 조회)
