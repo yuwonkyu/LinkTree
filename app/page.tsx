@@ -128,7 +128,7 @@ export default function Page() {
               무료로 시작하기 →
             </Link>
             <Link
-              href="/sample-gym"
+              href="/sample"
               className="rounded-xl border border-black/10 bg-white px-6 py-3 text-sm font-semibold transition hover:bg-black/5"
             >
               예시 페이지 보기

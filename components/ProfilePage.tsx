@@ -20,45 +20,83 @@ function trackClick(profileId: string, linkType: "kakao" | "instagram") {
   }).catch(() => {});
 }
 
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-(--muted)">
+      {children}
+    </h2>
+  );
+}
+
+function IconClock() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+function IconPin() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
+function IconInstagram() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="currentColor" d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3" />
+    </svg>
+  );
+}
+
 export default function ProfilePage({ profile }: ProfilePageProps) {
   const instagramHandle = profile.instagram_id.startsWith("@")
     ? profile.instagram_id
     : `@${profile.instagram_id}`;
   const instagramUrl = toInstagramUrl(profile.instagram_id);
 
+  const hasCta = profile.kakao_url || profile.kakao_booking_url || profile.naver_booking_url;
+
   return (
-    <section className="rounded-xl p-8 backdrop-blur">
-      <div className="flex items-start gap-4">
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden">
+    <section className="rounded-xl p-6 backdrop-blur sm:p-8">
+
+      {/* ── 프로필 헤더 ── */}
+      <div className="flex items-center gap-4">
+        <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-full ring-2 ring-black/8 sm:h-20 sm:w-20">
           <Image
-            src={profile.image_url ? profile.image_url : "/user_img.svg"}
+            src={profile.image_url || "/user_img.svg"}
             alt={profile.name}
             fill
-            sizes="96px"
+            sizes="80px"
             className="object-cover"
             priority
           />
         </div>
         <div className="profile-header-copy min-w-0 flex-1">
-          <p className="profile-brand mb-2 inline-flex px-2 py-1 font-semibold tracking-[0.08em] text-(--third) uppercase">
+          <p className="profile-brand mb-1 inline-flex px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-(--third) uppercase">
             {profile.shop_name}
           </p>
-          <h1 className="profile-name font-display font-bold leading-none text-foreground">
+          <h1 className="profile-name font-display font-bold leading-tight text-foreground">
             {profile.name}
           </h1>
-          <p className="profile-role mt-2 font-medium text-(--muted)">
+          <p className="profile-role mt-1 font-medium text-(--muted)">
             {profile.tagline}
           </p>
         </div>
       </div>
 
+      {/* ── 소개 ── */}
       {profile.description && (
-        <p className="mt-5 text-sm leading-6 text-(--muted) whitespace-pre-line">
+        <p className="mt-5 rounded-xl bg-black/[0.035] px-4 py-3.5 text-sm leading-6 text-(--muted) whitespace-pre-line">
           {profile.description}
         </p>
       )}
 
-      {(profile.kakao_url || profile.kakao_booking_url || profile.naver_booking_url) && (
+      {/* ── CTA 버튼 ── */}
+      {hasCta && (
         <div className="mt-5 flex flex-col gap-2">
           {profile.kakao_booking_url && (
             <a
@@ -66,7 +104,7 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => trackClick(profile.id, "kakao")}
-              className="flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-2 text-sm font-semibold text-black! shadow-[0_4px_10px_rgba(17,24,39,0.12)] active:translate-y-px"
+              className="flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-2 text-sm font-semibold text-black! shadow-[0_4px_14px_rgba(17,24,39,0.14)] active:translate-y-px"
               style={{ backgroundColor: "#FEE500" }}
             >
               <Image src="/kakaosimbol.svg" alt="" width={18} height={18} className="h-4.5 w-4.5 shrink-0" />
@@ -78,7 +116,7 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
               href={profile.naver_booking_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-2 text-sm font-semibold text-white! shadow-[0_4px_10px_rgba(17,24,39,0.12)] active:translate-y-px"
+              className="flex min-h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl px-2 text-sm font-semibold text-white! shadow-[0_4px_14px_rgba(17,24,39,0.14)] active:translate-y-px"
               style={{ backgroundColor: "#03C75A" }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -88,61 +126,48 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
             </a>
           )}
           {profile.kakao_url && (
-          <a
-            href={profile.kakao_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackClick(profile.id, "kakao")}
-            className="reserve-button flex min-h-12 w-full items-center justify-center overflow-hidden rounded-xl px-2 text-sm font-semibold text-black! shadow-[0_4px_10px_rgba(17,24,39,0.12)] active:translate-y-px"
-            style={{ backgroundColor: "#FEE500" }}
-          >
-            <span className="reserve-button__content">
-              <Image
-                src="/kakaosimbol.svg"
-                alt=""
-                width={18}
-                height={18}
-                className="h-4.5 w-4.5 shrink-0"
-              />
-              <Image
-                src="/kakaoText.svg"
-                alt="Kakao"
-                width={74}
-                height={18}
-                className="h-4.5 w-auto shrink-0"
-                style={{ width: "auto" }}
-              />
-              <span className="text-black! whitespace-nowrap">
-                무료 상담 받기 (카카오톡)
+            <a
+              href={profile.kakao_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => trackClick(profile.id, "kakao")}
+              className="reserve-button flex min-h-12 w-full items-center justify-center overflow-hidden rounded-xl px-2 text-sm font-semibold text-black! shadow-[0_4px_14px_rgba(17,24,39,0.14)] active:translate-y-px"
+              style={{ backgroundColor: "#FEE500" }}
+            >
+              <span className="reserve-button__content">
+                <Image src="/kakaosimbol.svg" alt="" width={18} height={18} className="h-4.5 w-4.5 shrink-0" />
+                <Image
+                  src="/kakaoText.svg"
+                  alt="Kakao"
+                  width={74}
+                  height={18}
+                  className="h-4.5 w-auto shrink-0"
+                  style={{ width: "auto" }}
+                />
+                <span className="text-black! whitespace-nowrap">무료 상담 받기 (카카오톡)</span>
               </span>
-            </span>
-          </a>
+            </a>
           )}
         </div>
       )}
 
+      {/* ── 서비스 ── */}
       {profile.services.length > 0 && (
         <>
-          <div className="my-7 h-px bg-black/20" />
+          <div className="my-6 h-px bg-black/20" />
           <section>
-            <h2 className="text-base font-bold text-foreground">서비스</h2>
-            <ul className="mt-4 space-y-3 ">
+            <SectionLabel>서비스 &amp; 가격</SectionLabel>
+            <ul className="space-y-2">
               {profile.services.map((service) => (
                 <li
                   key={service.name + service.price}
-                  className="flex items-start justify-between gap-3 text-base"
+                  className="flex items-center justify-between gap-3 rounded-xl bg-black/[0.035] px-4 py-3"
                 >
-                  <span className="font-medium text-foreground">
-                    {service.name}
-                  </span>
+                  <span className="text-sm font-medium text-foreground">{service.name}</span>
                   <div className="flex flex-col items-end text-right">
-                    <span className="font-semibold text-foreground">
-                      {service.price}
-                    </span>
+                    <span className="text-sm font-bold text-foreground">{service.price}</span>
                     {service.note && (
-                      <span className="mt-1 text-xs text-(--muted)">
-                        {service.note}
-                      </span>
+                      <span className="mt-0.5 text-[11px] text-(--muted)">{service.note}</span>
                     )}
                   </div>
                 </li>
@@ -152,20 +177,19 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
         </>
       )}
 
+      {/* ── 후기 ── */}
       {profile.reviews.length > 0 && (
         <>
-          <div className="my-7 h-px bg-black/20" />
+          <div className="my-6 h-px bg-black/20" />
           <section>
-            <h2 className="text-base font-bold text-foreground">후기</h2>
-            <ul className="mt-4 space-y-3 ">
+            <SectionLabel>고객 후기</SectionLabel>
+            <ul className="space-y-2">
               {profile.reviews.map((review, idx) => (
-                <li key={review.author + idx} className="rounded-2xl text-base p-4">
-                  <p className="text-left text-sm leading-6 text-(--muted) ">
-                    “{review.text}”
+                <li key={review.author + idx} className="rounded-xl bg-black/[0.035] px-4 py-4">
+                  <p className="text-sm leading-6 text-foreground">
+                    &#8220;{review.text}&#8221;
                   </p>
-                  <p className="mt-2 text-right text-xs font-semibold text-foreground ">
-                    {review.author}
-                  </p>
+                  <p className="mt-2 text-[11px] font-semibold text-(--muted)">— {review.author}</p>
                 </li>
               ))}
             </ul>
@@ -173,35 +197,26 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
         </>
       )}
 
-      <>
-        <div className="my-7 h-px bg-black/20" />
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-col gap-0.5">
+      {/* ── 운영정보 ── */}
+      {(profile.hours || profile.location || profile.instagram_id) && (
+        <>
+          <div className="my-6 h-px bg-black/20" />
+          <div className="space-y-2.5">
             {profile.hours && (
-              <p className="text-sm font-medium text-(--muted)">
-                운영시간 : {profile.hours}
-              </p>
+              <div className="flex items-center gap-2 text-sm text-(--muted)">
+                <IconClock />
+                <span>{profile.hours}</span>
+              </div>
             )}
             {profile.location && (
-              <p className="text-sm font-medium text-(--muted)">
-                위치 : {profile.location}
-              </p>
+              <div className="flex items-center gap-2 text-sm text-(--muted)">
+                <IconPin />
+                <span>{profile.location}</span>
+              </div>
             )}
-          </div>
-          {profile.instagram_id && (
-            <div className="flex flex-col items-end gap-2 text-sm font-medium text-(--muted)">
-              <div className="inline-flex items-center gap-1 text-sm font-semibold">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4zm9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3"
-                  />
-                </svg>
+            {profile.instagram_id && (
+              <div className="flex items-center gap-2 text-sm text-(--muted)">
+                <IconInstagram />
                 <a
                   href={instagramUrl}
                   target="_blank"
@@ -212,10 +227,10 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
                   {instagramHandle}
                 </a>
               </div>
-            </div>
-          )}
-        </div>
-      </>
+            )}
+          </div>
+        </>
+      )}
     </section>
   );
 }
