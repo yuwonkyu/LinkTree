@@ -14,7 +14,7 @@ export default function ShareButton({ url }: { url: string }) {
   return (
     <button
       onClick={handleShare}
-      className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-foreground transition hover:bg-black/5"
+      className="w-full rounded-xl border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-black hover:text-foreground transition hover:bg-black/5"
     >
       🔗 이 페이지 공유하기
     </button>
