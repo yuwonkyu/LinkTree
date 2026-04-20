@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { signOut } from "@/app/auth/actions";
+
+const ADMIN_EMAIL = "duck01777@naver.com";
 
 export default async function DashboardLayout({
   children,
@@ -25,6 +28,11 @@ export default async function DashboardLayout({
             InstaLink
           </span>
           <div className="flex items-center gap-3">
+            {user.email === ADMIN_EMAIL && (
+              <Link href="/admin" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-(--muted) hover:border-gray-300 hover:text-foreground transition-colors">
+                관리자
+              </Link>
+            )}
             <span className="hidden text-xs text-(--muted) sm:block">{user.email}</span>
             <form action={signOut}>
               <button
