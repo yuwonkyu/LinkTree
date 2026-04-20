@@ -73,6 +73,11 @@ export default async function DashboardPage() {
           <p className="mb-1 text-lg font-bold text-foreground">
             {profile.shop_name || profile.name || "미설정"}
           </p>
+          {"view_count" in profile && (
+            <p className="mb-1 text-xs text-(--muted)">
+              👁 누적 조회수 {(profile as Profile & { view_count: number }).view_count.toLocaleString()}회
+            </p>
+          )}
           <p className="mb-4 text-sm text-(--muted)">{profile.tagline || "소개글 없음"}</p>
 
           <div className="flex flex-wrap gap-2">

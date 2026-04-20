@@ -58,7 +58,7 @@ export default async function EditPage() {
         </Link>
       </div>
 
-      <EditForm profile={profile} />
+      <EditForm profile={profile} plan={profile.plan} />
     </div>
   );
 }

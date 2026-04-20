@@ -2,6 +2,9 @@
 // vercel.json에서 호출됨. CRON_SECRET으로 무단 호출 방지.
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sendEmail, paymentFailEmail } from "@/lib/resend";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instalink.vercel.app";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -70,6 +73,12 @@ export async function POST(req: NextRequest) {
           supabaseAdmin.from("subscriptions").update({ status: "failed" }).eq("id", sub.id),
           supabaseAdmin.from("profiles").update({ plan: "free", plan_expires_at: null }).eq("id", profile.id),
         ]);
+        // 결제 실패 알림 이메일
+        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(profile.owner_id);
+        if (authUser?.user?.email) {
+          const tmpl = paymentFailEmail(profile.name ?? "", sub.plan, SITE_URL);
+          sendEmail({ to: authUser.user.email, ...tmpl }).catch(() => {});
+        }
       }
     }),
   );

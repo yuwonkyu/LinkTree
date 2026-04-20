@@ -63,9 +63,10 @@ function Field({
 }
 
 // ─── 메인 컴포넌트 ──────────────────────────────
-type Props = { profile: Profile };
+type Props = { profile: Profile; plan?: string };
 
-export default function EditForm({ profile }: Props) {
+export default function EditForm({ profile, plan }: Props) {
+  const isPaidPlan = plan === "basic" || plan === "pro";
   // 기본 정보
   const [name, setName]             = useState(profile.name ?? "");
   const [shopName, setShopName]     = useState(profile.shop_name ?? "");
@@ -92,6 +93,32 @@ export default function EditForm({ profile }: Props) {
   const [newRevAuthor, setNewRevAuthor] = useState("");
 
   const [isPending, startTransition] = useTransition();
+  const [aiLoading, setAiLoading]   = useState<string | null>(null);
+  const [category, setCategory]     = useState("PT/헬스");
+
+  async function aiSuggest(type: "tagline" | "description" | "services") {
+    if (!isPaidPlan) {
+      alert("AI 추천은 Basic/Pro 플랜 전용 기능입니다.\n/billing 에서 업그레이드하세요.");
+      return;
+    }
+    setAiLoading(type);
+    try {
+      const res = await fetch("/api/ai/suggest", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, shopName, category, existing: type === "description" ? description : undefined }),
+      });
+      const { result, error } = await res.json();
+      if (error) { alert(error); return; }
+      if (type === "tagline") setTagline(result.split("\n")[0] ?? result);
+      if (type === "description") setDesc(result);
+      if (type === "services" && Array.isArray(result)) setServices(result);
+    } catch {
+      alert("AI 추천 실패. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setAiLoading(null);
+    }
+  }
   const [saveError, setSaveError]   = useState<string | null>(null);
 
   // ── 서비스 추가 ──
@@ -147,10 +174,50 @@ export default function EditForm({ profile }: Props) {
       {/* ── 기본 정보 ── */}
       <Section title="기본 정보">
         <div className="flex flex-col gap-3">
+          {/* 업종 선택 */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-(--muted)">업종 (AI 추천용)</label>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-gray-400"
+            >
+              {["PT/헬스","필라테스/요가","미용실/네일","카페","프리랜서/크리에이터"].map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
+
           <Field label="이름" value={name} onChange={setName} placeholder="뀨 PT" />
           <Field label="브랜드명 / 상호" value={shopName} onChange={setShopName} placeholder="Sample Gym" />
-          <Field label="한 줄 소개 (태그라인)" value={tagline} onChange={setTagline} placeholder="체형교정 · 다이어트 · 1:1 PT" />
-          <Field label="상세 소개" value={description} onChange={setDesc} placeholder="✔ 체형교정 전문&#10;✔ 초보자 환영" multiline />
+
+          {/* 태그라인 + AI 버튼 */}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-(--muted)">한 줄 소개 (태그라인)</label>
+              <button type="button" onClick={() => aiSuggest("tagline")} disabled={aiLoading === "tagline"}
+                className="text-xs font-medium text-blue-500 hover:text-blue-700 disabled:opacity-50">
+                {aiLoading === "tagline" ? "생성 중…" : "✨ AI 추천"}
+              </button>
+            </div>
+            <input type="text" value={tagline} onChange={(e) => setTagline(e.target.value)}
+              placeholder="체형교정 · 다이어트 · 1:1 PT"
+              className="rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors" />
+          </div>
+
+          {/* 상세 소개 + AI 버튼 */}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-(--muted)">상세 소개</label>
+              <button type="button" onClick={() => aiSuggest("description")} disabled={aiLoading === "description"}
+                className="text-xs font-medium text-blue-500 hover:text-blue-700 disabled:opacity-50">
+                {aiLoading === "description" ? "생성 중…" : "✨ AI 작성"}
+              </button>
+            </div>
+            <textarea rows={3} value={description} onChange={(e) => setDesc(e.target.value)}
+              placeholder="✔ 체형교정 전문&#10;✔ 초보자 환영"
+              className="resize-none rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors" />
+          </div>
           <Field label="위치" value={location} onChange={setLocation} placeholder="서울 성수동" />
           <Field label="운영시간" value={hours} onChange={setHours} placeholder="평일 06:00 ~ 22:00" />
           <Field label="인스타그램 ID" value={instagramId} onChange={setInstaId} placeholder="kku._.ui" />
@@ -229,6 +296,12 @@ export default function EditForm({ profile }: Props) {
 
       {/* ── 서비스 ── */}
       <Section title="서비스">
+        <div className="mb-3 flex justify-end">
+          <button type="button" onClick={() => aiSuggest("services")} disabled={aiLoading === "services"}
+            className="text-xs font-medium text-blue-500 hover:text-blue-700 disabled:opacity-50">
+            {aiLoading === "services" ? "생성 중…" : "✨ AI로 서비스 목록 채우기"}
+          </button>
+        </div>
         {/* 기존 목록 */}
         {services.length > 0 && (
           <ul className="mb-4 flex flex-col gap-2">

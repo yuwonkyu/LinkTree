@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Plan } from "@/lib/types";
+import { sendEmail, paymentSuccessEmail } from "@/lib/resend";
 
 type Props = {
   searchParams: Promise<{ authKey?: string; customerKey?: string; plan?: string }>;
@@ -89,6 +90,10 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
       next_billing_at: nextMonth.toISOString(),
     }),
   ]);
+
+  // 결제 완료 이메일
+  const tmpl = paymentSuccessEmail(profile.name ?? "", plan, amount);
+  sendEmail({ to: user.email!, ...tmpl }).catch(() => {});
 
   redirect("/dashboard?upgraded=1");
 }

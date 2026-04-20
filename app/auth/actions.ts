@@ -2,6 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase";
+import { sendEmail, welcomeEmail } from "@/lib/resend";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 // ──────────────────────────────────────────────
 // 회원가입
@@ -34,7 +37,11 @@ export async function signUp(formData: FormData) {
     redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
   }
 
-  // 이메일 확인이 필요 없는 경우(Supabase 설정에 따라) 바로 대시보드로
+  // 환영 이메일 발송 (비동기, 슬러그는 트리거가 생성하므로 email prefix 사용)
+  const slugBase = email.split("@")[0];
+  const tmpl = welcomeEmail(name, slugBase, SITE_URL);
+  sendEmail({ to: email, ...tmpl }).catch(() => {});
+
   redirect("/auth/signup?success=1");
 }
 

@@ -28,7 +28,7 @@ export default async function AdminPage({
   // 전체 고객 조회
   let query = adminClient
     .from("profiles")
-    .select("id, slug, name, shop_name, plan, plan_expires_at, is_active, created_at")
+    .select("id, slug, name, shop_name, plan, plan_expires_at, is_active, view_count, created_at")
     .order("created_at", { ascending: false });
 
   if (planFilter && planFilter !== "all") query = query.eq("plan", planFilter);
@@ -118,6 +118,7 @@ export default async function AdminPage({
                 <th className="px-4 py-3 font-medium">플랜</th>
                 <th className="px-4 py-3 font-medium">만료일</th>
                 <th className="px-4 py-3 font-medium">상태</th>
+                <th className="px-4 py-3 font-medium">조회수</th>
                 <th className="px-4 py-3 font-medium">가입일</th>
                 <th className="px-4 py-3 font-medium">바로가기</th>
               </tr>
@@ -141,6 +142,9 @@ export default async function AdminPage({
                     }`}>
                       {p.is_active ? "공개" : "비공개"}
                     </span>
+                  </td>
+                  <td className="px-4 py-3 text-xs text-(--muted)">
+                    {(p.view_count ?? 0).toLocaleString()}
                   </td>
                   <td className="px-4 py-3 text-xs text-(--muted)">
                     {new Date(p.created_at).toLocaleDateString("ko-KR")}
