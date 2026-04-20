@@ -23,11 +23,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // active 구독 전체 조회
+  // 오늘 결제일이 도래한 active 구독만 조회 (monthly: 매월 1일, annual: 1년마다)
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+
   const { data: subscriptions, error } = await supabaseAdmin
     .from("subscriptions")
     .select("*, profiles(id, owner_id, billing_key, name)")
     .eq("status", "active")
+    .lte("next_billing_at", today.toISOString())
     .not("profiles.billing_key", "is", null);
 
   if (error) {
@@ -53,18 +57,23 @@ export async function POST(req: NextRequest) {
       });
 
       const now = new Date();
-      const nextMonth = new Date(now);
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      const nextBillingAt = new Date(now);
+      const isAnnual = sub.billing_period === "annual";
+      if (isAnnual) {
+        nextBillingAt.setFullYear(nextBillingAt.getFullYear() + 1);
+      } else {
+        nextBillingAt.setMonth(nextBillingAt.getMonth() + 1);
+      }
 
       if (res.ok) {
         // 결제 성공: 다음 결제일 갱신
         await Promise.all([
           supabaseAdmin.from("subscriptions").update({
-            next_billing_at: nextMonth.toISOString(),
+            next_billing_at: nextBillingAt.toISOString(),
             toss_order_id: orderId,
           }).eq("id", sub.id),
           supabaseAdmin.from("profiles").update({
-            plan_expires_at: nextMonth.toISOString(),
+            plan_expires_at: nextBillingAt.toISOString(),
           }).eq("id", profile.id),
         ]);
         const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(profile.owner_id);

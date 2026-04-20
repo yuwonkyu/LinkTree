@@ -11,6 +11,10 @@
     {
       "path": "/api/satisfaction",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/billing/remind",
+      "schedule": "0 10 * * *"
     }
   ]
 }

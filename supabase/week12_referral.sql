@@ -1,4 +1,10 @@
--- Week 12: 레퍼럴 프로그램
+-- Week 12: 연간 결제 + 레퍼럴 프로그램
+
+-- subscriptions 테이블에 billing_period 컬럼 추가 (monthly | annual)
+ALTER TABLE public.subscriptions
+  ADD COLUMN IF NOT EXISTS billing_period text NOT NULL DEFAULT 'monthly'
+    CHECK (billing_period IN ('monthly', 'annual'));
+
 -- profiles 테이블에 referral_code, referred_by 컬럼 추가
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS referral_code text UNIQUE,

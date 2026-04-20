@@ -91,3 +91,23 @@ export function paymentSuccessEmail(name: string, plan: string, amount: number) 
 </div>`,
   };
 }
+
+export function renewalReminderEmail(name: string, plan: string, amount: number, billingDate: string) {
+  return {
+    subject: "[InstaLink] 3일 후 구독이 갱신됩니다",
+    html: `
+<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#111827">
+  <h1 style="font-size:20px;font-weight:700;margin:0 0 8px">구독 갱신 예정 안내</h1>
+  <p style="font-size:15px;color:#6b7280;margin:0 0 20px">
+    ${name}님, <strong>${plan}</strong> 플랜이 3일 후 자동 갱신됩니다.
+  </p>
+  <div style="background:#f9fafb;border-radius:12px;padding:16px 20px;margin-bottom:24px">
+    <p style="margin:0 0 6px;font-size:13px;color:#9ca3af">갱신일</p>
+    <p style="margin:0 0 12px;font-size:15px;font-weight:600;color:#111827">${billingDate}</p>
+    <p style="margin:0 0 6px;font-size:13px;color:#9ca3af">결제 예정액</p>
+    <p style="margin:0;font-size:15px;font-weight:600;color:#111827">${amount.toLocaleString()}원</p>
+  </div>
+  <p style="font-size:13px;color:#9ca3af;margin:0">구독을 취소하려면 대시보드 → 플랜 변경에서 취소해 주세요.</p>
+</div>`,
+  };
+}
