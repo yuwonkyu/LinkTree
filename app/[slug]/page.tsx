@@ -4,6 +4,7 @@ import ProfilePage from "@/components/ProfilePage";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Profile } from "@/lib/types";
 import { getUserByUsername } from "@/data/users";
+import ShareButton from "./ShareButton";
 
 type PageProps = {
   params: Promise<{
@@ -63,35 +64,31 @@ async function getProfileBySlug(slug: string): Promise<Profile | null> {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const profile = await getProfileBySlug(slug);
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instalink.vercel.app";
 
-  if (!profile) {
-    return {
-      title: "프로필을 찾을 수 없음",
-      description: "요청하신 페이지가 존재하지 않습니다.",
-    };
-  }
-
-  if (!profile.is_active) {
-    return {
-      title: `${profile.shop_name} | 서비스 준비 중`,
-      description: "현재 서비스 준비 중입니다.",
-    };
-  }
+  const title = profile ? `${profile.name} — ${profile.shop_name}` : slug;
+  const description = profile?.tagline ?? "인스타 프로필 링크 페이지";
+  const imageUrl = profile ? `${SITE}/${slug}/opengraph-image` : undefined;
 
   return {
-    title: `${profile.name} | ${profile.shop_name}`,
-    description: profile.tagline || profile.description || "인스타 프로필 랜딩페이지",
+    title,
+    description,
+    alternates: {
+      canonical: `${SITE}/${slug}`,
+    },
     openGraph: {
-      title: `${profile.name} | ${profile.shop_name}`,
-      description: profile.tagline || profile.description || "인스타 프로필 랜딩페이지",
-      images: profile.image_url
-        ? [
-            {
-              url: profile.image_url,
-              alt: `${profile.name} 프로필 이미지`,
-            },
-          ]
-        : undefined,
+      type: "website",
+      url: `${SITE}/${slug}`,
+      title: profile?.name ?? slug,
+      description,
+      images: imageUrl ? [imageUrl] : [],
+      siteName: "InstaLink",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: profile?.name ?? slug,
+      description,
+      images: imageUrl ? [imageUrl] : [],
     },
   };
 }
@@ -99,6 +96,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function SlugPage({ params }: PageProps) {
   const { slug } = await params;
   const profile = await getProfileBySlug(slug);
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instalink.vercel.app";
 
   // 조회수 증가 (비동기, 페이지 렌더링 블로킹 없음)
   if (profile?.is_active) {
@@ -132,6 +130,9 @@ export default async function SlugPage({ params }: PageProps) {
       <div className="w-full max-w-md">
         <div className="rounded-2xl bg-(--card) p-2 shadow-[0_4px_20px_rgba(17,24,39,0.06)] backdrop-blur-sm">
           <ProfilePage profile={profile} />
+        </div>
+        <div className="mt-3">
+          <ShareButton url={`${SITE}/${slug}`} />
         </div>
       </div>
     </main>

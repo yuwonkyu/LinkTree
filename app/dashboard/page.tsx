@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Profile } from "@/lib/types";
 import { PLAN_META } from "@/lib/types";
+import CopyLinkButton from "./CopyLinkButton";
 
 async function getMyProfile(ownerId: string): Promise<Profile | null> {
   const supabase = await getSupabaseServerClient();
@@ -103,12 +104,7 @@ export default async function DashboardPage() {
       {profile && (
         <div className="rounded-2xl bg-(--card) p-5 shadow-[0_4px_20px_rgba(17,24,39,0.06)]">
           <h2 className="mb-3 text-sm font-semibold text-foreground">내 링크</h2>
-          <div className="flex items-center gap-2 rounded-xl bg-(--secondary) px-3 py-2.5">
-            <span className="flex-1 truncate font-mono text-sm text-foreground">
-              {SITE_URL}/{profile.slug}
-            </span>
-            <span className="shrink-0 text-xs text-(--muted)">복사</span>
-          </div>
+          <CopyLinkButton slug={profile.slug} />
         </div>
       )}
 
