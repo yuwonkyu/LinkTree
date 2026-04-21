@@ -6,7 +6,7 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY ?? "";
 type SuggestRequest = {
   type: "tagline" | "description" | "services";
   shopName: string;
-  category: string; // PT, 필라테스, 미용실, 카페 등
+  category: string;
   existing?: string;
 };
 
@@ -27,7 +27,8 @@ export async function POST(req: NextRequest) {
   }
 
   if (!ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY 없음" }, { status: 500 });
+    console.error("[AI] ANTHROPIC_API_KEY가 설정되지 않았습니다.");
+    return NextResponse.json({ error: "API 키 미설정 — 관리자에게 문의하세요." }, { status: 500 });
   }
 
   const body: SuggestRequest = await req.json();
@@ -57,28 +58,44 @@ export async function POST(req: NextRequest) {
 - JSON만 출력, 설명 없이`,
   };
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "claude-3-5-haiku-20241022",
-      max_tokens: 512,
-      messages: [{ role: "user", content: prompts[type] }],
-    }),
-  });
+  let res: Response;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-3-5-haiku-20241022",
+        max_tokens: 512,
+        messages: [{ role: "user", content: prompts[type] }],
+      }),
+    });
+  } catch (fetchErr) {
+    console.error("[AI] Anthropic fetch 실패:", fetchErr);
+    return NextResponse.json({ error: "AI 서버 연결 실패. 잠시 후 다시 시도해주세요." }, { status: 500 });
+  }
 
   if (!res.ok) {
-    return NextResponse.json({ error: "AI 요청 실패" }, { status: 500 });
+    let errBody = "";
+    try { errBody = await res.text(); } catch { /* ignore */ }
+    console.error(`[AI] Anthropic API 오류 ${res.status}:`, errBody);
+    return NextResponse.json(
+      { error: `AI 요청 실패 (${res.status}): ${errBody.slice(0, 200)}` },
+      { status: 500 }
+    );
   }
 
   const data = await res.json();
-  const text = data.content?.[0]?.text ?? "";
+  const text: string = data.content?.[0]?.text ?? "";
 
-  // services 타입이면 JSON 파싱 시도
+  if (!text) {
+    console.error("[AI] Anthropic 응답에 텍스트 없음:", data);
+    return NextResponse.json({ error: "AI 응답이 비어있습니다. 다시 시도해주세요." }, { status: 500 });
+  }
+
   if (type === "services") {
     try {
       const parsed = JSON.parse(text.match(/\[[\s\S]*\]/)?.[0] ?? "[]");
