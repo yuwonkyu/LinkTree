@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instalink.vercel.app";
@@ -39,7 +40,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full antialiased">
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        {children}
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
