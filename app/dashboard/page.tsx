@@ -53,19 +53,21 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/auth/login");
 
+  // 프로필 먼저 조회 후, 파생 데이터를 병렬로 조회
   const profile = await getMyProfile(user.id);
-  const clickStats = profile ? await getClickStats(profile.id) : null;
 
-  // 레퍼럴 통계
-  let referralCount = 0;
-  if (profile) {
-    const supabaseInner = await getSupabaseServerClient();
-    const { count } = await supabaseInner
-      .from("referral_events")
-      .select("id", { count: "exact", head: true })
-      .eq("referrer_id", profile.id);
-    referralCount = count ?? 0;
-  }
+  const [clickStats, referralCount] = profile
+    ? await Promise.all([
+        getClickStats(profile.id),
+        getSupabaseServerClient().then((sb) =>
+          sb
+            .from("referral_events")
+            .select("id", { count: "exact", head: true })
+            .eq("referrer_id", profile.id)
+            .then(({ count }) => count ?? 0)
+        ),
+      ])
+    : [null, 0];
 
   return (
     <div className="flex flex-col gap-6">

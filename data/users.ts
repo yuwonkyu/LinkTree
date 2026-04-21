@@ -1,4 +1,28 @@
-import type { ProfileOptions, ServiceItem, ReviewItem } from "@/data/mockData";
+// ── 로컬 폴백 전용 타입 (Supabase 미연결 시 사용) ──────────────────
+export type ServiceItem = {
+  name: string;
+  price: string;
+  note?: string;
+};
+
+export type ReviewItem = {
+  author: string;
+  content: string;
+};
+
+export type ProfileOptions = {
+  showReviews?: boolean;
+  showServices?: boolean;
+  showCTA?: boolean;
+  showInstagram?: boolean;
+  showExternalLinks?: boolean;
+  showLocation?: boolean;
+  theme?: "light" | "dark" | "ucc" | "softsage" | "warmlinen" | "energysteel";
+  highlightColor?: string;
+  showEditableFrame?: boolean;
+  serviceFooterLabel?: string | false;
+};
+// ──────────────────────────────────────────────────────────────────
 
 export type User = {
   username: string;

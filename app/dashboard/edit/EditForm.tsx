@@ -5,16 +5,9 @@ import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import { saveProfile, type SaveProfilePayload } from "./actions";
 import type { Profile, Service, Review, Theme } from "@/lib/types";
-
-// ─── 테마 목록 ──────────────────────────────────
-const THEMES: { id: Theme; label: string; bg: string; fg: string; accent: string }[] = [
-  { id: "light",       label: "라이트",      bg: "#ffffff",  fg: "#111827", accent: "#111827" },
-  { id: "dark",        label: "다크",        bg: "#121212",  fg: "#f3f4f6", accent: "#f3f4f6" },
-  { id: "ucc",         label: "UCC",         bg: "#0d0221",  fg: "#f8f7ff", accent: "#ffd60a" },
-  { id: "softsage",    label: "소프트세이지", bg: "#f4f8f5",  fg: "#23352d", accent: "#6f9680" },
-  { id: "warmlinen",   label: "웜리넨",      bg: "#f8f2e9",  fg: "#3a2c22", accent: "#b58458" },
-  { id: "energysteel", label: "에너지스틸",  bg: "#0f172a",  fg: "#e2e8f0", accent: "#a3e635" },
-];
+import ThemeSelector from "@/components/dashboard/ThemeSelector";
+import ServiceManager from "@/components/dashboard/ServiceManager";
+import ReviewManager  from "@/components/dashboard/ReviewManager";
 
 // ─── 섹션 래퍼 ──────────────────────────────────
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -42,21 +35,11 @@ function Field({
     <div className="flex flex-col gap-1">
       <label className="text-xs font-medium text-(--muted)">{label}</label>
       {multiline ? (
-        <textarea
-          rows={3}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className={`${base} resize-none`}
-        />
+        <textarea rows={3} value={value} onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder} className={`${base} resize-none`} />
       ) : (
-        <input
-          type="text"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          className={base}
-        />
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder} className={base} />
       )}
     </div>
   );
@@ -67,46 +50,32 @@ type Props = { profile: Profile; plan?: string };
 
 export default function EditForm({ profile, plan }: Props) {
   const isPaidPlan = plan === "basic" || plan === "pro";
+
   // 기본 정보
-  const [name, setName]             = useState(profile.name ?? "");
-  const [shopName, setShopName]     = useState(profile.shop_name ?? "");
-  const [tagline, setTagline]       = useState(profile.tagline ?? "");
-  const [description, setDesc]      = useState(profile.description ?? "");
-  const [kakaoUrl, setKakaoUrl]         = useState(profile.kakao_url ?? "");
+  const [name,            setName]      = useState(profile.name ?? "");
+  const [shopName,        setShopName]  = useState(profile.shop_name ?? "");
+  const [tagline,         setTagline]   = useState(profile.tagline ?? "");
+  const [description,     setDesc]      = useState(profile.description ?? "");
+  const [kakaoUrl,        setKakaoUrl]  = useState(profile.kakao_url ?? "");
   const [kakaoBookingUrl, setKakaoBk]   = useState(profile.kakao_booking_url ?? "");
   const [naverBookingUrl, setNaverBk]   = useState(profile.naver_booking_url ?? "");
-  const [instagramId, setInstaId]       = useState(profile.instagram_id ?? "");
-  const [location, setLocation]     = useState(profile.location ?? "");
-  const [hours, setHours]           = useState(profile.hours ?? "");
-  const [imageUrl, setImageUrl]     = useState(profile.image_url ?? "");
+  const [instagramId,     setInstaId]   = useState(profile.instagram_id ?? "");
+  const [location,        setLocation]  = useState(profile.location ?? "");
+  const [hours,           setHours]     = useState(profile.hours ?? "");
+  const [imageUrl,        setImageUrl]  = useState(profile.image_url ?? "");
 
-  // 테마
-  const [theme, setTheme]           = useState<Theme>(profile.theme ?? "light");
+  // 테마 · 서비스 · 후기
+  const [theme,    setTheme]    = useState<Theme>(profile.theme ?? "light");
+  const [services, setServices] = useState<Service[]>(profile.services ?? []);
+  const [reviews,  setReviews]  = useState<Review[]>(profile.reviews ?? []);
 
-  // 서비스
-  const [services, setServices]     = useState<Service[]>(profile.services ?? []);
-  const [newSvcName, setNewSvcName] = useState("");
-  const [newSvcPrice, setNewSvcPrice] = useState("");
-  const [newSvcNote, setNewSvcNote] = useState("");
-  // 서비스 인라인 수정
-  const [editingSvcIdx, setEditingSvcIdx] = useState<number | null>(null);
-  const [editSvcName, setEditSvcName]     = useState("");
-  const [editSvcPrice, setEditSvcPrice]   = useState("");
-  const [editSvcNote, setEditSvcNote]     = useState("");
-
-  // 후기
-  const [reviews, setReviews]       = useState<Review[]>(profile.reviews ?? []);
-  const [newRevText, setNewRevText] = useState("");
-  const [newRevAuthor, setNewRevAuthor] = useState("");
-  // 후기 인라인 수정
-  const [editingRevIdx, setEditingRevIdx] = useState<number | null>(null);
-  const [editRevText, setEditRevText]     = useState("");
-  const [editRevAuthor, setEditRevAuthor] = useState("");
-
+  // AI · 저장
+  const [category,  setCategory]  = useState("PT/헬스");
+  const [aiLoading, setAiLoading] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [aiLoading, setAiLoading]   = useState<string | null>(null);
-  const [category, setCategory]     = useState("PT/헬스");
 
+  // ── AI 추천 ──
   async function aiSuggest(type: "tagline" | "description" | "services") {
     if (!isPaidPlan) {
       alert("AI 추천은 Basic/Pro 플랜 전용 기능입니다.\n/billing 에서 업그레이드하세요.");
@@ -121,7 +90,7 @@ export default function EditForm({ profile, plan }: Props) {
       });
       const { result, error } = await res.json();
       if (error) { alert(error); return; }
-      if (type === "tagline") setTagline(result.split("\n")[0] ?? result);
+      if (type === "tagline")  setTagline(result.split("\n")[0] ?? result);
       if (type === "description") setDesc(result);
       if (type === "services" && Array.isArray(result)) setServices(result);
     } catch {
@@ -130,83 +99,15 @@ export default function EditForm({ profile, plan }: Props) {
       setAiLoading(null);
     }
   }
-  const [saveError, setSaveError]   = useState<string | null>(null);
-
-  // ── 서비스 추가 ──
-  function addService() {
-    if (!newSvcName.trim() || !newSvcPrice.trim()) return;
-    setServices((prev) => [
-      ...prev,
-      { name: newSvcName.trim(), price: newSvcPrice.trim(), note: newSvcNote.trim() || undefined },
-    ]);
-    setNewSvcName(""); setNewSvcPrice(""); setNewSvcNote("");
-  }
-
-  function removeService(idx: number) {
-    setServices((prev) => prev.filter((_, i) => i !== idx));
-  }
-
-  function startEditService(idx: number) {
-    const svc = services[idx];
-    setEditingSvcIdx(idx);
-    setEditSvcName(svc.name);
-    setEditSvcPrice(svc.price);
-    setEditSvcNote(svc.note ?? "");
-  }
-
-  function saveEditService() {
-    if (editingSvcIdx === null || !editSvcName.trim() || !editSvcPrice.trim()) return;
-    setServices((prev) =>
-      prev.map((svc, i) =>
-        i === editingSvcIdx
-          ? { name: editSvcName.trim(), price: editSvcPrice.trim(), note: editSvcNote.trim() || undefined }
-          : svc
-      )
-    );
-    setEditingSvcIdx(null);
-  }
-
-  // ── 후기 추가 ──
-  function addReview() {
-    if (!newRevText.trim() || !newRevAuthor.trim()) return;
-    setReviews((prev) => [...prev, { text: newRevText.trim(), author: newRevAuthor.trim() }]);
-    setNewRevText(""); setNewRevAuthor("");
-  }
-
-  function removeReview(idx: number) {
-    setReviews((prev) => prev.filter((_, i) => i !== idx));
-  }
-
-  function startEditReview(idx: number) {
-    const rev = reviews[idx];
-    setEditingRevIdx(idx);
-    setEditRevText(rev.text);
-    setEditRevAuthor(rev.author);
-  }
-
-  function saveEditReview() {
-    if (editingRevIdx === null || !editRevText.trim() || !editRevAuthor.trim()) return;
-    setReviews((prev) =>
-      prev.map((rev, i) =>
-        i === editingRevIdx
-          ? { text: editRevText.trim(), author: editRevAuthor.trim() }
-          : rev
-      )
-    );
-    setEditingRevIdx(null);
-  }
 
   // ── 저장 ──
   function handleSave() {
     setSaveError(null);
     const payload: SaveProfilePayload = {
       name, shop_name: shopName, tagline, description,
-      kakao_url: kakaoUrl,
-      kakao_booking_url: kakaoBookingUrl,
-      naver_booking_url: naverBookingUrl,
-      instagram_id: instagramId,
-      location, hours, image_url: imageUrl,
-      theme, services, reviews,
+      kakao_url: kakaoUrl, kakao_booking_url: kakaoBookingUrl,
+      naver_booking_url: naverBookingUrl, instagram_id: instagramId,
+      location, hours, image_url: imageUrl, theme, services, reviews,
     };
     startTransition(async () => {
       try {
@@ -219,7 +120,6 @@ export default function EditForm({ profile, plan }: Props) {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* 저장 오류 */}
       {saveError && (
         <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{saveError}</div>
       )}
@@ -230,21 +130,18 @@ export default function EditForm({ profile, plan }: Props) {
           {/* 업종 선택 */}
           <div className="flex flex-col gap-1">
             <label className="text-xs font-medium text-(--muted)">업종 (AI 추천용)</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-gray-400"
-            >
-              {["PT/헬스","필라테스/요가","미용실/네일","카페","프리랜서/크리에이터"].map(c => (
+            <select value={category} onChange={(e) => setCategory(e.target.value)}
+              className="rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-gray-400">
+              {["PT/헬스", "필라테스/요가", "미용실/네일", "카페", "프리랜서/크리에이터"].map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
 
-          <Field label="이름" value={name} onChange={setName} placeholder="뀨 PT" />
-          <Field label="브랜드명 / 상호" value={shopName} onChange={setShopName} placeholder="Sample Gym" />
+          <Field label="이름" value={name} onChange={setName} placeholder="김지수 트레이너" />
+          <Field label="브랜드명 / 상호" value={shopName} onChange={setShopName} placeholder="FIT WITH JI" />
 
-          {/* 태그라인 + AI 버튼 */}
+          {/* 태그라인 + AI */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <label className="text-xs font-medium text-(--muted)">한 줄 소개 (태그라인)</label>
@@ -254,11 +151,11 @@ export default function EditForm({ profile, plan }: Props) {
               </button>
             </div>
             <input type="text" value={tagline} onChange={(e) => setTagline(e.target.value)}
-              placeholder="체형교정 · 다이어트 · 1:1 PT"
+              placeholder="다이어트 · 체형교정 · 여성 전문 PT"
               className="rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors" />
           </div>
 
-          {/* 상세 소개 + AI 버튼 */}
+          {/* 상세 소개 + AI */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <label className="text-xs font-medium text-(--muted)">상세 소개</label>
@@ -268,15 +165,16 @@ export default function EditForm({ profile, plan }: Props) {
               </button>
             </div>
             <textarea rows={3} value={description} onChange={(e) => setDesc(e.target.value)}
-              placeholder="✔ 체형교정 전문&#10;✔ 초보자 환영"
+              placeholder="✔ 여성 전문 1:1 PT&#10;✔ 식단 + 운동 통합 관리"
               className="resize-none rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors" />
           </div>
-          <Field label="위치" value={location} onChange={setLocation} placeholder="서울 성수동" />
-          <Field label="운영시간" value={hours} onChange={setHours} placeholder="평일 06:00 ~ 22:00" />
-          <Field label="인스타그램 ID" value={instagramId} onChange={setInstaId} placeholder="kku._.ui" />
-          <Field label="카카오 오픈채팅 URL" value={kakaoUrl} onChange={setKakaoUrl} placeholder="https://open.kakao.com/o/..." />
-          <Field label="카카오 예약 URL (선택)" value={kakaoBookingUrl} onChange={setKakaoBk} placeholder="https://pf.kakao.com/..." />
-          <Field label="네이버 예약 URL (선택)" value={naverBookingUrl} onChange={setNaverBk} placeholder="https://booking.naver.com/..." />
+
+          <Field label="위치"           value={location}  onChange={setLocation}  placeholder="서울 서초구 방배동" />
+          <Field label="운영시간"        value={hours}     onChange={setHours}     placeholder="평일 07:00 ~ 21:00" />
+          <Field label="인스타그램 ID"   value={instagramId} onChange={setInstaId} placeholder="fitwithji" />
+          <Field label="카카오 오픈채팅 URL"     value={kakaoUrl}        onChange={setKakaoUrl}  placeholder="https://open.kakao.com/o/..." />
+          <Field label="카카오 예약 URL (선택)" value={kakaoBookingUrl} onChange={setKakaoBk}   placeholder="https://pf.kakao.com/..." />
+          <Field label="네이버 예약 URL (선택)" value={naverBookingUrl} onChange={setNaverBk}   placeholder="https://booking.naver.com/..." />
         </div>
       </Section>
 
@@ -285,311 +183,61 @@ export default function EditForm({ profile, plan }: Props) {
         <div className="flex flex-col gap-3">
           {imageUrl && (
             <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-gray-200">
-              <Image src={imageUrl} alt="프로필" fill className="object-cover" sizes="96px" quality={90} />
+              <Image src={imageUrl} alt="프로필" fill sizes="96px" quality={90} className="object-cover" />
             </div>
           )}
           <CldUploadWidget
             uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "instalink_unsigned"}
             onSuccess={(result) => {
-              if (
-                result.event === "success" &&
-                typeof result.info === "object" &&
-                result.info !== null &&
-                "secure_url" in result.info
-              ) {
+              if (result.event === "success" && typeof result.info === "object" && result.info !== null && "secure_url" in result.info) {
                 setImageUrl(result.info.secure_url as string);
               }
             }}
           >
             {({ open }) => (
-              <button
-                type="button"
-                onClick={() => open()}
-                className="w-fit rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-foreground hover:bg-(--secondary) transition-colors"
-              >
+              <button type="button" onClick={() => open()}
+                className="w-fit rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-foreground hover:bg-(--secondary) transition-colors">
                 {imageUrl ? "이미지 변경" : "이미지 업로드"}
               </button>
             )}
           </CldUploadWidget>
           {imageUrl && (
-            <button
-              type="button"
-              onClick={() => setImageUrl("")}
-              className="w-fit text-xs text-red-400 hover:text-red-600"
-            >
+            <button type="button" onClick={() => setImageUrl("")} className="w-fit text-xs text-red-400 hover:text-red-600">
               이미지 제거
             </button>
           )}
         </div>
       </Section>
 
-      {/* ── 테마 선택 ── */}
+      {/* ── 테마 ── */}
       <Section title="테마">
-        <div className="grid grid-cols-3 gap-2">
-          {THEMES.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTheme(t.id)}
-              className={`flex flex-col items-center gap-1.5 rounded-xl border-2 p-3 transition-all ${
-                theme === t.id ? "border-foreground" : "border-transparent hover:border-gray-200"
-              }`}
-            >
-              {/* 미니 프리뷰 */}
-              <div
-                className="h-10 w-full rounded-lg"
-                style={{ background: t.bg, border: `1.5px solid ${t.accent}33` }}
-              >
-                <div className="mx-2 mt-1.5 h-1.5 w-8 rounded-full" style={{ background: t.fg, opacity: 0.7 }} />
-                <div className="mx-2 mt-1 h-1 w-5 rounded-full" style={{ background: t.accent, opacity: 0.8 }} />
-              </div>
-              <span className="text-xs font-medium text-foreground">{t.label}</span>
-            </button>
-          ))}
-        </div>
+        <ThemeSelector selected={theme} onChange={setTheme} />
       </Section>
 
       {/* ── 서비스 ── */}
       <Section title="서비스">
-        <div className="mb-3 flex justify-end">
-          <button type="button" onClick={() => aiSuggest("services")} disabled={aiLoading === "services"}
-            className="text-xs font-medium text-blue-500 hover:text-blue-700 disabled:opacity-50">
-            {aiLoading === "services" ? "생성 중…" : "✨ AI로 서비스 목록 채우기"}
-          </button>
-        </div>
-        {/* 기존 목록 */}
-        {services.length > 0 && (
-          <ul className="mb-4 flex flex-col gap-2">
-            {services.map((svc, idx) => (
-              <li
-                key={idx}
-                className="rounded-xl bg-(--secondary) px-3.5 py-2.5"
-              >
-                {editingSvcIdx === idx ? (
-                  /* ── 수정 모드 ── */
-                  <div className="flex flex-col gap-2">
-                    <div className="flex gap-2">
-                      <input
-                        value={editSvcName}
-                        onChange={(e) => setEditSvcName(e.target.value)}
-                        placeholder="서비스명"
-                        className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-gray-400"
-                      />
-                      <input
-                        value={editSvcPrice}
-                        onChange={(e) => setEditSvcPrice(e.target.value)}
-                        placeholder="가격"
-                        className="w-28 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-gray-400"
-                      />
-                    </div>
-                    <input
-                      value={editSvcNote}
-                      onChange={(e) => setEditSvcNote(e.target.value)}
-                      placeholder="메모 (선택)"
-                      className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-gray-400"
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={saveEditService}
-                        disabled={!editSvcName.trim() || !editSvcPrice.trim()}
-                        className="rounded-lg bg-foreground px-3 py-1 text-xs font-medium text-white disabled:opacity-40"
-                      >
-                        저장
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditingSvcIdx(null)}
-                        className="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-(--muted)"
-                      >
-                        취소
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* ── 보기 모드 ── */
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-foreground">{svc.name}</span>
-                      {svc.note && <span className="text-xs text-(--muted)">{svc.note}</span>}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-semibold text-foreground">{svc.price}</span>
-                      <button
-                        type="button"
-                        onClick={() => startEditService(idx)}
-                        className="text-xs text-blue-400 hover:text-blue-600"
-                      >
-                        수정
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeService(idx)}
-                        className="text-xs text-red-400 hover:text-red-600"
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* 추가 폼 */}
-        <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 p-3">
-          <p className="text-xs font-medium text-(--muted)">서비스 추가</p>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newSvcName}
-              onChange={(e) => setNewSvcName(e.target.value)}
-              placeholder="서비스명 (예: PT 1회)"
-              className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-            />
-            <input
-              type="text"
-              value={newSvcPrice}
-              onChange={(e) => setNewSvcPrice(e.target.value)}
-              placeholder="가격 (예: 50,000원)"
-              className="w-32 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-            />
-          </div>
-          <input
-            type="text"
-            value={newSvcNote}
-            onChange={(e) => setNewSvcNote(e.target.value)}
-            placeholder="메모 (선택)"
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-          />
-          <button
-            type="button"
-            onClick={addService}
-            disabled={!newSvcName.trim() || !newSvcPrice.trim()}
-            className="self-start rounded-lg bg-foreground px-4 py-1.5 text-sm font-medium text-white disabled:opacity-40"
-          >
-            + 추가
-          </button>
-        </div>
+        <ServiceManager
+          services={services}
+          isPaidPlan={isPaidPlan}
+          aiLoading={aiLoading}
+          onAISuggest={() => aiSuggest("services")}
+          onChange={setServices}
+        />
       </Section>
 
       {/* ── 후기 ── */}
       <Section title="후기">
-        {/* 기존 목록 */}
-        {reviews.length > 0 && (
-          <ul className="mb-4 flex flex-col gap-2">
-            {reviews.map((rev, idx) => (
-              <li
-                key={idx}
-                className="rounded-xl bg-(--secondary) px-3.5 py-2.5"
-              >
-                {editingRevIdx === idx ? (
-                  /* ── 수정 모드 ── */
-                  <div className="flex flex-col gap-2">
-                    <textarea
-                      rows={2}
-                      value={editRevText}
-                      onChange={(e) => setEditRevText(e.target.value)}
-                      placeholder="후기 내용"
-                      className="resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-                    />
-                    <input
-                      value={editRevAuthor}
-                      onChange={(e) => setEditRevAuthor(e.target.value)}
-                      placeholder="작성자 (예: 30대 여성 회원)"
-                      className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-gray-400"
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={saveEditReview}
-                        disabled={!editRevText.trim() || !editRevAuthor.trim()}
-                        className="rounded-lg bg-foreground px-3 py-1 text-xs font-medium text-white disabled:opacity-40"
-                      >
-                        저장
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEditingRevIdx(null)}
-                        className="rounded-lg border border-gray-200 px-3 py-1 text-xs font-medium text-(--muted)"
-                      >
-                        취소
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* ── 보기 모드 ── */
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm text-foreground">"{rev.text}"</span>
-                      <span className="text-xs font-semibold text-(--muted)">— {rev.author}</span>
-                    </div>
-                    <div className="flex shrink-0 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => startEditReview(idx)}
-                        className="text-xs text-blue-400 hover:text-blue-600"
-                      >
-                        수정
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeReview(idx)}
-                        className="text-xs text-red-400 hover:text-red-600"
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* 추가 폼 */}
-        <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 p-3">
-          <p className="text-xs font-medium text-(--muted)">후기 추가</p>
-          <textarea
-            rows={2}
-            value={newRevText}
-            onChange={(e) => setNewRevText(e.target.value)}
-            placeholder="후기 내용"
-            className="resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-          />
-          <input
-            type="text"
-            value={newRevAuthor}
-            onChange={(e) => setNewRevAuthor(e.target.value)}
-            placeholder="작성자 (예: 30대 여성 회원)"
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-          />
-          <button
-            type="button"
-            onClick={addReview}
-            disabled={!newRevText.trim() || !newRevAuthor.trim()}
-            className="self-start rounded-lg bg-foreground px-4 py-1.5 text-sm font-medium text-white disabled:opacity-40"
-          >
-            + 추가
-          </button>
-        </div>
+        <ReviewManager reviews={reviews} onChange={setReviews} />
       </Section>
 
       {/* ── 저장 버튼 ── */}
       <div className="flex gap-3 pb-8">
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isPending}
-          className="flex-1 rounded-xl bg-foreground py-3 text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-50"
-        >
+        <button type="button" onClick={handleSave} disabled={isPending}
+          className="flex-1 rounded-xl bg-foreground py-3 text-sm font-semibold text-white transition-opacity hover:opacity-80 disabled:opacity-50">
           {isPending ? "저장 중…" : "저장하고 페이지 공개하기"}
         </button>
-        <a
-          href="/dashboard"
-          className="rounded-xl border border-gray-200 px-5 py-3 text-sm font-medium text-(--muted) hover:bg-(--secondary) transition-colors"
-        >
+        <a href="/dashboard"
+          className="rounded-xl border border-gray-200 px-5 py-3 text-sm font-medium text-(--muted) hover:bg-(--secondary) transition-colors">
           취소
         </a>
       </div>
