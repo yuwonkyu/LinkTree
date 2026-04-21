@@ -3,8 +3,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail, paymentFailEmail, paymentSuccessEmail } from "@/lib/resend";
+import { getSiteUrl } from "@/lib/site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instalink.vercel.app";
+const SITE_URL = getSiteUrl();
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,21 +41,32 @@ export async function POST(req: NextRequest) {
 
   const results = await Promise.allSettled(
     (subscriptions ?? []).map(async (sub) => {
-      const profile = sub.profiles as { id: string; owner_id: string; billing_key: string; name: string };
+      const profile = sub.profiles as {
+        id: string;
+        owner_id: string;
+        billing_key: string;
+        name: string;
+      };
       if (!profile?.billing_key) return;
 
       const orderId = `cron-${sub.id.slice(0, 8)}-${Date.now()}`;
 
-      const res = await fetch(`https://api.tosspayments.com/v1/billing/${profile.billing_key}`, {
-        method: "POST",
-        headers: { Authorization: tossAuth(), "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerKey: profile.owner_id,
-          amount: sub.amount,
-          orderId,
-          orderName: `InstaLink ${sub.plan === "basic" ? "Basic" : "Pro"} 구독`,
-        }),
-      });
+      const res = await fetch(
+        `https://api.tosspayments.com/v1/billing/${profile.billing_key}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: tossAuth(),
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customerKey: profile.owner_id,
+            amount: sub.amount,
+            orderId,
+            orderName: `InstaLink ${sub.plan === "basic" ? "Basic" : "Pro"} 구독`,
+          }),
+        },
+      );
 
       const now = new Date();
       const nextBillingAt = new Date(now);
@@ -68,27 +80,47 @@ export async function POST(req: NextRequest) {
       if (res.ok) {
         // 결제 성공: 다음 결제일 갱신
         await Promise.all([
-          supabaseAdmin.from("subscriptions").update({
-            next_billing_at: nextBillingAt.toISOString(),
-            toss_order_id: orderId,
-          }).eq("id", sub.id),
-          supabaseAdmin.from("profiles").update({
-            plan_expires_at: nextBillingAt.toISOString(),
-          }).eq("id", profile.id),
+          supabaseAdmin
+            .from("subscriptions")
+            .update({
+              next_billing_at: nextBillingAt.toISOString(),
+              toss_order_id: orderId,
+            })
+            .eq("id", sub.id),
+          supabaseAdmin
+            .from("profiles")
+            .update({
+              plan_expires_at: nextBillingAt.toISOString(),
+            })
+            .eq("id", profile.id),
         ]);
-        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(profile.owner_id);
+        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(
+          profile.owner_id,
+        );
         if (authUser?.user?.email) {
-          const tmpl = paymentSuccessEmail(profile.name ?? "", sub.plan, sub.amount);
+          const tmpl = paymentSuccessEmail(
+            profile.name ?? "",
+            sub.plan,
+            sub.amount,
+          );
           sendEmail({ to: authUser.user.email, ...tmpl }).catch(() => {});
         }
       } else {
         // 결제 실패: status → failed, plan → free
         await Promise.all([
-          supabaseAdmin.from("subscriptions").update({ status: "failed" }).eq("id", sub.id),
-          supabaseAdmin.from("profiles").update({ plan: "free", plan_expires_at: null }).eq("id", profile.id),
+          supabaseAdmin
+            .from("subscriptions")
+            .update({ status: "failed" })
+            .eq("id", sub.id),
+          supabaseAdmin
+            .from("profiles")
+            .update({ plan: "free", plan_expires_at: null })
+            .eq("id", profile.id),
         ]);
         // 결제 실패 알림 이메일
-        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(profile.owner_id);
+        const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(
+          profile.owner_id,
+        );
         if (authUser?.user?.email) {
           const tmpl = paymentFailEmail(profile.name ?? "", sub.plan, SITE_URL);
           sendEmail({ to: authUser.user.email, ...tmpl }).catch(() => {});

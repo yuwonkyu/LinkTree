@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://instalink.vercel.app";
+const DEFAULT_SITE_URL = "https://kku-ui.vercel.app";
 
 function normalizeRawSiteUrl(raw: string | undefined): string {
   if (!raw) {

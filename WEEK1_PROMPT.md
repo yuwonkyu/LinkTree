@@ -1,9 +1,11 @@
 # InstaLink 1주차 작업 지시 프롬프트
+
 # Claude Code 터미널에 아래 내용을 그대로 붙여넣어 실행하세요.
 
 ---
 
 ## 실행 방법
+
 1. 터미널에서 InstaLink 레포 폴더로 이동
 2. `claude` 명령어로 Claude Code 실행
 3. 아래 [PROMPT] 내용을 복사해서 붙여넣기
@@ -22,6 +24,7 @@
 ---
 
 ### STEP 1 — 의존성 설치 및 환경 확인
+
 ```
 현재 package.json을 읽고 Supabase가 설치되어 있는지 확인해.
 없으면 설치해: npm install @supabase/supabase-js @supabase/ssr
@@ -29,6 +32,7 @@
 ```
 
 ### STEP 2 — 타입 정의 생성
+
 ```
 lib/types.ts 파일을 만들고 아래 Profile 타입을 정의해:
 
@@ -64,6 +68,7 @@ export type Profile = {
 ```
 
 ### STEP 3 — Supabase 클라이언트 생성
+
 ```
 lib/supabase.ts 파일을 만들어.
 서버 컴포넌트용 클라이언트와 클라이언트 컴포넌트용 클라이언트를 분리해서 작성해.
@@ -71,6 +76,7 @@ lib/supabase.ts 파일을 만들어.
 ```
 
 ### STEP 4 — ProfilePage 컴포넌트 추출
+
 ```
 현재 /sample/page.tsx의 UI 구조를 분석해서
 components/ProfilePage.tsx 컴포넌트로 추출해.
@@ -81,6 +87,7 @@ Props 타입: Profile (lib/types.ts에서 import)
 ```
 
 ### STEP 5 — 동적 라우팅 페이지 생성
+
 ```
 app/[slug]/page.tsx를 생성해.
 
@@ -94,6 +101,7 @@ app/[slug]/page.tsx를 생성해.
 ```
 
 ### STEP 6 — Supabase SQL 스키마 출력
+
 ```
 CLAUDE.md의 테이블 구조를 기반으로
 Supabase SQL Editor에 바로 붙여넣을 수 있는 CREATE TABLE 쿼리를 출력해줘.
@@ -103,6 +111,7 @@ RLS(Row Level Security) 정책도 포함해:
 ```
 
 ### STEP 7 — 샘플 데이터 INSERT 쿼리 출력
+
 ```
 현재 /sample 페이지 데이터를 기반으로
 Supabase에 바로 넣을 수 있는 INSERT 쿼리를 만들어줘.
@@ -113,6 +122,7 @@ owner_id는 '00000000-0000-0000-0000-000000000000' (테스트용 임시값).
 ---
 
 모든 단계 완료 후:
+
 1. 변경된 파일 목록 출력
 2. 다음에 뀨91님이 해야 할 것 목록 출력:
    - Supabase 프로젝트 생성 방법
@@ -130,11 +140,12 @@ owner_id는 '00000000-0000-0000-0000-000000000000' (테스트용 임시값).
 - [x] `components/ProfilePage.tsx` 생성됨 (디자인 동일)
 - [x] `app/[slug]/page.tsx` 생성됨
 - [x] Supabase SQL 쿼리 복사해서 실행함
-- [x] `instalink.vercel.app/sample-gym` 접속 시 기존 sample 페이지와 동일하게 보임
+- [x] `kku-ui.vercel.app/sample-gym` 접속 시 기존 sample 페이지와 동일하게 보임
 - [x] `.env.local` 환경변수 입력 완료
 
 ---
 
 ## 2주차 예고 (에디터 대시보드)
+
 1주차가 완료되면 다음 프롬프트에서 대시보드 에디터 작업을 시작합니다.
 사장님이 로그인 후 본인 페이지를 직접 편집하는 UI를 만들 예정이에요.

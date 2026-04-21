@@ -2,9 +2,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Plan, Profile } from "@/lib/types";
+import { getSiteUrl } from "@/lib/site-url";
 import BillingClient from "./BillingClient";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = getSiteUrl();
 const TOSS_CLIENT_KEY = process.env.NEXT_PUBLIC_TOSSPAYMENTS_CLIENT_KEY ?? "";
 
 export default async function BillingPage() {
@@ -32,7 +33,10 @@ export default async function BillingPage() {
           <span className="font-display text-base font-bold tracking-tight text-foreground">
             InstaLink
           </span>
-          <Link href="/dashboard" className="text-sm text-(--muted) hover:text-foreground">
+          <Link
+            href="/dashboard"
+            className="text-sm text-(--muted) hover:text-foreground"
+          >
             ← 대시보드
           </Link>
         </div>
@@ -43,10 +47,13 @@ export default async function BillingPage() {
           <h1 className="text-xl font-bold text-foreground">플랜 선택</h1>
           <p className="mt-1 text-sm text-(--muted)">
             현재 플랜:{" "}
-            <span className="font-semibold text-foreground capitalize">{currentPlan}</span>
+            <span className="font-semibold text-foreground capitalize">
+              {currentPlan}
+            </span>
             {profile.plan_expires_at && (
               <span className="ml-2 text-xs text-(--muted)">
-                (만료: {new Date(profile.plan_expires_at).toLocaleDateString("ko-KR")})
+                (만료:{" "}
+                {new Date(profile.plan_expires_at).toLocaleDateString("ko-KR")})
               </span>
             )}
           </p>
@@ -56,7 +63,10 @@ export default async function BillingPage() {
           <div className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
             ⚠️ 토스페이먼츠 클라이언트 키가 설정되지 않았습니다.{" "}
             <code className="rounded bg-amber-100 px-1">.env.local</code>에{" "}
-            <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_TOSSPAYMENTS_CLIENT_KEY</code>를 추가하세요.
+            <code className="rounded bg-amber-100 px-1">
+              NEXT_PUBLIC_TOSSPAYMENTS_CLIENT_KEY
+            </code>
+            를 추가하세요.
           </div>
         )}
 

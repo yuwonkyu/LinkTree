@@ -3,8 +3,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { sendEmail } from "@/lib/resend";
+import { getSiteUrl } from "@/lib/site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instalink.vercel.app";
+const SITE_URL = getSiteUrl();
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -75,7 +76,9 @@ export async function POST(req: NextRequest) {
 
   let sent = 0;
   for (const profile of profiles ?? []) {
-    const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(profile.owner_id);
+    const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(
+      profile.owner_id,
+    );
     const email = authUser?.user?.email;
     if (!email) continue;
 

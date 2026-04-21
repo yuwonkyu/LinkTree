@@ -3,10 +3,11 @@ import Link from "next/link";
 import { createClient } from "@supabase/supabase-js";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { PLAN_META, type Plan } from "@/lib/types";
+import { getSiteUrl } from "@/lib/site-url";
 import PlanSelect from "./PlanSelect";
 
 const ADMIN_EMAIL = "duck01777@naver.com";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = getSiteUrl();
 
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -20,7 +21,9 @@ export default async function AdminPage({
 }) {
   // 인증 확인
   const supabase = await getSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user || user.email !== ADMIN_EMAIL) redirect("/dashboard");
 
   const { plan: planFilter, q } = await searchParams;
@@ -28,7 +31,9 @@ export default async function AdminPage({
   // 전체 고객 조회
   let query = adminClient
     .from("profiles")
-    .select("id, slug, name, shop_name, plan, plan_expires_at, is_active, view_count, created_at")
+    .select(
+      "id, slug, name, shop_name, plan, plan_expires_at, is_active, view_count, created_at",
+    )
     .order("created_at", { ascending: false });
 
   if (planFilter && planFilter !== "all") query = query.eq("plan", planFilter);
@@ -45,10 +50,13 @@ export default async function AdminPage({
     .filter((s) => s.status === "active")
     .reduce((sum, s) => sum + (s.amount ?? 0), 0);
 
-  const planCounts = (profiles ?? []).reduce<Record<string, number>>((acc, p) => {
-    acc[p.plan] = (acc[p.plan] ?? 0) + 1;
-    return acc;
-  }, {});
+  const planCounts = (profiles ?? []).reduce<Record<string, number>>(
+    (acc, p) => {
+      acc[p.plan] = (acc[p.plan] ?? 0) + 1;
+      return acc;
+    },
+    {},
+  );
 
   return (
     <div className="min-h-screen bg-(--secondary)">
@@ -56,28 +64,41 @@ export default async function AdminPage({
       <header className="sticky top-0 z-10 border-b border-gray-100 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <span className="font-display text-base font-bold text-foreground">
-            InstaLink <span className="text-xs font-normal text-(--muted)">관리자</span>
+            InstaLink{" "}
+            <span className="text-xs font-normal text-(--muted)">관리자</span>
           </span>
-          <Link href="/dashboard" className="text-sm text-(--muted) hover:text-foreground">
+          <Link
+            href="/dashboard"
+            className="text-sm text-(--muted) hover:text-foreground"
+          >
             ← 내 대시보드
           </Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-8 flex flex-col gap-6">
-
         {/* 매출 요약 */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             { label: "전체 고객", value: profiles?.length ?? 0, unit: "명" },
-            { label: "월 예상 매출", value: activeRevenue.toLocaleString(), unit: "원" },
+            {
+              label: "월 예상 매출",
+              value: activeRevenue.toLocaleString(),
+              unit: "원",
+            },
             { label: "Basic", value: planCounts["basic"] ?? 0, unit: "명" },
             { label: "Pro", value: planCounts["pro"] ?? 0, unit: "명" },
           ].map((card) => (
-            <div key={card.label} className="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(17,24,39,0.06)]">
+            <div
+              key={card.label}
+              className="rounded-2xl bg-white p-4 shadow-[0_2px_12px_rgba(17,24,39,0.06)]"
+            >
               <p className="text-xs text-(--muted)">{card.label}</p>
               <p className="mt-1 text-xl font-bold text-foreground">
-                {card.value}<span className="text-sm font-normal text-(--muted) ml-0.5">{card.unit}</span>
+                {card.value}
+                <span className="text-sm font-normal text-(--muted) ml-0.5">
+                  {card.unit}
+                </span>
               </p>
             </div>
           ))}
@@ -125,11 +146,21 @@ export default async function AdminPage({
             </thead>
             <tbody>
               {(profiles ?? []).map((p) => (
-                <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="px-4 py-3 font-mono text-xs text-foreground">{p.slug}</td>
-                  <td className="px-4 py-3 text-foreground">{p.name || p.shop_name || "—"}</td>
+                <tr
+                  key={p.id}
+                  className="border-b border-gray-50 hover:bg-gray-50/50"
+                >
+                  <td className="px-4 py-3 font-mono text-xs text-foreground">
+                    {p.slug}
+                  </td>
+                  <td className="px-4 py-3 text-foreground">
+                    {p.name || p.shop_name || "—"}
+                  </td>
                   <td className="px-4 py-3">
-                    <PlanSelect profileId={p.id} current={(p.plan ?? "free") as Plan} />
+                    <PlanSelect
+                      profileId={p.id}
+                      current={(p.plan ?? "free") as Plan}
+                    />
                   </td>
                   <td className="px-4 py-3 text-xs text-(--muted)">
                     {p.plan_expires_at
@@ -137,9 +168,13 @@ export default async function AdminPage({
                       : "—"}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      p.is_active ? "bg-green-100 text-green-700" : "bg-gray-100 text-(--muted)"
-                    }`}>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                        p.is_active
+                          ? "bg-green-100 text-green-700"
+                          : "bg-gray-100 text-(--muted)"
+                      }`}
+                    >
                       {p.is_active ? "공개" : "비공개"}
                     </span>
                   </td>
@@ -163,7 +198,10 @@ export default async function AdminPage({
               ))}
               {!profiles?.length && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-sm text-(--muted)">
+                  <td
+                    colSpan={7}
+                    className="px-4 py-8 text-center text-sm text-(--muted)"
+                  >
                     고객이 없습니다.
                   </td>
                 </tr>
