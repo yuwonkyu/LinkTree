@@ -6,7 +6,7 @@ import { getSupabaseServerClient } from "@/lib/supabase";
 import { sendEmail, welcomeEmail } from "@/lib/resend";
 import { applyReferral } from "@/lib/referral";
 
-const SITE_URL    = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function adminClient() {
@@ -20,10 +20,10 @@ function adminClient() {
 // 회원가입
 // ──────────────────────────────────────────────
 export async function signUp(formData: FormData) {
-  const email    = (formData.get("email")    as string).trim().toLowerCase();
-  const password =  formData.get("password") as string;
-  const name     = (formData.get("name")     as string).trim();
-  const ref      = ((formData.get("ref") as string | null) ?? "").trim();
+  const email = (formData.get("email") as string).trim().toLowerCase();
+  const password = formData.get("password") as string;
+  const name = (formData.get("name") as string).trim();
+  const ref = ((formData.get("ref") as string | null) ?? "").trim();
 
   // ── 기본 유효성 검사 ──
   if (!email || !password || !name) {
@@ -38,8 +38,12 @@ export async function signUp(formData: FormData) {
 
   // ── 서버사이드 이메일 중복 확인 (클라이언트 검사 우회 방어) ──
   const admin = adminClient();
-  const { data: existing } = await admin.auth.admin.getUserByEmail(email);
-  if (existing.user) {
+  const { error: linkError } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email,
+  });
+  if (!linkError) {
+    // 에러 없음 → 유저 존재 → 중복 이메일
     redirect("/auth/signup?error=이미 사용 중인 이메일입니다.");
   }
 
@@ -75,8 +79,8 @@ export async function signUp(formData: FormData) {
 // 로그인
 // ──────────────────────────────────────────────
 export async function signIn(formData: FormData) {
-  const email    = (formData.get("email")    as string).trim();
-  const password =  formData.get("password") as string;
+  const email = (formData.get("email") as string).trim();
+  const password = formData.get("password") as string;
 
   if (!email || !password) {
     redirect("/auth/login?error=이메일과 비밀번호를 입력해주세요.");
