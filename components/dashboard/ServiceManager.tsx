@@ -9,7 +9,12 @@ type Props = {
   aiLoading: string | null;
   onAISuggest: () => void;
   onChange: (services: Service[]) => void;
+  category: string;
+  onCategoryChange: (c: string) => void;
+  templateServices: Service[];
 };
+
+const CATEGORIES = ["PT/헬스", "필라테스/요가", "미용실/네일", "카페", "프리랜서/크리에이터"];
 
 export default function ServiceManager({
   services,
@@ -17,15 +22,20 @@ export default function ServiceManager({
   aiLoading,
   onAISuggest,
   onChange,
+  category,
+  onCategoryChange,
+  templateServices,
 }: Props) {
-  const [name, setName]   = useState("");
+  const [name,  setName]  = useState("");
   const [price, setPrice] = useState("");
-  const [note, setNote]   = useState("");
+  const [note,  setNote]  = useState("");
 
-  const [editIdx, setEditIdx]     = useState<number | null>(null);
-  const [editName, setEditName]   = useState("");
+  const [editIdx,   setEditIdx]   = useState<number | null>(null);
+  const [editName,  setEditName]  = useState("");
   const [editPrice, setEditPrice] = useState("");
-  const [editNote, setEditNote]   = useState("");
+  const [editNote,  setEditNote]  = useState("");
+
+  const [showTemplates, setShowTemplates] = useState(false);
 
   function add() {
     if (!name.trim() || !price.trim()) return;
@@ -55,23 +65,68 @@ export default function ServiceManager({
     setEditIdx(null);
   }
 
+  function applyTemplates() {
+    onChange(templateServices);
+    setShowTemplates(false);
+  }
+
   const inputCls = "rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-gray-400";
 
   return (
     <div>
-      {/* AI 추천 버튼 */}
-      <div className="mb-3 flex justify-end">
+      {/* 상단 버튼 행 */}
+      <div className="mb-3 flex items-center justify-between gap-2">
         <button
           type="button"
-          onClick={onAISuggest}
-          disabled={aiLoading === "services"}
-          className="text-xs font-medium text-blue-500 hover:text-blue-700 disabled:opacity-50"
+          onClick={() => setShowTemplates((v) => !v)}
+          className="text-xs font-medium text-(--muted) hover:text-foreground transition-colors"
         >
-          {aiLoading === "services" ? "생성 중…" : "✨ AI로 서비스 목록 채우기"}
+          {showTemplates ? "닫기" : "📋 업종별 예시 채우기"}
         </button>
+        {isPaidPlan && (
+          <button
+            type="button"
+            onClick={onAISuggest}
+            disabled={aiLoading === "services"}
+            className="text-xs text-blue-400 hover:text-blue-600 disabled:opacity-50"
+          >
+            {aiLoading === "services" ? "생성 중…" : "✨ AI 채우기"}
+          </button>
+        )}
       </div>
 
-      {/* 기존 목록 */}
+      {/* 예시 템플릿 패널 */}
+      {showTemplates && (
+        <div className="mb-4 rounded-xl border border-gray-100 bg-(--secondary) p-3">
+          <div className="mb-2.5 flex items-center gap-2">
+            <span className="text-xs text-(--muted)">업종</span>
+            <select
+              value={category}
+              onChange={(e) => onCategoryChange(e.target.value)}
+              className="flex-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs text-foreground outline-none focus:border-gray-400"
+            >
+              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <ul className="mb-3 flex flex-col gap-1.5">
+            {templateServices.map((svc) => (
+              <li key={svc.name} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-xs">
+                <span className="font-medium text-foreground">{svc.name}</span>
+                <span className="text-(--muted)">{svc.price}</span>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={applyTemplates}
+            className="w-full rounded-lg bg-foreground py-2 text-xs font-semibold text-white hover:opacity-80 transition-opacity"
+          >
+            위 목록으로 채우기 (기존 목록 대체)
+          </button>
+        </div>
+      )}
+
+      {/* 기존 서비스 목록 */}
       {services.length > 0 && (
         <ul className="mb-4 flex flex-col gap-2">
           {services.map((svc, idx) => (
@@ -108,13 +163,13 @@ export default function ServiceManager({
         </ul>
       )}
 
-      {/* 추가 폼 */}
+      {/* 직접 추가 폼 */}
       <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 p-3">
-        <p className="text-xs font-medium text-(--muted)">서비스 추가</p>
+        <p className="text-xs font-medium text-(--muted)">직접 추가</p>
         <div className="flex gap-2">
           <input type="text" value={name}  onChange={(e) => setName(e.target.value)}  placeholder="서비스명 (예: PT 1회)"
             className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
-          <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="가격 (예: 50,000원)"
+          <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="50,000원"
             className="w-32 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
         </div>
         <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="메모 (선택)"

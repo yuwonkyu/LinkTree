@@ -4,10 +4,104 @@ import { useState, useTransition } from "react";
 import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import { saveProfile, type SaveProfilePayload } from "./actions";
-import type { Profile, Service, Review, Theme } from "@/lib/types";
-import ThemeSelector from "@/components/dashboard/ThemeSelector";
-import ServiceManager from "@/components/dashboard/ServiceManager";
-import ReviewManager  from "@/components/dashboard/ReviewManager";
+import type { Profile, Service, Review, Theme, CustomLink } from "@/lib/types";
+import ThemeSelector   from "@/components/dashboard/ThemeSelector";
+import ServiceManager  from "@/components/dashboard/ServiceManager";
+import ReviewManager   from "@/components/dashboard/ReviewManager";
+import LinkManager     from "@/components/dashboard/LinkManager";
+
+// ─── 업종별 예시 템플릿 ──────────────────────────────────────
+const CATEGORIES = ["PT/헬스", "필라테스/요가", "미용실/네일", "카페", "프리랜서/크리에이터"];
+
+type TemplateSet = { taglines: string[]; descriptions: string[]; services: Service[] };
+
+const TEMPLATES: Record<string, TemplateSet> = {
+  "PT/헬스": {
+    taglines: [
+      "여성 전문 1:1 PT · 체형교정 · 다이어트",
+      "결과로 증명하는 1:1 맞춤 퍼스널트레이닝",
+      "6주 바디 체인지 — 맞춤 PT 전문 트레이너",
+    ],
+    descriptions: [
+      "✔ 여성 전문 1:1 맞춤 PT\n✔ 체형교정 · 다이어트 · 근력 향상\n✔ 식단 + 운동 통합 관리\n✔ 첫 상담 무료 — 카카오로 문의하세요",
+      "✔ 경력 10년 이상 전문 트레이너\n✔ 개인 맞춤 운동 프로그램 설계\n✔ 체형 분석 · 자세 교정 전문\n✔ 소규모 운영으로 밀착 케어",
+    ],
+    services: [
+      { name: "PT 1회", price: "80,000원" },
+      { name: "PT 10회 패키지", price: "700,000원", note: "회당 70,000원" },
+      { name: "PT 20회 패키지", price: "1,200,000원", note: "회당 60,000원" },
+      { name: "인바디 측정", price: "무료" },
+    ],
+  },
+  "필라테스/요가": {
+    taglines: [
+      "소규모 프라이빗 필라테스 스튜디오",
+      "호흡부터 다시 — 필라테스로 건강하게",
+      "정원 4명 소그룹 · 1:1 개인 필라테스",
+    ],
+    descriptions: [
+      "✔ 소그룹(4명 이하) & 1:1 프라이빗 수업\n✔ 척추 측만 · 거북목 · 체형교정 전문\n✔ 임산부 · 산후 필라테스 가능\n✔ 카카오로 체험 수업 신청하세요",
+      "✔ 기구 · 매트 필라테스 전 과정 운영\n✔ 개인 체형 분석 후 맞춤 수업 설계\n✔ 편안한 분위기의 여성 전용 스튜디오\n✔ 당일 예약 가능 (카카오 문의)",
+    ],
+    services: [
+      { name: "그룹 필라테스 1회", price: "25,000원" },
+      { name: "그룹 10회 패키지", price: "220,000원", note: "회당 22,000원" },
+      { name: "1:1 듀엣 1회", price: "50,000원" },
+      { name: "1:1 개인 레슨 1회", price: "80,000원" },
+    ],
+  },
+  "미용실/네일": {
+    taglines: [
+      "트렌드 컬러 전문 — 당신만의 헤어 스타일",
+      "섬세한 케어로 만드는 나만의 스타일",
+      "헤어 · 네일 · 케어 토털 뷰티 살롱",
+    ],
+    descriptions: [
+      "✔ 트렌드 컬러 · 펌 · 케라틴 트리트먼트 전문\n✔ 두피 케어 · 클리닉 서비스 운영\n✔ 예약제 운영 — 대기 없이 편안하게\n✔ SNS 참고 사진 지참 환영",
+      "✔ 젤 · 아크릴 · 아트 네일 전 과정\n✔ 내추럴 & 화려한 디자인 모두 가능\n✔ 당일 예약 가능 (카카오 문의)\n✔ 재방문 고객 할인 혜택 제공",
+    ],
+    services: [
+      { name: "커트", price: "30,000원" },
+      { name: "펌", price: "80,000원~" },
+      { name: "염색 (탈색 제외)", price: "70,000원~" },
+      { name: "젤 네일 (손)", price: "40,000원~" },
+    ],
+  },
+  "카페": {
+    taglines: [
+      "직접 로스팅하는 스페셜티 커피 한 잔",
+      "동네 감성 카페 · 매일 오전 8시 오픈",
+      "커피 한 잔, 조용한 공간, 잠깐의 쉼",
+    ],
+    descriptions: [
+      "✔ 매주 직접 로스팅하는 스페셜티 원두\n✔ 시즌 한정 디저트 & 브런치 메뉴 운영\n✔ 노트북 작업 & 소모임 환영\n✔ 대용량 사이즈 · 오트밀크 변경 가능",
+      "✔ 에티오피아 · 콜롬비아 싱글 오리진 상시\n✔ 핸드드립 · 에스프레소 · 콜드브루 전문\n✔ 주차 1대 · 반려동물 동반 가능\n✔ 텀블러 지참 시 300원 할인",
+    ],
+    services: [
+      { name: "아메리카노", price: "4,500원" },
+      { name: "카페라떼", price: "5,500원" },
+      { name: "핸드드립", price: "7,000원~" },
+      { name: "케이크 (조각)", price: "6,500원" },
+    ],
+  },
+  "프리랜서/크리에이터": {
+    taglines: [
+      "브랜드 디자인 & 콘텐츠 제작 전문",
+      "기획부터 편집까지 — 원스톱 크리에이터",
+      "당신의 아이디어를 결과물로 만듭니다",
+    ],
+    descriptions: [
+      "✔ 브랜드 로고 · 상세페이지 · SNS 콘텐츠 디자인\n✔ 유튜브 · 릴스 영상 편집 전문\n✔ 런칭 3일 내 시안 1차 전달\n✔ 수정 2회 무료 포함",
+      "✔ 스마트스토어 · 쿠팡 상세페이지 제작\n✔ 인스타그램 피드 통합 디자인\n✔ 빠른 납기 · 합리적인 가격\n✔ 포트폴리오 확인 후 상담 진행",
+    ],
+    services: [
+      { name: "SNS 콘텐츠 디자인 (1건)", price: "30,000원~" },
+      { name: "로고 디자인", price: "150,000원~" },
+      { name: "상세페이지 제작", price: "200,000원~" },
+      { name: "영상 편집 (1분)", price: "80,000원~" },
+    ],
+  },
+};
 
 // ─── 섹션 래퍼 ──────────────────────────────────
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -45,6 +139,70 @@ function Field({
   );
 }
 
+// ─── 예시 선택 패널 (태그라인 / 설명용) ───────────────
+function HintPanel({
+  type,
+  category,
+  onCategoryChange,
+  onSelect,
+  isPaidPlan,
+  aiLoading,
+  onAISuggest,
+}: {
+  type: "taglines" | "descriptions";
+  category: string;
+  onCategoryChange: (c: string) => void;
+  onSelect: (v: string) => void;
+  isPaidPlan: boolean;
+  aiLoading: string | null;
+  onAISuggest: () => void;
+}) {
+  const items = TEMPLATES[category]?.[type] ?? [];
+  const aiType = type === "taglines" ? "tagline" : "description";
+
+  return (
+    <div className="rounded-xl border border-gray-100 bg-(--secondary) p-3">
+      {/* 업종 선택 */}
+      <div className="mb-2.5 flex items-center gap-2">
+        <span className="text-xs text-(--muted)">업종</span>
+        <select
+          value={category}
+          onChange={(e) => onCategoryChange(e.target.value)}
+          className="flex-1 rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-xs text-foreground outline-none focus:border-gray-400"
+        >
+          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+      </div>
+
+      {/* 예시 목록 */}
+      <div className="flex flex-col gap-1.5">
+        {items.map((text) => (
+          <button
+            key={text}
+            type="button"
+            onClick={() => onSelect(text)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-xs text-foreground hover:border-gray-400 transition-colors"
+          >
+            {text}
+          </button>
+        ))}
+      </div>
+
+      {/* AI 보조 옵션 (유료 플랜) */}
+      {isPaidPlan && (
+        <button
+          type="button"
+          onClick={onAISuggest}
+          disabled={aiLoading === aiType}
+          className="mt-2.5 text-xs text-blue-400 hover:text-blue-600 disabled:opacity-50"
+        >
+          {aiLoading === aiType ? "생성 중…" : "✨ AI로 직접 작성하기"}
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ─── 메인 컴포넌트 ──────────────────────────────
 type Props = { profile: Profile; plan?: string };
 
@@ -64,13 +222,20 @@ export default function EditForm({ profile, plan }: Props) {
   const [hours,           setHours]     = useState(profile.hours ?? "");
   const [imageUrl,        setImageUrl]  = useState(profile.image_url ?? "");
 
-  // 테마 · 서비스 · 후기
-  const [theme,    setTheme]    = useState<Theme>(profile.theme ?? "light");
-  const [services, setServices] = useState<Service[]>(profile.services ?? []);
-  const [reviews,  setReviews]  = useState<Review[]>(profile.reviews ?? []);
+  // 테마 · 서비스 · 후기 · 커스텀 링크
+  const [theme,        setTheme]       = useState<Theme>(profile.theme ?? "light");
+  const [services,     setServices]    = useState<Service[]>(profile.services ?? []);
+  const [reviews,      setReviews]     = useState<Review[]>(profile.reviews ?? []);
+  const [customLinks,  setCustomLinks] = useState<CustomLink[]>(profile.custom_links ?? []);
+
+  // 업종 (예시/AI 공통)
+  const [category, setCategory] = useState("PT/헬스");
+
+  // 예시 패널 토글
+  const [showTaglineHints, setShowTaglineHints] = useState(false);
+  const [showDescHints,    setShowDescHints]    = useState(false);
 
   // AI · 저장
-  const [category,  setCategory]  = useState("PT/헬스");
   const [aiLoading, setAiLoading] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -90,7 +255,7 @@ export default function EditForm({ profile, plan }: Props) {
       });
       const { result, error } = await res.json();
       if (error) { alert(error); return; }
-      if (type === "tagline")  setTagline(result.split("\n")[0] ?? result);
+      if (type === "tagline")     setTagline(result.split("\n")[0] ?? result);
       if (type === "description") setDesc(result);
       if (type === "services" && Array.isArray(result)) setServices(result);
     } catch {
@@ -108,6 +273,7 @@ export default function EditForm({ profile, plan }: Props) {
       kakao_url: kakaoUrl, kakao_booking_url: kakaoBookingUrl,
       naver_booking_url: naverBookingUrl, instagram_id: instagramId,
       location, hours, image_url: imageUrl, theme, services, reviews,
+      custom_links: customLinks,
     };
     startTransition(async () => {
       try {
@@ -127,54 +293,79 @@ export default function EditForm({ profile, plan }: Props) {
       {/* ── 기본 정보 ── */}
       <Section title="기본 정보">
         <div className="flex flex-col gap-3">
-          {/* 업종 선택 */}
-          <div className="flex flex-col gap-1">
-            <label className="text-xs font-medium text-(--muted)">업종 (AI 추천용)</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)}
-              className="rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-gray-400">
-              {["PT/헬스", "필라테스/요가", "미용실/네일", "카페", "프리랜서/크리에이터"].map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-
           <Field label="이름" value={name} onChange={setName} placeholder="김지수 트레이너" />
           <Field label="브랜드명 / 상호" value={shopName} onChange={setShopName} placeholder="FIT WITH JI" />
 
-          {/* 태그라인 + AI */}
+          {/* 태그라인 + 예시 */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <label className="text-xs font-medium text-(--muted)">한 줄 소개 (태그라인)</label>
-              <button type="button" onClick={() => aiSuggest("tagline")} disabled={aiLoading === "tagline"}
-                className="text-xs font-medium text-blue-500 hover:text-blue-700 disabled:opacity-50">
-                {aiLoading === "tagline" ? "생성 중…" : "✨ AI 추천"}
+              <button
+                type="button"
+                onClick={() => { setShowTaglineHints((v) => !v); setShowDescHints(false); }}
+                className="text-xs font-medium text-(--muted) hover:text-foreground transition-colors"
+              >
+                {showTaglineHints ? "닫기" : "📝 예시 보기"}
               </button>
             </div>
-            <input type="text" value={tagline} onChange={(e) => setTagline(e.target.value)}
+            <input
+              type="text"
+              value={tagline}
+              onChange={(e) => setTagline(e.target.value)}
               placeholder="다이어트 · 체형교정 · 여성 전문 PT"
-              className="rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors" />
+              className="rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors"
+            />
+            {showTaglineHints && (
+              <HintPanel
+                type="taglines"
+                category={category}
+                onCategoryChange={setCategory}
+                onSelect={(v) => { setTagline(v); setShowTaglineHints(false); }}
+                isPaidPlan={isPaidPlan}
+                aiLoading={aiLoading}
+                onAISuggest={() => aiSuggest("tagline")}
+              />
+            )}
           </div>
 
-          {/* 상세 소개 + AI */}
+          {/* 상세 소개 + 예시 */}
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <label className="text-xs font-medium text-(--muted)">상세 소개</label>
-              <button type="button" onClick={() => aiSuggest("description")} disabled={aiLoading === "description"}
-                className="text-xs font-medium text-blue-500 hover:text-blue-700 disabled:opacity-50">
-                {aiLoading === "description" ? "생성 중…" : "✨ AI 작성"}
+              <button
+                type="button"
+                onClick={() => { setShowDescHints((v) => !v); setShowTaglineHints(false); }}
+                className="text-xs font-medium text-(--muted) hover:text-foreground transition-colors"
+              >
+                {showDescHints ? "닫기" : "📝 예시 보기"}
               </button>
             </div>
-            <textarea rows={3} value={description} onChange={(e) => setDesc(e.target.value)}
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(e) => setDesc(e.target.value)}
               placeholder="✔ 여성 전문 1:1 PT&#10;✔ 식단 + 운동 통합 관리"
-              className="resize-none rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors" />
+              className="resize-none rounded-xl border border-gray-200 bg-(--secondary) px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors"
+            />
+            {showDescHints && (
+              <HintPanel
+                type="descriptions"
+                category={category}
+                onCategoryChange={setCategory}
+                onSelect={(v) => { setDesc(v); setShowDescHints(false); }}
+                isPaidPlan={isPaidPlan}
+                aiLoading={aiLoading}
+                onAISuggest={() => aiSuggest("description")}
+              />
+            )}
           </div>
 
-          <Field label="위치"           value={location}  onChange={setLocation}  placeholder="서울 서초구 방배동" />
-          <Field label="운영시간"        value={hours}     onChange={setHours}     placeholder="평일 07:00 ~ 21:00" />
-          <Field label="인스타그램 ID"   value={instagramId} onChange={setInstaId} placeholder="fitwithji" />
-          <Field label="카카오 오픈채팅 URL"     value={kakaoUrl}        onChange={setKakaoUrl}  placeholder="https://open.kakao.com/o/..." />
-          <Field label="카카오 예약 URL (선택)" value={kakaoBookingUrl} onChange={setKakaoBk}   placeholder="https://pf.kakao.com/..." />
-          <Field label="네이버 예약 URL (선택)" value={naverBookingUrl} onChange={setNaverBk}   placeholder="https://booking.naver.com/..." />
+          <Field label="위치"            value={location}    onChange={setLocation}    placeholder="서울 서초구 방배동" />
+          <Field label="운영시간"         value={hours}       onChange={setHours}       placeholder="평일 07:00 ~ 21:00" />
+          <Field label="인스타그램 ID"    value={instagramId} onChange={setInstaId}     placeholder="fitwithji" />
+          <Field label="카카오 오픈채팅 URL"     value={kakaoUrl}        onChange={setKakaoUrl} placeholder="https://open.kakao.com/o/..." />
+          <Field label="카카오 예약 URL (선택)" value={kakaoBookingUrl} onChange={setKakaoBk}  placeholder="https://pf.kakao.com/..." />
+          <Field label="네이버 예약 URL (선택)" value={naverBookingUrl} onChange={setNaverBk}  placeholder="https://booking.naver.com/..." />
         </div>
       </Section>
 
@@ -215,18 +406,26 @@ export default function EditForm({ profile, plan }: Props) {
       </Section>
 
       {/* ── 서비스 ── */}
-      <Section title="서비스">
+      <Section title="서비스 &amp; 가격">
         <ServiceManager
           services={services}
           isPaidPlan={isPaidPlan}
           aiLoading={aiLoading}
           onAISuggest={() => aiSuggest("services")}
           onChange={setServices}
+          category={category}
+          onCategoryChange={setCategory}
+          templateServices={TEMPLATES[category]?.services ?? []}
         />
       </Section>
 
+      {/* ── 추가 링크 ── */}
+      <Section title="추가 링크 (선택)">
+        <LinkManager links={customLinks} onChange={setCustomLinks} />
+      </Section>
+
       {/* ── 후기 ── */}
-      <Section title="후기">
+      <Section title="고객 후기">
         <ReviewManager reviews={reviews} onChange={setReviews} />
       </Section>
 

@@ -76,14 +76,14 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
             priority
           />
         </div>
-        <div className="profile-header-copy min-w-0 flex-1">
+        <div className="profile-header-copy min-w-0 flex-1 overflow-hidden">
           <p className="profile-brand mb-1 inline-flex px-2 py-0.5 text-[10px] font-bold tracking-[0.12em] text-(--third) uppercase">
             {profile.shop_name}
           </p>
-          <h1 className="profile-name font-display font-bold leading-tight text-foreground">
+          <h1 className="profile-name font-display font-bold leading-tight text-foreground break-words">
             {profile.name}
           </h1>
-          <p className="profile-role mt-1 font-medium text-(--muted)">
+          <p className="profile-role mt-1 font-medium text-(--muted) break-words">
             {profile.tagline}
           </p>
         </div>
@@ -91,7 +91,7 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
 
       {/* ── 소개 ── */}
       {profile.description && (
-        <p className="mt-5 rounded-xl bg-black/[0.035] px-4 py-3.5 text-sm leading-6 text-(--muted) whitespace-pre-line">
+        <p className="mt-5 rounded-xl bg-black/[0.035] px-4 py-3.5 text-sm leading-6 text-(--muted) whitespace-pre-line break-words">
           {profile.description}
         </p>
       )}
@@ -149,6 +149,23 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
               </span>
             </a>
           )}
+        </div>
+      )}
+
+      {/* ── 추가 링크 ── */}
+      {profile.custom_links && profile.custom_links.length > 0 && (
+        <div className="mt-3 flex flex-col gap-2">
+          {profile.custom_links.map((link, idx) => (
+            <a
+              key={idx}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/60 px-4 text-sm font-medium text-foreground shadow-sm backdrop-blur hover:bg-white/80 transition-colors active:translate-y-px"
+            >
+              🔗 {link.label}
+            </a>
+          ))}
         </div>
       )}
 

@@ -4,6 +4,11 @@ export type Service = {
   note?: string;
 };
 
+export type CustomLink = {
+  label: string;
+  url: string;
+};
+
 export type Review = {
   text: string;
   author: string;
@@ -45,6 +50,7 @@ export type Profile = {
   created_at: string;
   referral_code?: string | null;
   referred_by?: string | null;
+  custom_links?: CustomLink[] | null;
 };
 
 export type Subscription = {
