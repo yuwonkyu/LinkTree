@@ -1,30 +1,50 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { createClient } from "@supabase/supabase-js";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import { sendEmail, welcomeEmail } from "@/lib/resend";
 import { applyReferral } from "@/lib/referral";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL    = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function adminClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  );
+}
 
 // ──────────────────────────────────────────────
 // 회원가입
 // ──────────────────────────────────────────────
 export async function signUp(formData: FormData) {
-  const email    = (formData.get("email")    as string).trim();
+  const email    = (formData.get("email")    as string).trim().toLowerCase();
   const password =  formData.get("password") as string;
   const name     = (formData.get("name")     as string).trim();
-  const ref      = (formData.get("ref")      as string | null)?.trim() ?? "";
+  const ref      = ((formData.get("ref") as string | null) ?? "").trim();
 
+  // ── 기본 유효성 검사 ──
   if (!email || !password || !name) {
     redirect("/auth/signup?error=모든 항목을 입력해주세요.");
+  }
+  if (!EMAIL_REGEX.test(email)) {
+    redirect("/auth/signup?error=이메일 형식이 올바르지 않습니다.");
   }
   if (password.length < 8) {
     redirect("/auth/signup?error=비밀번호는 8자 이상이어야 합니다.");
   }
 
-  const supabase = await getSupabaseServerClient();
+  // ── 서버사이드 이메일 중복 확인 (클라이언트 검사 우회 방어) ──
+  const admin = adminClient();
+  const { data: existing } = await admin.auth.admin.getUserByEmail(email);
+  if (existing.user) {
+    redirect("/auth/signup?error=이미 사용 중인 이메일입니다.");
+  }
 
+  // ── 가입 처리 ──
+  const supabase = await getSupabaseServerClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -38,13 +58,12 @@ export async function signUp(formData: FormData) {
     redirect(`/auth/signup?error=${encodeURIComponent(error.message)}`);
   }
 
-  // 추천 코드가 있으면 가입 직후 자동 적용 (비동기, 실패해도 가입은 성공 처리)
-  // Supabase 트리거가 auth.users INSERT 즉시 profiles 행을 생성하므로 바로 적용 가능
+  // ── 추천 코드 자동 적용 ──
   if (ref && data.user) {
     applyReferral(data.user.id, ref).catch(() => {});
   }
 
-  // 환영 이메일 발송
+  // ── 환영 이메일 ──
   const slugBase = email.split("@")[0];
   const tmpl = welcomeEmail(name, slugBase, SITE_URL);
   sendEmail({ to: email, ...tmpl }).catch(() => {});

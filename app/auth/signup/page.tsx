@@ -1,9 +1,6 @@
 import Link from "next/link";
-import { signUp } from "@/app/auth/actions";
 import AuthCard from "@/components/auth/AuthCard";
-
-const inputCls =
-  "w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-foreground placeholder:text-(--muted) outline-none focus:border-gray-400 transition-colors";
+import SignUpForm from "@/components/auth/SignUpForm";
 
 type Props = { searchParams: Promise<{ error?: string; success?: string; ref?: string }> };
 
@@ -30,32 +27,14 @@ export default async function SignUpPage({ searchParams }: Props) {
         <div className="mb-4 flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3">
           <span className="text-green-600">🎁</span>
           <p className="text-sm text-green-700">
-            추천 코드 <strong className="font-bold tracking-widest">{ref.toUpperCase()}</strong>가 가입 후 자동으로 적용됩니다.
+            추천 코드{" "}
+            <strong className="font-bold tracking-widest">{ref.toUpperCase()}</strong>
+            가 가입 후 자동으로 적용됩니다.
           </p>
         </div>
       )}
 
-      <form action={signUp} className="flex flex-col gap-4">
-        {/* ref 코드를 폼에 실어서 Server Action으로 전달 */}
-        {ref && <input type="hidden" name="ref" value={ref} />}
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="name" className="text-sm font-medium text-foreground">이름 / 브랜드명</label>
-          <input id="name" name="name" type="text" placeholder="김지수 트레이너" required className={inputCls} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="email" className="text-sm font-medium text-foreground">이메일</label>
-          <input id="email" name="email" type="email" placeholder="hello@example.com" required className={inputCls} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="password" className="text-sm font-medium text-foreground">비밀번호</label>
-          <input id="password" name="password" type="password" placeholder="8자 이상" required minLength={8} className={inputCls} />
-        </div>
-        <button type="submit"
-          className="mt-1 w-full rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-80 active:opacity-70">
-          가입하기
-        </button>
-      </form>
+      <SignUpForm refCode={ref} />
     </AuthCard>
   );
 }
