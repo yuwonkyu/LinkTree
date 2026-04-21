@@ -13,6 +13,7 @@ export default function SignUpForm({ refCode }: Props) {
   const [email, setEmail]             = useState("");
   const [emailStatus, setEmailStatus] = useState<EmailStatus>("idle");
   const [emailMsg, setEmailMsg]       = useState("");
+  const [agreed, setAgreed]           = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 이메일 변경 시 실시간 검사
@@ -60,8 +61,8 @@ export default function SignUpForm({ refCode }: Props) {
     }, 500);
   }, [email]);
 
-  // 제출 버튼 비활성화 조건: 이메일을 입력했는데 available이 아닌 경우
-  const submitDisabled = email.length > 0 && emailStatus !== "available";
+  // 제출 버튼 비활성화 조건: 이메일 미확인 또는 동의 미체크
+  const submitDisabled = (email.length > 0 && emailStatus !== "available") || !agreed;
 
   // 상태별 스타일
   const statusColor: Record<EmailStatus, string> = {
@@ -143,6 +144,34 @@ export default function SignUpForm({ refCode }: Props) {
           minLength={8}
           className={`${inputBase} border-gray-200`}
         />
+      </div>
+
+      {/* 개인정보 동의 */}
+      <div className="flex flex-col gap-2 rounded-xl border border-gray-200 bg-(--secondary) px-4 py-3">
+        <label className="flex cursor-pointer items-start gap-3">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-foreground"
+            required
+          />
+          <span className="text-xs text-foreground leading-relaxed">
+            <span className="font-medium">[필수]</span> 만 14세 이상이며,{" "}
+            <a
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium underline underline-offset-2 hover:text-(--muted)"
+            >
+              개인정보처리방침
+            </a>
+            에 동의합니다.
+          </span>
+        </label>
+        <p className="text-xs text-(--muted) pl-7">
+          이메일, 이름, 서비스 이용 정보를 회원 관리·서비스 제공 목적으로 수집합니다.
+        </p>
       </div>
 
       <button
