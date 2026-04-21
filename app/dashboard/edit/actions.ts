@@ -5,6 +5,54 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Service, Review, Theme } from "@/lib/types";
 
+// ──────────────────────────────────────────────
+// 슬러그 커스텀 (Pro 전용)
+// ──────────────────────────────────────────────
+const SLUG_REGEX = /^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9]|[a-z0-9]{0,1})$/;
+
+export async function updateSlug(newSlug: string) {
+  const supabase = await getSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/auth/login");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, slug, plan")
+    .eq("owner_id", user.id)
+    .maybeSingle();
+
+  if (!profile) throw new Error("프로필을 찾을 수 없습니다.");
+  if (profile.plan !== "pro") throw new Error("Pro 플랜 전용 기능입니다.");
+
+  const slug = newSlug.trim().toLowerCase();
+  if (!slug) throw new Error("슬러그를 입력해주세요.");
+  if (slug.length < 3) throw new Error("3자 이상 입력해주세요.");
+  if (slug.length > 30) throw new Error("30자 이하로 입력해주세요.");
+  if (!SLUG_REGEX.test(slug)) {
+    throw new Error("소문자, 숫자, 하이픈(-)만 사용 가능합니다. 앞뒤·연속 하이픈 불가.");
+  }
+
+  const { data: existing } = await supabase
+    .from("profiles")
+    .select("slug")
+    .eq("slug", slug)
+    .neq("id", profile.id)
+    .maybeSingle();
+
+  if (existing) throw new Error("이미 사용 중인 주소입니다.");
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ slug })
+    .eq("id", profile.id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/${profile.slug}`);
+  revalidatePath(`/${slug}`);
+  revalidatePath("/dashboard");
+}
+
 export type SaveProfilePayload = {
   name: string;
   shop_name: string;

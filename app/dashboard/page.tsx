@@ -5,6 +5,7 @@ import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Profile } from "@/lib/types";
 import { PLAN_META } from "@/lib/types";
 import CopyLinkButton from "./CopyLinkButton";
+import SlugEditor from "@/components/dashboard/SlugEditor";
 import ReferralCard from "./ReferralCard";
 
 type ClickStats = { kakao: number; instagram: number };
@@ -142,8 +143,29 @@ export default async function DashboardPage() {
       {/* URL 정보 */}
       {profile && (
         <div className="rounded-2xl bg-(--card) p-5 shadow-[0_4px_20px_rgba(17,24,39,0.06)]">
-          <h2 className="mb-3 text-sm font-semibold text-foreground">내 링크</h2>
-          <CopyLinkButton slug={profile.slug} />
+          <div className="mb-3 flex items-center gap-2">
+            <h2 className="text-sm font-semibold text-foreground">내 링크</h2>
+            {profile.plan === "pro" && (
+              <span className="rounded-full bg-foreground px-2 py-0.5 text-[10px] font-semibold text-white">
+                PRO
+              </span>
+            )}
+          </div>
+
+          {profile.plan === "pro" ? (
+            <SlugEditor currentSlug={profile.slug} siteUrl={SITE_URL} />
+          ) : (
+            <>
+              <CopyLinkButton slug={profile.slug} />
+              <p className="mt-3 text-xs text-(--muted)">
+                🔒 주소 커스텀은{" "}
+                <a href="/billing" className="font-medium text-foreground underline underline-offset-2">
+                  Pro 플랜
+                </a>
+                에서 사용할 수 있습니다.
+              </p>
+            </>
+          )}
         </div>
       )}
 
