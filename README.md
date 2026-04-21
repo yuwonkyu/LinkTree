@@ -4,7 +4,7 @@
 > PT 트레이너 · 필라테스 강사 · 헤어 디자이너 · 카페 사장님이  
 > **링크 하나**로 서비스 소개 + 가격 + 후기 + 카카오 상담까지 연결합니다.
 
-🔗 **서비스 주소**: [instalink.vercel.app](https://instalink.vercel.app)  
+🔗 **서비스 주소**: [kku-ui.vercel.app](https://kku-ui.vercel.app)  
 📌 **예시 페이지**: `/sample` · `/sample2` · `/sample3`
 
 ---
