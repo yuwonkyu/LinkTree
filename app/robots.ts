@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
-  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instalink.vercel.app";
+  const SITE = getSiteUrl();
 
   return {
     rules: {

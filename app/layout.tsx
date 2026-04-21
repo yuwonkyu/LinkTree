@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://instalink.vercel.app";
+const SITE = getSiteUrl();
 
 export const metadata: Metadata = {
   title: {
@@ -11,7 +12,13 @@ export const metadata: Metadata = {
   },
   description:
     "카페·미용실·PT·필라테스 사장님을 위한 인스타 프로필 링크 페이지. 무료로 시작하세요.",
-  keywords: ["인스타 링크", "링크트리 대안", "소상공인", "카카오 문의", "링크 페이지"],
+  keywords: [
+    "인스타 링크",
+    "링크트리 대안",
+    "소상공인",
+    "카카오 문의",
+    "링크 페이지",
+  ],
   authors: [{ name: "InstaLink" }],
   metadataBase: new URL(SITE),
   openGraph: {
