@@ -175,11 +175,11 @@ export default function ServiceManager({
       {/* 직접 추가 폼 */}
       <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 p-3">
         <p className="text-xs font-medium text-(--muted)">직접 추가</p>
-        <div className="flex gap-2">
+        <div className="flex min-w-0 gap-2">
           <input type="text" value={name}  onChange={(e) => setName(e.target.value)}  placeholder="서비스명 (예: PT 1회)"
-            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
+            className="min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
           <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="50,000원"
-            className="w-32 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
+            className="w-24 shrink-0 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
         </div>
         <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="메모 (선택)"
           className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />

@@ -109,9 +109,9 @@ export default function SlugEditor({ currentSlug, siteUrl }: Props) {
         </span>
       </p>
 
-      <div className="flex gap-2">
+      <div className="flex min-w-0 gap-2">
         <div
-          className="flex flex-1 items-center rounded-xl border bg-white px-3.5 py-2.5 text-sm transition-colors focus-within:border-gray-400"
+          className="flex min-w-0 flex-1 items-center overflow-hidden rounded-xl border bg-white px-3 py-2.5 text-sm transition-colors focus-within:border-gray-400"
           style={{
             borderColor:
               status === "available" ? "#4ade80"
@@ -119,14 +119,14 @@ export default function SlugEditor({ currentSlug, siteUrl }: Props) {
               : undefined,
           }}
         >
-          <span className="shrink-0 text-(--muted)">{siteUrl.replace(/^https?:\/\//, "")}/</span>
+          <span className="shrink-0 text-xs text-(--muted)">…/</span>
           <input
             type="text"
             value={slug}
             onChange={(e) => setSlug(e.target.value.toLowerCase())}
             placeholder={currentSlug}
             maxLength={30}
-            className="ml-0.5 flex-1 bg-transparent outline-none placeholder:text-(--muted)"
+            className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-(--muted)"
           />
         </div>
 

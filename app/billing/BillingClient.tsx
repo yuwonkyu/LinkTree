@@ -127,8 +127,8 @@ export default function BillingClient({
 
       {/* ── 모바일: 플랜 탭 + 단일 카드 ── */}
       <div className="sm:hidden flex flex-col gap-4">
-        {/* 탭 */}
-        <div className="grid grid-cols-3 rounded-xl border border-gray-200 bg-white overflow-hidden">
+        {/* 탭 — mt-4로 추천 뱃지(-top-2)가 위 토글을 가리지 않도록 여백 확보 */}
+        <div className="mt-4 grid grid-cols-3 rounded-xl border border-gray-200 bg-white overflow-hidden">
           {plans.map((plan) => {
             const meta = PLAN_META[plan];
             const isSel = mobilePlan === plan;

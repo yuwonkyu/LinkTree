@@ -417,6 +417,7 @@ export default function EditForm({ profile, plan }: Props) {
           )}
           <CldUploadWidget
             uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "instalink_unsigned"}
+            options={{ sources: ["local" as const, "camera" as const] }}
             onSuccess={(result) => {
               if (result.event === "success" && typeof result.info === "object" && result.info !== null && "secure_url" in result.info) {
                 const url = result.info.secure_url as string;

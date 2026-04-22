@@ -56,6 +56,14 @@ export default function LoginForm() {
         />
       </div>
       <SubmitButton />
+      <div className="text-center">
+        <a
+          href="/auth/reset-password"
+          className="text-xs text-(--muted) hover:text-foreground transition-colors"
+        >
+          비밀번호를 잊으셨나요?
+        </a>
+      </div>
     </form>
   );
 }

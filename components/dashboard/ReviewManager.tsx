@@ -15,6 +15,65 @@ function formatDate(d: string) {
   return `${y}년 ${parseInt(m)}월`;
 }
 
+// 연도 선택 옵션: 현재 연도부터 5년 전까지
+const CURRENT_YEAR = new Date().getFullYear();
+const YEARS = Array.from({ length: 6 }, (_, i) => CURRENT_YEAR - i);
+const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
+
+function DatePicker({
+  value,
+  onChange,
+}: {
+  value: string; // "YYYY-MM" or ""
+  onChange: (v: string) => void;
+}) {
+  const [year, month] = value ? value.split("-") : ["", ""];
+
+  function update(y: string, m: string) {
+    if (y && m) onChange(`${y}-${m.padStart(2, "0")}`);
+    else onChange("");
+  }
+
+  return (
+    <div className="flex gap-2">
+      <select
+        value={year}
+        onChange={(e) => update(e.target.value, month)}
+        className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400"
+      >
+        <option value="">연도</option>
+        {YEARS.map((y) => (
+          <option key={y} value={String(y)}>
+            {y}년
+          </option>
+        ))}
+      </select>
+      <select
+        value={month}
+        onChange={(e) => update(year, e.target.value)}
+        className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400"
+      >
+        <option value="">월</option>
+        {MONTHS.map((m) => (
+          <option key={m} value={String(m)}>
+            {m}월
+          </option>
+        ))}
+      </select>
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          className="rounded-lg border border-gray-200 px-2 text-xs text-(--muted) hover:text-foreground"
+          title="날짜 제거"
+        >
+          ✕
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function ReviewManager({ reviews, onChange }: Props) {
   const [text,   setText]   = useState("");
   const [author, setAuthor] = useState("");
@@ -80,12 +139,10 @@ export default function ReviewManager({ reviews, onChange }: Props) {
                     placeholder="작성자 (예: 30대 여성 회원)"
                     className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-gray-400"
                   />
-                  <input
-                    type="month"
-                    value={editDate}
-                    onChange={(e) => setEditDate(e.target.value)}
-                    className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-gray-400"
-                  />
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[11px] text-(--muted)">후기 날짜 (선택)</span>
+                    <DatePicker value={editDate} onChange={setEditDate} />
+                  </div>
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -158,13 +215,8 @@ export default function ReviewManager({ reviews, onChange }: Props) {
           className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
         />
         <div className="flex flex-col gap-1">
-          <label className="text-[11px] text-(--muted)">후기 날짜 (선택)</label>
-          <input
-            type="month"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-          />
+          <span className="text-[11px] text-(--muted)">후기 날짜 (선택)</span>
+          <DatePicker value={date} onChange={setDate} />
         </div>
         <button
           type="button"
