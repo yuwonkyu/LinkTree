@@ -200,10 +200,14 @@ export default async function DashboardPage({
         <div className="rounded-2xl bg-(--card) p-5 shadow-[0_4px_20px_rgba(17,24,39,0.06)]">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground">방문자 현황</h2>
-            {profile.plan === "free" && (
+            {(!profile.plan || profile.plan === "free") ? (
               <a href="/billing" className="text-xs font-medium text-foreground hover:underline">
-                상세보기 →
+                업그레이드 →
               </a>
+            ) : (
+              <Link href="/dashboard/stats" className="text-xs font-medium text-foreground hover:underline">
+                통계 상세 →
+              </Link>
             )}
           </div>
 

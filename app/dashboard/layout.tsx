@@ -33,6 +33,9 @@ export default async function DashboardLayout({
                 관리자
               </Link>
             )}
+            <Link href="/dashboard/stats" className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-medium text-(--muted) hover:border-gray-300 hover:text-foreground transition-colors">
+              통계
+            </Link>
             <span className="hidden text-xs text-(--muted) sm:block">{user.email}</span>
             <form action={signOut}>
               <button
