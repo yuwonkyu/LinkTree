@@ -354,8 +354,14 @@ export default async function CategoryLandingPage({ params }: PageProps) {
         </section>
       </div>
 
-      <footer className="border-t border-black/5 px-4 py-8 text-center text-sm text-(--muted)">
-        © 2025 InstaLink
+      <footer className="border-t border-black/5 px-4 py-8 text-center text-xs text-(--muted)">
+        <p>© 2026 InstaLink</p>
+        <nav className="mt-3 flex flex-wrap justify-center gap-4">
+          <a href="/terms" className="hover:text-foreground">이용약관</a>
+          <a href="/content-policy" className="hover:text-foreground">콘텐츠 정책</a>
+          <a href="/refund" className="hover:text-foreground">환불 정책</a>
+          <a href="/privacy" className="hover:text-foreground">개인정보처리방침</a>
+        </nav>
       </footer>
     </main>
   );
