@@ -35,7 +35,7 @@ export default function ServiceManager({
   const [editPrice, setEditPrice] = useState("");
   const [editNote,  setEditNote]  = useState("");
 
-  const [showTemplates, setShowTemplates] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(true);
 
   function add() {
     if (!name.trim() || !price.trim()) return;
@@ -74,32 +74,11 @@ export default function ServiceManager({
 
   return (
     <div>
-      {/* 상단 버튼 행 */}
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={() => setShowTemplates((v) => !v)}
-          className="text-xs font-medium text-(--muted) hover:text-foreground transition-colors"
-        >
-          {showTemplates ? "닫기" : "📋 업종별 예시 채우기"}
-        </button>
-        {isPaidPlan && (
-          <button
-            type="button"
-            onClick={onAISuggest}
-            disabled={aiLoading === "services"}
-            className="text-xs text-blue-400 hover:text-blue-600 disabled:opacity-50"
-          >
-            {aiLoading === "services" ? "생성 중…" : "✨ AI 채우기"}
-          </button>
-        )}
-      </div>
-
       {/* 예시 템플릿 패널 */}
       {showTemplates && (
         <div className="mb-4 rounded-xl border border-gray-100 bg-(--secondary) p-3">
           <div className="mb-2.5 flex items-center gap-2">
-            <span className="text-xs text-(--muted)">업종</span>
+            <span className="text-xs font-medium text-(--muted)">업종</span>
             <select
               value={category}
               onChange={(e) => onCategoryChange(e.target.value)}
@@ -107,6 +86,13 @@ export default function ServiceManager({
             >
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
+            <button
+              type="button"
+              onClick={() => setShowTemplates(false)}
+              className="text-xs text-(--muted) hover:text-foreground transition-colors"
+            >
+              닫기
+            </button>
           </div>
           <ul className="mb-3 flex flex-col gap-1.5">
             {templateServices.map((svc) => (
@@ -116,14 +102,37 @@ export default function ServiceManager({
               </li>
             ))}
           </ul>
-          <button
-            type="button"
-            onClick={applyTemplates}
-            className="w-full rounded-lg bg-foreground py-2 text-xs font-semibold text-white hover:opacity-80 transition-opacity"
-          >
-            위 목록으로 채우기 (기존 목록 대체)
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={applyTemplates}
+              className="flex-1 rounded-lg bg-foreground py-2 text-xs font-semibold text-white hover:opacity-80 transition-opacity"
+            >
+              📋 예시로 채우기
+            </button>
+            {isPaidPlan && (
+              <button
+                type="button"
+                onClick={onAISuggest}
+                disabled={aiLoading === "services"}
+                className="flex-1 rounded-lg border border-blue-200 bg-white py-2 text-xs font-semibold text-blue-500 hover:bg-blue-50 disabled:opacity-50 transition-colors"
+              >
+                {aiLoading === "services" ? "생성 중…" : "✨ AI로 채우기"}
+              </button>
+            )}
+          </div>
         </div>
+      )}
+
+      {/* 패널 닫혀있을 때 열기 버튼 */}
+      {!showTemplates && (
+        <button
+          type="button"
+          onClick={() => setShowTemplates(true)}
+          className="mb-3 text-xs font-medium text-(--muted) hover:text-foreground transition-colors"
+        >
+          📋 업종별 예시 보기
+        </button>
       )}
 
       {/* 기존 서비스 목록 */}

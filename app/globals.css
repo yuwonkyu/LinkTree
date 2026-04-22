@@ -76,8 +76,7 @@ a {
 }
 
 .profile-brand,
-.profile-name,
-.profile-role {
+.profile-name {
   white-space: nowrap;
 }
 

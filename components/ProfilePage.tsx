@@ -154,14 +154,14 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
 
       {/* ── 추가 링크 ── */}
       {profile.custom_links && profile.custom_links.length > 0 && (
-        <div className="mt-3 flex flex-col gap-2">
+        <div className={`flex flex-col gap-2 ${hasCta ? "mt-6" : "mt-5"}`}>
           {profile.custom_links.map((link, idx) => (
             <a
               key={idx}
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/60 px-4 text-sm font-medium text-foreground shadow-sm backdrop-blur hover:bg-white/80 transition-colors active:translate-y-px"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white/60 px-4 text-sm font-medium text-foreground backdrop-blur hover:bg-white/80 transition-colors active:translate-y-px"
             >
               🔗 {link.label}
             </a>

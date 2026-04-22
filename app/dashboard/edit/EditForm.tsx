@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import { saveProfile, type SaveProfilePayload } from "./actions";
@@ -102,6 +102,21 @@ const TEMPLATES: Record<string, TemplateSet> = {
     ],
   },
 };
+
+// ─── 최근 이미지 (localStorage) ─────────────────
+const RECENT_IMG_KEY = "instalink_recent_images";
+
+function getRecentImages(): string[] {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem(RECENT_IMG_KEY) ?? "[]"); }
+  catch { return []; }
+}
+
+function pushRecentImage(url: string): string[] {
+  const next = [url, ...getRecentImages().filter((u) => u !== url)].slice(0, 3);
+  localStorage.setItem(RECENT_IMG_KEY, JSON.stringify(next));
+  return next;
+}
 
 // ─── 섹션 래퍼 ──────────────────────────────────
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -229,11 +244,15 @@ export default function EditForm({ profile, plan }: Props) {
   const [customLinks,  setCustomLinks] = useState<CustomLink[]>(profile.custom_links ?? []);
 
   // 업종 (예시/AI 공통)
-  const [category, setCategory] = useState("PT/헬스");
+  const [category, setCategory] = useState("카페");
 
   // 예시 패널 토글
   const [showTaglineHints, setShowTaglineHints] = useState(false);
   const [showDescHints,    setShowDescHints]    = useState(false);
+
+  // 최근 이미지
+  const [recentImages, setRecentImages] = useState<string[]>([]);
+  useEffect(() => { setRecentImages(getRecentImages()); }, []);
 
   // AI · 저장
   const [aiLoading, setAiLoading] = useState<string | null>(null);
@@ -253,8 +272,13 @@ export default function EditForm({ profile, plan }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, shopName, category, existing: type === "description" ? description : undefined }),
       });
-      const { result, error } = await res.json();
-      if (error) { alert(error); return; }
+      const json = await res.json();
+      if (!res.ok || json.error) {
+        const msg = typeof json.error === "string" ? json.error : (json.error?.message ?? `오류가 발생했습니다. (${res.status})`);
+        alert(msg);
+        return;
+      }
+      const { result } = json;
       if (type === "tagline")     setTagline(result.split("\n")[0] ?? result);
       if (type === "description") setDesc(result);
       if (type === "services" && Array.isArray(result)) setServices(result);
@@ -381,7 +405,9 @@ export default function EditForm({ profile, plan }: Props) {
             uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "instalink_unsigned"}
             onSuccess={(result) => {
               if (result.event === "success" && typeof result.info === "object" && result.info !== null && "secure_url" in result.info) {
-                setImageUrl(result.info.secure_url as string);
+                const url = result.info.secure_url as string;
+                setImageUrl(url);
+                setRecentImages(pushRecentImage(url));
               }
             }}
           >
@@ -396,6 +422,26 @@ export default function EditForm({ profile, plan }: Props) {
             <button type="button" onClick={() => setImageUrl("")} className="w-fit text-xs text-red-400 hover:text-red-600">
               이미지 제거
             </button>
+          )}
+
+          {/* 최근 업로드 썸네일 */}
+          {recentImages.filter((u) => u !== imageUrl).length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <p className="text-xs text-(--muted)">최근 업로드</p>
+              <div className="flex gap-2">
+                {recentImages.filter((u) => u !== imageUrl).map((url) => (
+                  <button
+                    key={url}
+                    type="button"
+                    onClick={() => setImageUrl(url)}
+                    className="relative h-16 w-16 overflow-hidden rounded-xl border-2 border-gray-200 hover:border-gray-400 transition-colors"
+                    title="이 이미지로 변경"
+                  >
+                    <Image src={url} alt="최근 이미지" fill sizes="64px" className="object-cover" />
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </Section>
