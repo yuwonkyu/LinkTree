@@ -55,7 +55,7 @@ export async function signUp(formData: FormData) {
     password,
     options: {
       data: { name },
-      emailRedirectTo: `${SITE_URL}/auth/callback`,
+      emailRedirectTo: `${SITE_URL}/auth/callback?next=/dashboard/onboarding`,
     },
   });
 

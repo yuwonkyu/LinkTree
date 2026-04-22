@@ -8,6 +8,7 @@ import CopyLinkButton from "./CopyLinkButton";
 import SlugEditor from "@/components/dashboard/SlugEditor";
 import ReferralCard from "./ReferralCard";
 import DeleteAccountButton from "./DeleteAccountButton";
+import InstaGuideModal from "./InstaGuideModal";
 
 type ClickStats = { kakao: number; instagram: number };
 
@@ -45,7 +46,12 @@ async function getMyProfile(ownerId: string): Promise<Profile | null> {
   return data as Profile | null;
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ onboarded?: string }>;
+}) {
+  const { onboarded } = await searchParams;
   // 실제 배포 도메인을 자동 감지 (로컬/배포 모두 정확한 URL 사용)
   const headersList = await headers();
   const host = headersList.get("host") ?? "kku-ui.vercel.app";
@@ -76,6 +82,19 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      {/* 온보딩 완료 배너 */}
+      {onboarded === "1" && profile && (
+        <div className="rounded-2xl bg-green-50 border border-green-100 p-4">
+          <p className="text-sm font-semibold text-green-800">🎉 내 페이지가 완성됐어요!</p>
+          <p className="mt-0.5 text-xs text-green-700">
+            이제 인스타그램 bio에 링크를 붙여넣으면 고객이 바로 찾아올 수 있어요.
+          </p>
+          <div className="mt-3">
+            <InstaGuideModal slug={profile.slug} siteUrl={SITE_URL} highlight />
+          </div>
+        </div>
+      )}
+
       {/* 인사말 */}
       <div>
         <h1 className="text-xl font-bold text-foreground">
@@ -115,11 +134,6 @@ export default async function DashboardPage() {
           <p className="mb-1 text-lg font-bold text-foreground">
             {profile.shop_name || profile.name || "미설정"}
           </p>
-          {"view_count" in profile && (
-            <p className="mb-1 text-xs text-(--muted)">
-              👁 누적 조회수 {(profile as Profile & { view_count: number }).view_count.toLocaleString()}회
-            </p>
-          )}
           <p className="mb-4 text-sm text-(--muted)">{profile.tagline || "소개글 없음"}</p>
 
           <div className="flex flex-wrap gap-2">
@@ -166,6 +180,68 @@ export default async function DashboardPage() {
                 에서 사용할 수 있습니다.
               </p>
             </>
+          )}
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <InstaGuideModal slug={profile.slug} siteUrl={SITE_URL} />
+          </div>
+        </div>
+      )}
+
+      {/* 방문자 통계 카드 */}
+      {profile && (
+        <div className="rounded-2xl bg-(--card) p-5 shadow-[0_4px_20px_rgba(17,24,39,0.06)]">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">방문자 현황</h2>
+            {profile.plan === "free" && (
+              <a href="/billing" className="text-xs font-medium text-foreground hover:underline">
+                상세보기 →
+              </a>
+            )}
+          </div>
+
+          {/* 누적 조회수 (모든 플랜 공개) */}
+          <div className="flex items-end gap-2 mb-4">
+            <span className="text-3xl font-bold text-foreground">
+              {(profile.view_count ?? 0).toLocaleString()}
+            </span>
+            <span className="mb-1 text-sm text-(--muted)">누적 방문자</span>
+          </div>
+
+          {/* 주간 분석 — 유료 잠금 */}
+          {profile.plan === "free" ? (
+            <div className="relative rounded-xl border border-dashed border-gray-200 p-4 overflow-hidden">
+              {/* 흐릿한 배경 숫자들 */}
+              <div className="flex justify-between items-end h-12 mb-2 blur-sm select-none pointer-events-none">
+                {[4, 7, 3, 12, 8, 15, 10].map((h, i) => (
+                  <div
+                    key={i}
+                    className="w-6 rounded-t bg-gray-200"
+                    style={{ height: `${(h / 15) * 100}%` }}
+                  />
+                ))}
+              </div>
+              <div className="flex justify-between text-[10px] text-(--muted) blur-sm select-none pointer-events-none">
+                {["월", "화", "수", "목", "금", "토", "일"].map((d) => (
+                  <span key={d}>{d}</span>
+                ))}
+              </div>
+              {/* 잠금 오버레이 */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[2px] rounded-xl">
+                <span className="text-lg mb-1">🔒</span>
+                <p className="text-xs font-semibold text-foreground">주간 방문자 분석</p>
+                <p className="mt-0.5 text-[11px] text-(--muted)">베이직 플랜에서 확인하세요</p>
+                <a
+                  href="/billing"
+                  className="mt-2 rounded-lg bg-foreground px-3 py-1 text-xs font-semibold text-white hover:opacity-80 transition-opacity"
+                >
+                  업그레이드
+                </a>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-(--muted) rounded-xl bg-(--secondary) px-4 py-3">
+              📊 일별 방문자 그래프는 곧 제공될 예정입니다.
+            </p>
           )}
         </div>
       )}

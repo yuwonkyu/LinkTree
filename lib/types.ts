@@ -51,6 +51,7 @@ export type Profile = {
   referral_code?: string | null;
   referred_by?: string | null;
   custom_links?: CustomLink[] | null;
+  view_count?: number;
 };
 
 export type Subscription = {
