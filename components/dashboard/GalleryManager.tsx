@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import type { GalleryImage } from "@/lib/types";
@@ -15,6 +15,10 @@ type Props = {
 export default function GalleryManager({ images, onChange }: Props) {
   const [editIdx, setEditIdx] = useState<number | null>(null);
   const [editCaption, setEditCaption] = useState("");
+
+  // stale closure 방지 — onSuccess 콜백이 항상 최신 images를 참조하도록
+  const imagesRef = useRef<GalleryImage[]>(images);
+  useEffect(() => { imagesRef.current = images; }, [images]);
 
   function remove(idx: number) {
     onChange(images.filter((_, i) => i !== idx));
@@ -73,7 +77,7 @@ export default function GalleryManager({ images, onChange }: Props) {
                       type="button"
                       onClick={() => moveUp(idx)}
                       disabled={idx === 0}
-                      className="rounded-md bg-white/80 px-1.5 py-0.5 text-[10px] font-medium disabled:opacity-30"
+                      className="rounded-md bg-white/80 px-1.5 py-0.5 text-[10px] font-medium text-gray-900 disabled:opacity-30"
                     >
                       ←
                     </button>
@@ -81,7 +85,7 @@ export default function GalleryManager({ images, onChange }: Props) {
                       type="button"
                       onClick={() => moveDown(idx)}
                       disabled={idx === images.length - 1}
-                      className="rounded-md bg-white/80 px-1.5 py-0.5 text-[10px] font-medium disabled:opacity-30"
+                      className="rounded-md bg-white/80 px-1.5 py-0.5 text-[10px] font-medium text-gray-900 disabled:opacity-30"
                     >
                       →
                     </button>
@@ -89,7 +93,7 @@ export default function GalleryManager({ images, onChange }: Props) {
                   <button
                     type="button"
                     onClick={() => startEdit(idx)}
-                    className="rounded-md bg-white/80 px-2 py-0.5 text-[10px] font-medium"
+                    className="rounded-md bg-white/80 px-2 py-0.5 text-[10px] font-medium text-gray-900"
                   >
                     캡션
                   </button>
@@ -111,7 +115,7 @@ export default function GalleryManager({ images, onChange }: Props) {
                     onChange={(e) => setEditCaption(e.target.value)}
                     placeholder="사진 설명 (선택)"
                     autoFocus
-                    className="flex-1 rounded-lg border border-gray-200 bg-white px-2 py-1 text-[11px] outline-none focus:border-gray-400"
+                    className="flex-1 rounded-lg border border-gray-200 bg-white px-2 py-1 text-[11px] text-gray-900 outline-none focus:border-gray-400"
                   />
                   <button
                     type="button"
@@ -144,7 +148,10 @@ export default function GalleryManager({ images, onChange }: Props) {
               "secure_url" in result.info
             ) {
               const url = result.info.secure_url as string;
-              onChange([...images, { url }]);
+              // imagesRef.current을 사용해 항상 최신 배열에 추가 (stale closure 방지)
+              const next = [...imagesRef.current, { url }];
+              imagesRef.current = next;
+              onChange(next);
             }
           }}
         >
@@ -166,7 +173,7 @@ export default function GalleryManager({ images, onChange }: Props) {
       )}
 
       <p className="text-xs text-(--muted)">
-        작업물·매장 사진을 올리면 고객 신뢰도가 높아집니다. 사진을 누르면 순서 변경·캡션 추가·삭제가 가능합니다.
+        작업물·매장 사진을 올리면 고객 신뢰도가 높아집니다. 사진 위에 마우스를 올리면 순서 변경·캡션·삭제가 가능합니다.
       </p>
     </div>
   );
