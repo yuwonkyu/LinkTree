@@ -10,6 +10,8 @@ import ReferralCard from "./ReferralCard";
 import DeleteAccountButton from "./DeleteAccountButton";
 import InstaGuideModal from "./InstaGuideModal";
 import AvailabilityToggle from "./AvailabilityToggle";
+import QRCodeCard from "./QRCodeCard";
+import ReviewLinkCard from "./ReviewLinkCard";
 
 type ClickStats = { kakao: number; instagram: number; phone: number };
 
@@ -215,42 +217,52 @@ export default async function DashboardPage({
             <span className="mb-1 text-sm text-(--muted)">누적 방문자</span>
           </div>
 
-          {/* 주간 분석 — 유료 잠금 */}
-          {profile.plan === "free" ? (
-            <div className="relative rounded-xl border border-dashed border-gray-200 p-4 overflow-hidden">
-              {/* 흐릿한 배경 숫자들 */}
-              <div className="flex justify-between items-end h-12 mb-2 blur-sm select-none pointer-events-none">
-                {[4, 7, 3, 12, 8, 15, 10].map((h, i) => (
-                  <div
-                    key={i}
-                    className="w-6 rounded-t bg-gray-200"
-                    style={{ height: `${(h / 15) * 100}%` }}
-                  />
-                ))}
+          {/* 주간 분석 — 2주 트라이얼 or 유료 잠금 */}
+          {(() => {
+            const isFree = !profile.plan || profile.plan === "free";
+            const createdAt = profile.created_at ? new Date(profile.created_at) : null;
+            const daysSince = createdAt
+              ? Math.floor((Date.now() - createdAt.getTime()) / 86_400_000)
+              : 999;
+            const inTrial = isFree && daysSince < 14;
+            const locked  = isFree && !inTrial;
+
+            return locked ? (
+              <div className="relative rounded-xl border border-dashed border-gray-200 p-4 overflow-hidden">
+                <div className="flex justify-between items-end h-12 mb-2 blur-sm select-none pointer-events-none">
+                  {[4, 7, 3, 12, 8, 15, 10].map((h, i) => (
+                    <div key={i} className="w-6 rounded-t bg-gray-200"
+                      style={{ height: `${(h / 15) * 100}%` }} />
+                  ))}
+                </div>
+                <div className="flex justify-between text-[10px] text-(--muted) blur-sm select-none pointer-events-none">
+                  {["월","화","수","목","금","토","일"].map((d) => <span key={d}>{d}</span>)}
+                </div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[2px] rounded-xl">
+                  <span className="text-lg mb-1">🔒</span>
+                  <p className="text-xs font-semibold text-foreground">주간 방문자 분석</p>
+                  <p className="mt-0.5 text-[11px] text-(--muted)">베이직 플랜에서 확인하세요</p>
+                  <a href="/billing"
+                    className="mt-2 rounded-lg bg-foreground px-3 py-1 text-xs font-semibold text-white hover:opacity-80 transition-opacity">
+                    업그레이드
+                  </a>
+                </div>
               </div>
-              <div className="flex justify-between text-[10px] text-(--muted) blur-sm select-none pointer-events-none">
-                {["월", "화", "수", "목", "금", "토", "일"].map((d) => (
-                  <span key={d}>{d}</span>
-                ))}
+            ) : inTrial ? (
+              <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
+                <p className="text-xs font-semibold text-blue-800">
+                  🎁 무료 체험 중 ({14 - daysSince}일 남음)
+                </p>
+                <p className="mt-0.5 text-xs text-blue-700">
+                  가입 후 14일간 상세 통계를 무료로 이용할 수 있어요.
+                </p>
               </div>
-              {/* 잠금 오버레이 */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-[2px] rounded-xl">
-                <span className="text-lg mb-1">🔒</span>
-                <p className="text-xs font-semibold text-foreground">주간 방문자 분석</p>
-                <p className="mt-0.5 text-[11px] text-(--muted)">베이직 플랜에서 확인하세요</p>
-                <a
-                  href="/billing"
-                  className="mt-2 rounded-lg bg-foreground px-3 py-1 text-xs font-semibold text-white hover:opacity-80 transition-opacity"
-                >
-                  업그레이드
-                </a>
-              </div>
-            </div>
-          ) : (
-            <p className="text-xs text-(--muted) rounded-xl bg-(--secondary) px-4 py-3">
-              📊 일별 방문자 그래프는 곧 제공될 예정입니다.
-            </p>
-          )}
+            ) : (
+              <p className="text-xs text-(--muted) rounded-xl bg-(--secondary) px-4 py-3">
+                📊 일별 방문자 그래프는 곧 제공될 예정입니다.
+              </p>
+            );
+          })()}
         </div>
       )}
 
@@ -277,6 +289,16 @@ export default async function DashboardPage({
         </div>
       )}
 
+      {/* 후기 수집 카드 */}
+      {profile && (
+        <ReviewLinkCard
+          slug={profile.slug}
+          siteUrl={SITE_URL}
+          reviewCount={profile.reviews?.length ?? 0}
+          isPaid={profile.plan !== "free"}
+        />
+      )}
+
       {/* 예약 가능 토글 */}
       {profile && (
         <div className="rounded-2xl bg-(--card) p-5 shadow-[0_4px_20px_rgba(17,24,39,0.06)]">
@@ -286,6 +308,14 @@ export default async function DashboardPage({
             매일 상태를 업데이트하면 고객이 실시간으로 예약 가능 여부를 확인할 수 있어요.
           </p>
         </div>
+      )}
+
+      {/* QR 코드 카드 */}
+      {profile && (
+        <QRCodeCard
+          url={`${SITE_URL}/${profile.slug}`}
+          isPaid={profile.plan !== "free"}
+        />
       )}
 
       {/* 플랜 카드 */}

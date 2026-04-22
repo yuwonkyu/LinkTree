@@ -210,21 +210,37 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
       )}
 
       {/* ── 추가 링크 ── */}
-      {profile.custom_links && profile.custom_links.length > 0 && (
-        <div className={`relative z-10 flex flex-col gap-2 ${hasCta ? "mt-6" : "mt-5"}`}>
-          {profile.custom_links.map((link, idx) => (
-            <a
-              key={idx}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white px-4 text-sm font-medium text-foreground hover:bg-black/[0.035] transition-colors active:translate-y-px"
-            >
-              🔗 {link.label}
-            </a>
-          ))}
-        </div>
-      )}
+      {profile.custom_links && profile.custom_links.length > 0 && (() => {
+        const FREE_LINK_LIMIT = 2;
+        const isFree = !profile.plan || profile.plan === "free";
+        const visibleLinks = isFree
+          ? profile.custom_links!.slice(0, FREE_LINK_LIMIT)
+          : profile.custom_links!;
+        const hiddenCount = isFree
+          ? Math.max(0, profile.custom_links!.length - FREE_LINK_LIMIT)
+          : 0;
+        return (
+          <div className={`relative z-10 flex flex-col gap-2 ${hasCta ? "mt-6" : "mt-5"}`}>
+            {visibleLinks.map((link, idx) => (
+              <a
+                key={idx}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white px-4 text-sm font-medium text-foreground hover:bg-black/[0.035] transition-colors active:translate-y-px"
+              >
+                🔗 {link.label}
+              </a>
+            ))}
+            {hiddenCount > 0 && (
+              <div className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-black/10 py-3 text-xs text-(--muted)">
+                <span>🔒</span>
+                <span>링크 {hiddenCount}개 더 보려면 업그레이드가 필요합니다</span>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── 서비스 ── */}
       {profile.services.length > 0 && (
@@ -253,24 +269,39 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
       )}
 
       {/* ── 후기 ── */}
-      {profile.reviews.length > 0 && (
-        <>
-          <div className="my-6 h-px bg-black/20" />
-          <section>
-            <SectionLabel>고객 후기</SectionLabel>
-            <ul className="space-y-2">
-              {profile.reviews.map((review, idx) => (
-                <li key={review.author + idx} className="rounded-xl bg-black/[0.035] px-4 py-4">
-                  <p className="text-sm leading-6 text-foreground">
-                    &#8220;{review.text}&#8221;
-                  </p>
-                  <p className="mt-2 text-[11px] font-semibold text-(--muted)">— {review.author}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </>
-      )}
+      {profile.reviews.length > 0 && (() => {
+        const FREE_REVIEW_LIMIT = 3;
+        const isFree = !profile.plan || profile.plan === "free";
+        const visibleReviews = isFree
+          ? profile.reviews.slice(0, FREE_REVIEW_LIMIT)
+          : profile.reviews;
+        const hiddenCount = isFree
+          ? Math.max(0, profile.reviews.length - FREE_REVIEW_LIMIT)
+          : 0;
+        return (
+          <>
+            <div className="my-6 h-px bg-black/20" />
+            <section>
+              <SectionLabel>고객 후기</SectionLabel>
+              <ul className="space-y-2">
+                {visibleReviews.map((review, idx) => (
+                  <li key={review.author + idx} className="rounded-xl bg-black/[0.035] px-4 py-4">
+                    <p className="text-sm leading-6 text-foreground">
+                      &#8220;{review.text}&#8221;
+                    </p>
+                    <p className="mt-2 text-[11px] font-semibold text-(--muted)">— {review.author}</p>
+                  </li>
+                ))}
+              </ul>
+              {hiddenCount > 0 && (
+                <p className="mt-3 text-center text-xs text-(--muted)">
+                  후기 {hiddenCount}개가 더 있습니다 — 업그레이드 후 모두 표시
+                </p>
+              )}
+            </section>
+          </>
+        );
+      })()}
 
       {/* ── 운영정보 ── */}
       {(profile.hours || profile.location || profile.instagram_id) && (
