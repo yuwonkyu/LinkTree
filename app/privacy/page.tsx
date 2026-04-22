@@ -102,6 +102,8 @@ export default function PrivacyPage() {
           </Section>
 
         </div>
+
+        <LegalNav current="privacy" />
       </div>
     </main>
   );
@@ -114,6 +116,28 @@ function Section({ title, children }: { title: string; children: React.ReactNode
       <h2 className="mb-3 font-semibold text-foreground">{title}</h2>
       {children}
     </section>
+  );
+}
+
+function LegalNav({ current }: { current: "terms" | "content-policy" | "refund" | "privacy" }) {
+  const links = [
+    { href: "/terms", label: "이용약관" },
+    { href: "/content-policy", label: "콘텐츠 정책" },
+    { href: "/refund", label: "환불 정책" },
+    { href: "/privacy", label: "개인정보처리방침" },
+  ];
+  return (
+    <nav className="mt-6 flex flex-wrap justify-center gap-4 text-xs text-(--muted)">
+      {links.map(({ href, label }) => (
+        <Link
+          key={href}
+          href={href}
+          className={href === `/${current}` ? "font-semibold text-foreground" : "hover:text-foreground"}
+        >
+          {label}
+        </Link>
+      ))}
+    </nav>
   );
 }
 

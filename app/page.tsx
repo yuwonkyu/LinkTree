@@ -398,7 +398,13 @@ export default function Page() {
       </section>
 
       <footer className="border-t border-black/5 px-4 py-8 text-center text-xs text-(--muted) sm:px-6">
-        © 2025 InstaLink · 소상공인을 위한 인스타 링크 페이지
+        <p>© 2026 InstaLink · 소상공인을 위한 인스타 링크 페이지</p>
+        <nav className="mt-3 flex flex-wrap justify-center gap-4">
+          <a href="/terms" className="hover:text-foreground">이용약관</a>
+          <a href="/content-policy" className="hover:text-foreground">콘텐츠 정책</a>
+          <a href="/refund" className="hover:text-foreground">환불 정책</a>
+          <a href="/privacy" className="hover:text-foreground">개인정보처리방침</a>
+        </nav>
       </footer>
     </main>
   );
