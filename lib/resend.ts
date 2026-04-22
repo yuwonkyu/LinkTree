@@ -1,5 +1,8 @@
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? "";
-const FROM = "InstaLink <onboarding@resend.dev>";
+
+// 커스텀 도메인 인증 후: "InstaLink <noreply@yourdomain.com>"
+// 도메인 미인증 시 Resend 테스트 주소 사용 (계정 소유자 이메일에만 발송 가능)
+const FROM = process.env.RESEND_FROM_EMAIL ?? "InstaLink <onboarding@resend.dev>";
 
 type EmailPayload = {
   to: string;
