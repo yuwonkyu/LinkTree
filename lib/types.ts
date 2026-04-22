@@ -84,14 +84,14 @@ export const PLAN_META: Record<
   },
   basic: {
     label: "Basic",
-    price: 29000,
-    annualPrice: 290000,  // 월 29,000 × 10개월 (2개월 무료)
+    price: 19900,
+    annualPrice: 199000,  // 월 19,900 × 10개월 (2개월 무료)
     features: ["모든 테마 6종", "서비스 무제한", "후기 무제한", "카카오 문의 버튼"],
   },
   pro: {
     label: "Pro",
-    price: 49000,
-    annualPrice: 490000,  // 월 49,000 × 10개월 (2개월 무료)
-    features: ["Basic 모든 기능", "방문자 통계 (예정)", "멀티 링크 (예정)", "우선 지원"],
+    price: 29900,
+    annualPrice: 299000,  // 월 29,900 × 10개월 (2개월 무료)
+    features: ["Basic 모든 기능", "방문자 통계", "멀티 링크 (예정)", "우선 지원"],
   },
 };
