@@ -5,6 +5,7 @@ import type { Profile } from "@/lib/types";
 
 type ProfilePageProps = {
   profile: Profile;
+  showWatermark?: boolean;
 };
 
 function toInstagramUrl(instagramId: string) {
@@ -52,7 +53,7 @@ function IconInstagram() {
   );
 }
 
-export default function ProfilePage({ profile }: ProfilePageProps) {
+export default function ProfilePage({ profile, showWatermark = false }: ProfilePageProps) {
   const instagramHandle = profile.instagram_id.startsWith("@")
     ? profile.instagram_id
     : `@${profile.instagram_id}`;
@@ -248,6 +249,22 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
             )}
           </div>
         </>
+      )}
+      {/* ── 워터마크 (무료 플랜) ── */}
+      {showWatermark && (
+        <div className="mt-6 border-t border-black/8 pt-4 text-center">
+          <a
+            href="https://kku-ui.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-[11px] text-(--muted) hover:text-foreground transition-colors"
+          >
+            <span>⚡</span>
+            <span>
+              <span className="font-semibold text-foreground">InstaLink</span>로 만든 페이지
+            </span>
+          </a>
+        </div>
       )}
     </section>
   );
