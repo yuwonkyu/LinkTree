@@ -162,6 +162,14 @@ export default async function SlugPage({ params }: PageProps) {
         <div className="mt-3">
           <ShareButton url={`${SITE}/${slug}`} />
         </div>
+        <div className="mt-4 text-center">
+          <a
+            href={`mailto:duck01777@gmail.com?subject=${encodeURIComponent(`[신고] ${SITE}/${slug}`)}&body=${encodeURIComponent(`신고 페이지 URL: ${SITE}/${slug}\n\n신고 사유:\n\n(자세히 작성해주세요)`)}`}
+            className="text-xs text-(--muted) hover:text-foreground transition-colors underline underline-offset-2"
+          >
+            이 페이지 신고하기
+          </a>
+        </div>
       </div>
     </main>
   );

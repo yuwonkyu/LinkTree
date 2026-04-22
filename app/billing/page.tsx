@@ -78,6 +78,22 @@ export default async function BillingPage() {
           clientKey={TOSS_CLIENT_KEY}
           siteUrl={SITE_URL}
         />
+
+        {currentPlan !== "free" && (
+          <div className="mt-6 rounded-2xl border border-gray-100 bg-white p-5">
+            <h2 className="mb-1 text-sm font-semibold text-foreground">환불 신청</h2>
+            <p className="mb-3 text-xs text-(--muted)">
+              결제일로부터 7일 이내 미사용 시 전액 환불 가능합니다.{" "}
+              <a href="/refund" className="underline hover:text-foreground">환불 정책 보기</a>
+            </p>
+            <a
+              href={`mailto:duck01777@gmail.com?subject=${encodeURIComponent(`[환불 신청] ${user.email ?? ""}`)}&body=${encodeURIComponent(`가입 이메일: ${user.email ?? ""}\n현재 플랜: ${currentPlan}\n\n결제일:\n\n환불 사유:\n\n(자세히 작성해주세요)`)}`}
+              className="inline-block rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-foreground hover:bg-(--secondary) transition-colors"
+            >
+              이메일로 환불 신청하기
+            </a>
+          </div>
+        )}
       </main>
     </div>
   );
