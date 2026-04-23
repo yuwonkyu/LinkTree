@@ -88,6 +88,25 @@ const TESTIMONIALS = [
   },
 ];
 
+const FAQS = [
+  {
+    q: "무료 플랜은 정말 무료인가요?",
+    a: "네, 카드 등록 없이 영원히 무료로 사용할 수 있습니다. 기본 프로필 페이지를 무제한으로 운영할 수 있어요.",
+  },
+  {
+    q: "카카오 상담 버튼 연결이 가능한가요?",
+    a: "Basic 플랜부터 카카오 오픈채팅 링크를 연결할 수 있어요. 버튼 하나로 고객이 바로 상담 신청할 수 있습니다.",
+  },
+  {
+    q: "모바일에서도 쉽게 수정할 수 있나요?",
+    a: "물론입니다! 대시보드는 모바일 최적화가 되어 있어, 스마트폰에서도 언제든지 내용을 수정할 수 있어요.",
+  },
+  {
+    q: "나중에 요금제를 변경할 수 있나요?",
+    a: "언제든지 업그레이드하거나 다운그레이드할 수 있습니다. 구독을 취소해도 잔여 결제 기간 동안은 기존 플랜이 유지됩니다.",
+  },
+];
+
 const PLANS: Plan[] = ["free", "basic", "pro"];
 
 // ── 서브 컴포넌트 ────────────────────────────────────────────
@@ -116,11 +135,11 @@ function CellValue({ v }: { v: string | boolean }) {
 // ── 페이지 ────────────────────────────────────────────────────
 export default function Page() {
   return (
-    <main className="min-h-screen bg-(--secondary) text-foreground">
+    <main className="min-h-screen bg-(--secondary) pb-20 text-foreground sm:pb-0">
       <LandingHeader wide />
 
       {/* 히어로 */}
-      <section className="mx-auto w-full max-w-6xl px-4 pb-10 pt-14 sm:px-6">
+      <section className="mx-auto w-full max-w-6xl px-4 pb-4 pt-14 sm:px-6">
         <div className="rounded-3xl bg-(--card) px-6 py-12 shadow-[0_4px_20px_rgba(17,24,39,0.06)] sm:px-12 sm:py-16">
           <p className="inline-block rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-semibold text-(--muted)">
             PT · 필라테스 · 미용 · 카페 소상공인용
@@ -153,7 +172,14 @@ export default function Page() {
               예시 페이지 보기
             </Link>
           </div>
-          <p className="mt-4 text-xs text-(--muted)">신용카드 불필요 · 5분 설정 · 즉시 공유</p>
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1">
+            {["카드 등록 없음", "5분 완성", "즉시 공유 가능"].map((item) => (
+              <span key={item} className="flex items-center gap-1.5 text-xs text-(--muted)">
+                <span className="text-green-500 font-bold">✔</span>
+                {item}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -366,6 +392,22 @@ export default function Page() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section className="mx-auto w-full max-w-6xl px-4 pb-14 sm:px-6">
+        <h2 className="text-xl font-bold sm:text-2xl">자주 묻는 질문</h2>
+        <div className="mt-4 flex flex-col divide-y divide-black/5 overflow-hidden rounded-2xl bg-(--card) shadow-[0_4px_20px_rgba(17,24,39,0.06)]">
+          {FAQS.map((faq) => (
+            <details key={faq.q} className="group px-6 py-4">
+              <summary className="flex cursor-pointer select-none list-none items-center justify-between gap-4 text-sm font-semibold">
+                {faq.q}
+                <span className="shrink-0 text-(--muted) transition-transform group-open:rotate-180">▾</span>
+              </summary>
+              <p className="mt-3 text-sm leading-6 text-(--muted)">{faq.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
       {/* 최종 CTA */}
       <section className="mx-auto w-full max-w-6xl px-4 pb-20 sm:px-6">
         <div className="rounded-3xl bg-foreground px-6 py-12 text-center text-white shadow-[0_8px_40px_rgba(17,24,39,0.2)] sm:px-12 sm:py-16">
@@ -387,6 +429,16 @@ export default function Page() {
       </section>
 
       <LandingFooter />
+
+      {/* 모바일 Sticky CTA — 모바일에서만 표시 */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 sm:hidden">
+        <Link
+          href="/auth/signup"
+          className="flex w-full items-center justify-center rounded-xl bg-foreground py-3.5 text-sm font-bold text-white shadow-[0_4px_24px_rgba(17,24,39,0.3)] transition hover:opacity-85 active:opacity-70"
+        >
+          무료로 시작하기 →
+        </Link>
+      </div>
     </main>
   );
 }
