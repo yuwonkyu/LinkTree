@@ -31,8 +31,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "API 키 미설정 — 관리자에게 문의하세요." }, { status: 500 });
   }
 
-  const body: SuggestRequest = await req.json();
-  const { type, shopName, category, existing } = body;
+  const body = await req.json();
+  const { type, shopName, category, existing } = body as SuggestRequest;
+
+  // 허용된 type만 처리 (undefined 프롬프트로 Anthropic API 호출 방지)
+  const VALID_TYPES: SuggestRequest["type"][] = ["tagline", "description", "services"];
+  if (!type || !VALID_TYPES.includes(type)) {
+    return NextResponse.json({ error: "유효하지 않은 type입니다." }, { status: 400 });
+  }
+  if (!shopName?.trim() || !category?.trim()) {
+    return NextResponse.json({ error: "shopName과 category는 필수입니다." }, { status: 400 });
+  }
 
   const prompts: Record<SuggestRequest["type"], string> = {
     tagline: `소상공인 링크 페이지용 한 줄 소개(태그라인)를 3가지 추천해줘.

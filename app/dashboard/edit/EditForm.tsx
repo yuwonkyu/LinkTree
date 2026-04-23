@@ -313,6 +313,8 @@ export default function EditForm({ profile, plan }: Props) {
       try {
         await saveProfile(payload);
       } catch (e) {
+        // Next.js redirect()는 내부적으로 특수 예외를 throw함 — 다시 던져야 함
+        if (typeof e === "object" && e !== null && "digest" in e) throw e;
         setSaveError(e instanceof Error ? e.message : "저장 중 오류가 발생했습니다.");
       }
     });

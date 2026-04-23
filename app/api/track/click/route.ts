@@ -26,6 +26,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid params" }, { status: 400 });
   }
 
+  // 실제 존재하는 활성 프로필인지 검증 (통계 조작 방지)
+  const { count } = await supabaseAdmin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("id", profileId)
+    .eq("is_active", true);
+
+  if (!count) {
+    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+  }
+
   const { error } = await supabaseAdmin
     .from("link_clicks")
     .insert({ profile_id: profileId, link_type: linkType });

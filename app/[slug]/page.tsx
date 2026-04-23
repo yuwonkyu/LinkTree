@@ -111,10 +111,10 @@ export default async function SlugPage({ params }: PageProps) {
   const profile = await getProfileBySlug(slug);
   const SITE = await getSiteUrl();
 
-  // 조회수 증가 (비동기, 페이지 렌더링 블로킹 없음)
+  // 조회수 증가 (서버리스 환경에서 fire-and-forget은 완료 보장 안 됨 → await 사용)
   if (profile?.is_active) {
     const supabase = await getSupabaseServerClient();
-    supabase.rpc("increment_view_count", { profile_slug: slug }).then(() => {});
+    await supabase.rpc("increment_view_count", { profile_slug: slug });
   }
 
   if (!profile) {

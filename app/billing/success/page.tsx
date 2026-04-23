@@ -86,6 +86,13 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
     expiresAt.setMonth(expiresAt.getMonth() + 1);
   }
 
+  // 기존 활성 구독이 있으면 먼저 취소 처리 (중복 INSERT 방지)
+  await supabase
+    .from("subscriptions")
+    .update({ status: "cancelled", cancelled_at: now.toISOString() })
+    .eq("profile_id", profile.id)
+    .eq("status", "active");
+
   await Promise.all([
     supabase.from("profiles").update({
       billing_key: billingKey,

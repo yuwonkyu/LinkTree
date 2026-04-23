@@ -42,13 +42,29 @@ export async function POST(req: NextRequest) {
     ? profile.reviews
     : [];
 
-  // 스팸 방지: 동일 작성자 중복 제한 (같은 author 최대 1개)
+  // 스팸 방지 1: 프로필당 최대 후기 수 제한
+  if (existing.length >= 50) {
+    return NextResponse.json({ error: "후기가 최대 개수에 도달했습니다." }, { status: 429 });
+  }
+
+  // 스팸 방지 2: 동일 작성자 중복 제한 (같은 author 최대 1개)
   const alreadyExists = existing.some(
     (r) => r.author.trim().toLowerCase() === author.trim().toLowerCase(),
   );
   if (alreadyExists) {
     return NextResponse.json(
       { error: "이미 후기를 작성하셨습니다." },
+      { status: 409 },
+    );
+  }
+
+  // 스팸 방지 3: 동일 내용 중복 차단
+  const isDuplicateText = existing.some(
+    (r) => r.text.trim() === text.trim(),
+  );
+  if (isDuplicateText) {
+    return NextResponse.json(
+      { error: "동일한 내용의 후기가 이미 존재합니다." },
       { status: 409 },
     );
   }
