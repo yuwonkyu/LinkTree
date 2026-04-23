@@ -29,6 +29,11 @@ export default async function BillingSuccessPage({ searchParams }: Props) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/login");
 
+  // customerKey는 반드시 로그인한 유저의 ID여야 함 (타인 명의 결제 방지)
+  if (customerKey !== user.id) {
+    redirect("/billing?error=잘못된 접근입니다.");
+  }
+
   // 1. authKey → billingKey 교환
   const issueRes = await fetch("https://api.tosspayments.com/v1/billing/authorizations/issue", {
     method: "POST",
