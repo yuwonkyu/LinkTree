@@ -39,12 +39,14 @@ const THEME_EXAMPLES = [
 ];
 
 const TARGETS = [
+  { emoji: "🏪", label: "소상공인" },
   { emoji: "🏋️", label: "PT 트레이너" },
   { emoji: "🧘", label: "필라테스 강사" },
   { emoji: "✂️", label: "헤어 디자이너" },
   { emoji: "💅", label: "네일 아티스트" },
   { emoji: "☕", label: "카페 사장님" },
   { emoji: "🐾", label: "펫샵 원장님" },
+  { emoji: "💆", label: "피부관리사" },
 ];
 
 const FEATURES = [
@@ -238,7 +240,7 @@ export default function Page() {
       {/* 타겟 섹션 */}
       <section className="mx-auto w-full max-w-6xl px-4 pb-12 sm:px-6">
         <p className="text-center text-sm font-semibold text-(--muted)">이런 분들이 쓰고 있어요</p>
-        <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
+        <div className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-8">
           {TARGETS.map((t) => (
             <div
               key={t.label}
