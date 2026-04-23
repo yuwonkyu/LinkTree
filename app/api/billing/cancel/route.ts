@@ -18,7 +18,9 @@ export async function POST() {
 
   const now = new Date().toISOString();
 
-  // 2. 구독 취소 + 플랜 초기화 (순차 처리)
+  // 2. 구독 취소 (순차 처리)
+  //    billing_key만 제거해 자동 갱신을 차단하고,
+  //    plan·plan_expires_at은 유지 → 결제 기간 만료까지 서비스 계속 이용 가능
   await supabase
     .from("subscriptions")
     .update({ status: "cancelled", cancelled_at: now })
@@ -27,7 +29,7 @@ export async function POST() {
 
   await supabase
     .from("profiles")
-    .update({ plan: "free", billing_key: null, plan_expires_at: null })
+    .update({ billing_key: null })
     .eq("owner_id", user.id);
 
   if (user.email && profile.name && profile.plan) {

@@ -14,6 +14,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // ── 플랜 만료 정리 ─────────────────────────────────────────
+  // 취소된 구독의 plan_expires_at이 지났으면 free로 전환
+  // (charge cron은 월 1회지만 remind는 매일 실행 → 만료 당일 처리 가능)
+  const { data: expiredProfiles } = await supabaseAdmin
+    .from("profiles")
+    .select("id")
+    .neq("plan", "free")
+    .not("plan_expires_at", "is", null)
+    .lt("plan_expires_at", new Date().toISOString());
+
+  if (expiredProfiles && expiredProfiles.length > 0) {
+    await supabaseAdmin
+      .from("profiles")
+      .update({ plan: "free", plan_expires_at: null })
+      .in("id", expiredProfiles.map((p: { id: string }) => p.id));
+  }
+
   // 3일 후 갱신 예정 구독 조회 (±12시간 window → 하루 1회 실행 시 중복 없음)
   const now = new Date();
   const from = new Date(now.getTime() + (3 * 24 - 12) * 60 * 60 * 1000);
