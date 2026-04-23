@@ -74,6 +74,8 @@ export type SaveProfilePayload = {
   custom_links: CustomLink[];
   gallery: GalleryImage[];
   parking_info?: string;
+  section_order?: string[];
+  button_color?: string;
 };
 
 export async function saveProfile(payload: SaveProfilePayload) {
@@ -110,6 +112,8 @@ export async function saveProfile(payload: SaveProfilePayload) {
       custom_links: payload.custom_links,
       gallery: payload.gallery,
       parking_info: payload.parking_info?.trim() || null,
+      section_order: payload.section_order?.length ? payload.section_order : null,
+      button_color: payload.button_color?.trim() || null,
       is_active: true, // 저장하면 페이지 공개
     })
     .eq("owner_id", user.id);

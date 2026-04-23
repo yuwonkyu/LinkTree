@@ -70,8 +70,18 @@ function IconInstagram() {
   );
 }
 
+const DEFAULT_SECTION_ORDER = ["services", "gallery", "reviews"];
+
 export default function ProfilePage({ profile, showWatermark = false }: ProfilePageProps) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+
+  const sectionOrder: string[] =
+    Array.isArray(profile.section_order) && profile.section_order.length > 0
+      ? profile.section_order
+      : DEFAULT_SECTION_ORDER;
+
+  // Pro 버튼 컬러: 커스텀 링크 + 전화 버튼 accent
+  const btnColor = profile.button_color?.trim() || null;
 
   const closeLightbox = useCallback(() => setLightboxIdx(null), []);
 
@@ -233,12 +243,16 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
               <span className="whitespace-nowrap">인스타그램 DM 보내기</span>
             </a>
           )}
-          {/* 전화 연결 — 흰 배경이므로 텍스트를 gray-900 고정 (다크 테마 대응) */}
+          {/* 전화 연결 */}
           {profile.phone_url && (
             <a
               href={`tel:${profile.phone_url.replace(/[^0-9+]/g, "")}`}
               onClick={() => trackClick(profile.id, "phone")}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white px-2 text-sm font-semibold text-gray-900 shadow-[0_4px_14px_rgba(17,24,39,0.08)] active:translate-y-px"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-2 text-sm font-semibold shadow-[0_4px_14px_rgba(17,24,39,0.08)] active:translate-y-px"
+              style={btnColor
+                ? { backgroundColor: btnColor, color: "#fff", border: "none" }
+                : { backgroundColor: "#fff", color: "#111827", border: "1px solid rgba(0,0,0,0.1)" }
+              }
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.48 2 2 0 0 1 3.59 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.86a16 16 0 0 0 6 6l.92-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -267,7 +281,11 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white px-4 text-sm font-medium text-gray-900 hover:bg-black/[0.035] transition-colors active:translate-y-px"
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors active:translate-y-px"
+                style={btnColor
+                  ? { backgroundColor: btnColor, color: "#fff", border: "none" }
+                  : { backgroundColor: "#fff", color: "#111827", border: "1px solid rgba(0,0,0,0.1)" }
+                }
               >
                 🔗 {link.label}
               </a>
@@ -282,170 +300,176 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
         );
       })()}
 
-      {/* ── 갤러리 ── */}
-      {profile.gallery && profile.gallery.length > 0 && (
-        <>
-          <div className="my-6 h-px bg-black/20" />
-          <section>
-            <SectionLabel>포트폴리오 · 갤러리</SectionLabel>
-            <div className="grid grid-cols-3 gap-1.5">
-              {profile.gallery.map((img, idx) => (
-                <button
-                  key={img.url + idx}
-                  type="button"
-                  onClick={() => setLightboxIdx(idx)}
-                  className="relative aspect-square overflow-hidden rounded-xl bg-black/[0.035] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30"
-                >
-                  <Image
-                    src={img.url}
-                    alt={img.caption ?? `갤러리 ${idx + 1}`}
-                    fill
-                    sizes="(max-width: 480px) 30vw, 150px"
-                    className="object-cover transition-transform hover:scale-105"
-                  />
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {/* 라이트박스 — 배경 클릭·ESC로 닫힘, 뒤 스크롤 잠금 */}
-          {lightboxIdx !== null && profile.gallery && (
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-4"
-              onClick={closeLightbox}
-            >
-              <div
-                className="relative w-full max-w-sm"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* 닫기 버튼 (우상단) */}
-                <button
-                  type="button"
-                  onClick={closeLightbox}
-                  className="absolute -right-1 -top-10 z-10 rounded-full bg-white/15 px-3 py-1.5 text-sm font-semibold text-white hover:bg-white/25"
-                  aria-label="닫기"
-                >
-                  ✕ 닫기
-                </button>
-
-                <div className="relative aspect-square overflow-hidden rounded-2xl">
-                  <Image
-                    src={profile.gallery[lightboxIdx].url}
-                    alt={profile.gallery[lightboxIdx].caption ?? ""}
-                    fill
-                    sizes="480px"
-                    className="object-contain"
-                    priority
-                  />
+      {/* ── 동적 섹션 순서: 서비스 · 갤러리 · 후기 ── */}
+      {sectionOrder.map((sectionKey) => {
+        if (sectionKey === "gallery") {
+          if (!profile.gallery || profile.gallery.length === 0) return null;
+          return (
+            <div key="gallery">
+              <div className="my-6 h-px bg-black/20" />
+              <section>
+                <SectionLabel>포트폴리오 · 갤러리</SectionLabel>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {profile.gallery.map((img, idx) => (
+                    <button
+                      key={img.url + idx}
+                      type="button"
+                      onClick={() => setLightboxIdx(idx)}
+                      className="relative aspect-square overflow-hidden rounded-xl bg-black/[0.035] focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30"
+                    >
+                      <Image
+                        src={img.url}
+                        alt={img.caption ?? `갤러리 ${idx + 1}`}
+                        fill
+                        sizes="(max-width: 480px) 30vw, 150px"
+                        className="object-cover transition-transform hover:scale-105"
+                      />
+                    </button>
+                  ))}
                 </div>
-                {profile.gallery[lightboxIdx].caption && (
-                  <p className="mt-2 text-center text-sm text-white/80">
-                    {profile.gallery[lightboxIdx].caption}
+              </section>
+            </div>
+          );
+        }
+
+        if (sectionKey === "services") {
+          if (!profile.services || profile.services.length === 0) return null;
+          return (
+            <div key="services">
+              <div className="my-6 h-px bg-black/20" />
+              <section>
+                <SectionLabel>서비스 &amp; 가격</SectionLabel>
+                <ul className="space-y-2">
+                  {profile.services.map((service) => (
+                    <li
+                      key={service.name + service.price}
+                      className="flex items-center justify-between gap-3 rounded-xl bg-black/[0.035] px-4 py-3"
+                    >
+                      <span className="text-sm font-medium text-foreground">{service.name}</span>
+                      <div className="flex flex-col items-end text-right">
+                        <span className="text-sm font-bold text-foreground">{service.price}</span>
+                        {service.note && (
+                          <span className="mt-0.5 text-[11px] text-(--muted)">{service.note}</span>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </div>
+          );
+        }
+
+        if (sectionKey === "reviews") {
+          if (!profile.reviews || profile.reviews.length === 0) return null;
+          const FREE_REVIEW_LIMIT = 3;
+          const isFree = !profile.plan || profile.plan === "free";
+          const visibleReviews = isFree
+            ? profile.reviews.slice(0, FREE_REVIEW_LIMIT)
+            : profile.reviews;
+          const hiddenCount = isFree
+            ? Math.max(0, profile.reviews.length - FREE_REVIEW_LIMIT)
+            : 0;
+          return (
+            <div key="reviews">
+              <div className="my-6 h-px bg-black/20" />
+              <section>
+                <SectionLabel>고객 후기</SectionLabel>
+                <ul className="space-y-2">
+                  {visibleReviews.map((review, idx) => (
+                    <li key={review.author + idx} className="rounded-xl bg-black/[0.035] px-4 py-4">
+                      <p className="text-sm leading-6 text-foreground">
+                        &#8220;{review.text}&#8221;
+                      </p>
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <p className="text-[11px] font-semibold text-(--muted)">— {review.author}</p>
+                        {review.date && (
+                          <p className="shrink-0 text-[10px] text-(--muted) opacity-70">
+                            {formatReviewDate(review.date)}
+                          </p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {hiddenCount > 0 && (
+                  <p className="mt-3 text-center text-xs text-(--muted)">
+                    후기 {hiddenCount}개가 더 있습니다 — 업그레이드 후 모두 표시
                   </p>
                 )}
-                {/* 이전/다음 */}
-                {profile.gallery.length > 1 && (
-                  <div className="mt-3 flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setLightboxIdx((i) =>
-                          i !== null && i > 0 ? i - 1 : profile.gallery!.length - 1
-                        )
-                      }
-                      className="rounded-full bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30"
-                    >
-                      ‹ 이전
-                    </button>
-                    <span className="text-xs text-white/60">
-                      {lightboxIdx + 1} / {profile.gallery.length}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setLightboxIdx((i) =>
-                          i !== null && i < profile.gallery!.length - 1 ? i + 1 : 0
-                        )
-                      }
-                      className="rounded-full bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30"
-                    >
-                      다음 ›
-                    </button>
-                  </div>
-                )}
-              </div>
+              </section>
             </div>
-          )}
-        </>
-      )}
+          );
+        }
 
-      {/* ── 서비스 ── */}
-      {profile.services.length > 0 && (
-        <>
-          <div className="my-6 h-px bg-black/20" />
-          <section>
-            <SectionLabel>서비스 &amp; 가격</SectionLabel>
-            <ul className="space-y-2">
-              {profile.services.map((service) => (
-                <li
-                  key={service.name + service.price}
-                  className="flex items-center justify-between gap-3 rounded-xl bg-black/[0.035] px-4 py-3"
+        return null;
+      })}
+
+      {/* 라이트박스 — 배경 클릭·ESC로 닫힘, 뒤 스크롤 잠금 */}
+      {lightboxIdx !== null && profile.gallery && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-4"
+          onClick={closeLightbox}
+        >
+          <div
+            className="relative w-full max-w-sm"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={closeLightbox}
+              className="absolute -right-1 -top-10 z-10 rounded-full bg-white/15 px-3 py-1.5 text-sm font-semibold text-white hover:bg-white/25"
+              aria-label="닫기"
+            >
+              ✕ 닫기
+            </button>
+            <div className="relative aspect-square overflow-hidden rounded-2xl">
+              <Image
+                src={profile.gallery[lightboxIdx].url}
+                alt={profile.gallery[lightboxIdx].caption ?? ""}
+                fill
+                sizes="480px"
+                className="object-contain"
+                priority
+              />
+            </div>
+            {profile.gallery[lightboxIdx].caption && (
+              <p className="mt-2 text-center text-sm text-white/80">
+                {profile.gallery[lightboxIdx].caption}
+              </p>
+            )}
+            {profile.gallery.length > 1 && (
+              <div className="mt-3 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setLightboxIdx((i) =>
+                      i !== null && i > 0 ? i - 1 : profile.gallery!.length - 1
+                    )
+                  }
+                  className="rounded-full bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30"
                 >
-                  <span className="text-sm font-medium text-foreground">{service.name}</span>
-                  <div className="flex flex-col items-end text-right">
-                    <span className="text-sm font-bold text-foreground">{service.price}</span>
-                    {service.note && (
-                      <span className="mt-0.5 text-[11px] text-(--muted)">{service.note}</span>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
-        </>
+                  ‹ 이전
+                </button>
+                <span className="text-xs text-white/60">
+                  {lightboxIdx + 1} / {profile.gallery.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setLightboxIdx((i) =>
+                      i !== null && i < profile.gallery!.length - 1 ? i + 1 : 0
+                    )
+                  }
+                  className="rounded-full bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30"
+                >
+                  다음 ›
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       )}
-
-      {/* ── 후기 ── */}
-      {profile.reviews.length > 0 && (() => {
-        const FREE_REVIEW_LIMIT = 3;
-        const isFree = !profile.plan || profile.plan === "free";
-        const visibleReviews = isFree
-          ? profile.reviews.slice(0, FREE_REVIEW_LIMIT)
-          : profile.reviews;
-        const hiddenCount = isFree
-          ? Math.max(0, profile.reviews.length - FREE_REVIEW_LIMIT)
-          : 0;
-        return (
-          <>
-            <div className="my-6 h-px bg-black/20" />
-            <section>
-              <SectionLabel>고객 후기</SectionLabel>
-              <ul className="space-y-2">
-                {visibleReviews.map((review, idx) => (
-                  <li key={review.author + idx} className="rounded-xl bg-black/[0.035] px-4 py-4">
-                    <p className="text-sm leading-6 text-foreground">
-                      &#8220;{review.text}&#8221;
-                    </p>
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <p className="text-[11px] font-semibold text-(--muted)">— {review.author}</p>
-                      {review.date && (
-                        <p className="shrink-0 text-[10px] text-(--muted) opacity-70">
-                          {formatReviewDate(review.date)}
-                        </p>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              {hiddenCount > 0 && (
-                <p className="mt-3 text-center text-xs text-(--muted)">
-                  후기 {hiddenCount}개가 더 있습니다 — 업그레이드 후 모두 표시
-                </p>
-              )}
-            </section>
-          </>
-        );
-      })()}
 
       {/* ── 운영정보 ── */}
       {(profile.hours || profile.location || profile.parking_info || profile.instagram_id) && (

@@ -6,6 +6,7 @@ import type { Review } from "@/lib/types";
 type Props = {
   reviews: Review[];
   onChange: (reviews: Review[]) => void;
+  limit?: number; // 추가 가능한 최대 개수 (undefined = 무제한)
 };
 
 // "2025-03" → "2025년 3월"
@@ -74,7 +75,8 @@ function DatePicker({
   );
 }
 
-export default function ReviewManager({ reviews, onChange }: Props) {
+export default function ReviewManager({ reviews, onChange, limit }: Props) {
+  const atLimit = limit !== undefined && reviews.length >= limit;
   const [text,   setText]   = useState("");
   const [author, setAuthor] = useState("");
   const [date,   setDate]   = useState("");
@@ -198,35 +200,50 @@ export default function ReviewManager({ reviews, onChange }: Props) {
       )}
 
       {/* 추가 폼 */}
-      <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 p-3">
-        <p className="text-xs font-medium text-(--muted)">후기 추가</p>
-        <textarea
-          rows={2}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="후기 내용"
-          className="resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-        />
-        <input
-          type="text"
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-          placeholder="작성자 (예: 30대 여성 회원)"
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
-        />
-        <div className="flex flex-col gap-1">
-          <span className="text-[11px] text-(--muted)">후기 날짜 (선택)</span>
-          <DatePicker value={date} onChange={setDate} />
+      {atLimit ? (
+        <p className="rounded-xl border border-dashed border-gray-200 px-4 py-3 text-center text-xs text-(--muted)">
+          🔒 후기 {limit}개 한도에 도달했습니다.{" "}
+          <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">
+            업그레이드
+          </a>
+          하면 더 추가할 수 있습니다.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 p-3">
+          <p className="text-xs font-medium text-(--muted)">
+            후기 추가
+            {limit !== undefined && (
+              <span className="ml-1 text-gray-400">({reviews.length}/{limit})</span>
+            )}
+          </p>
+          <textarea
+            rows={2}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="후기 내용"
+            className="resize-none rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
+          />
+          <input
+            type="text"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            placeholder="작성자 (예: 30대 여성 회원)"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400"
+          />
+          <div className="flex flex-col gap-1">
+            <span className="text-[11px] text-(--muted)">후기 날짜 (선택)</span>
+            <DatePicker value={date} onChange={setDate} />
+          </div>
+          <button
+            type="button"
+            onClick={add}
+            disabled={!text.trim() || !author.trim()}
+            className="self-start rounded-lg bg-foreground px-4 py-1.5 text-sm font-medium text-white disabled:opacity-40"
+          >
+            + 추가
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={add}
-          disabled={!text.trim() || !author.trim()}
-          className="self-start rounded-lg bg-foreground px-4 py-1.5 text-sm font-medium text-white disabled:opacity-40"
-        >
-          + 추가
-        </button>
-      </div>
+      )}
     </div>
   );
 }

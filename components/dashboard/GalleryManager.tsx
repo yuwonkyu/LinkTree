@@ -5,7 +5,7 @@ import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import type { GalleryImage } from "@/lib/types";
 
-const MAX_GALLERY = 9;
+const DEFAULT_MAX_GALLERY = 9;
 
 // Cloudinary 소스: 로컬 파일 + 카메라만 (구글드라이브·Shutterstock 등 제거)
 const UPLOAD_SOURCES = ["local" as const, "camera" as const];
@@ -13,9 +13,11 @@ const UPLOAD_SOURCES = ["local" as const, "camera" as const];
 type Props = {
   images: GalleryImage[];
   onChange: (images: GalleryImage[]) => void;
+  limit?: number; // undefined = DEFAULT_MAX_GALLERY(9), 0 = 업로드 불가 (Free), Infinity = 무제한
 };
 
-export default function GalleryManager({ images, onChange }: Props) {
+export default function GalleryManager({ images, onChange, limit }: Props) {
+  const maxGallery = limit === undefined ? DEFAULT_MAX_GALLERY : Math.min(limit, DEFAULT_MAX_GALLERY);
   const [editIdx, setEditIdx] = useState<number | null>(null);
   const [editCaption, setEditCaption] = useState("");
 
@@ -59,7 +61,7 @@ export default function GalleryManager({ images, onChange }: Props) {
     onChange(next);
   }
 
-  const canAdd = images.length < MAX_GALLERY;
+  const canAdd = limit !== 0 && images.length < maxGallery;
 
   return (
     <div className="flex flex-col gap-3">
@@ -147,7 +149,7 @@ export default function GalleryManager({ images, onChange }: Props) {
           uploadPreset={process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "instalink_unsigned"}
           options={{
             multiple: true,
-            maxFiles: MAX_GALLERY - images.length,
+            maxFiles: maxGallery - images.length,
             sources: UPLOAD_SOURCES,  // 내 파일 + 카메라만 표시
           }}
           onSuccess={(result) => {
@@ -177,13 +179,18 @@ export default function GalleryManager({ images, onChange }: Props) {
               className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 py-3 text-sm font-medium text-(--muted) hover:border-gray-400 hover:text-foreground transition-colors"
             >
               <span className="text-lg leading-none">＋</span>
-              사진 추가 ({images.length}/{MAX_GALLERY})
+              사진 추가 ({images.length}/{maxGallery === Infinity ? "∞" : maxGallery})
             </button>
           )}
         </CldUploadWidget>
+      ) : limit === 0 ? (
+        <p className="rounded-xl border border-dashed border-gray-200 px-4 py-3 text-center text-xs text-(--muted)">
+          🔒 갤러리는 Basic 이상 플랜에서 사용 가능합니다.{" "}
+          <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">업그레이드</a>
+        </p>
       ) : (
         <p className="text-center text-xs text-(--muted)">
-          최대 {MAX_GALLERY}장까지 업로드할 수 있습니다.
+          최대 {maxGallery}장까지 업로드할 수 있습니다.
         </p>
       )}
 

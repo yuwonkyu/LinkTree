@@ -5,6 +5,7 @@ import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import { saveProfile, type SaveProfilePayload } from "./actions";
 import type { Profile, Service, Review, Theme, CustomLink, GalleryImage } from "@/lib/types";
+import { PLAN_LIMITS, toPlanKey } from "@/lib/plan-limits";
 import ThemeSelector   from "@/components/dashboard/ThemeSelector";
 import ServiceManager  from "@/components/dashboard/ServiceManager";
 import ReviewManager   from "@/components/dashboard/ReviewManager";
@@ -161,7 +162,7 @@ function HintPanel({
   category,
   onCategoryChange,
   onSelect,
-  isPaidPlan,
+  isProPlan,
   aiLoading,
   onAISuggest,
 }: {
@@ -169,7 +170,7 @@ function HintPanel({
   category: string;
   onCategoryChange: (c: string) => void;
   onSelect: (v: string) => void;
-  isPaidPlan: boolean;
+  isProPlan: boolean;
   aiLoading: string | null;
   onAISuggest: () => void;
 }) {
@@ -204,8 +205,8 @@ function HintPanel({
         ))}
       </div>
 
-      {/* AI 보조 옵션 (유료 플랜) */}
-      {isPaidPlan && (
+      {/* AI 보조 옵션 (Pro 플랜) */}
+      {isProPlan && (
         <button
           type="button"
           onClick={onAISuggest}
@@ -222,8 +223,13 @@ function HintPanel({
 // ─── 메인 컴포넌트 ──────────────────────────────
 type Props = { profile: Profile; plan?: string };
 
+const DEFAULT_SECTION_ORDER = ["services", "gallery", "reviews"];
+
 export default function EditForm({ profile, plan }: Props) {
-  const isPaidPlan = plan === "basic" || plan === "pro";
+  const planKey    = toPlanKey(plan);
+  const limits     = PLAN_LIMITS[planKey];
+  const isPaidPlan = planKey === "basic" || planKey === "pro";
+  const isProPlan  = planKey === "pro";
 
   // 기본 정보
   const [name,            setName]      = useState(profile.name ?? "");
@@ -249,6 +255,12 @@ export default function EditForm({ profile, plan }: Props) {
   const [gallery,      setGallery]     = useState<GalleryImage[]>(profile.gallery ?? []);
   const [parkingInfo,  setParkingInfo] = useState(profile.parking_info ?? "");
 
+  // Pro 전용: 섹션 순서 + 버튼 컬러
+  const [sectionOrder, setSectionOrder] = useState<string[]>(
+    profile.section_order ?? [...DEFAULT_SECTION_ORDER]
+  );
+  const [buttonColor,  setButtonColor]  = useState(profile.button_color ?? "");
+
   // 업종 (예시/AI 공통)
   const [category, setCategory] = useState("카페");
 
@@ -267,8 +279,8 @@ export default function EditForm({ profile, plan }: Props) {
 
   // ── AI 추천 ──
   async function aiSuggest(type: "tagline" | "description" | "services") {
-    if (!isPaidPlan) {
-      alert("AI 추천은 Basic/Pro 플랜 전용 기능입니다.\n/billing 에서 업그레이드하세요.");
+    if (!isProPlan) {
+      alert("AI 추천은 Pro 플랜 전용 기능입니다.\n/billing 에서 업그레이드하세요.");
       return;
     }
     setAiLoading(type);
@@ -308,6 +320,8 @@ export default function EditForm({ profile, plan }: Props) {
       custom_links: customLinks,
       gallery,
       parking_info: parkingInfo,
+      section_order: isProPlan ? sectionOrder : undefined,
+      button_color:  isProPlan ? buttonColor  : undefined,
     };
     startTransition(async () => {
       try {
@@ -357,7 +371,7 @@ export default function EditForm({ profile, plan }: Props) {
                 category={category}
                 onCategoryChange={setCategory}
                 onSelect={(v) => { setTagline(v); setShowTaglineHints(false); }}
-                isPaidPlan={isPaidPlan}
+                isProPlan={isProPlan}
                 aiLoading={aiLoading}
                 onAISuggest={() => aiSuggest("tagline")}
               />
@@ -389,7 +403,7 @@ export default function EditForm({ profile, plan }: Props) {
                 category={category}
                 onCategoryChange={setCategory}
                 onSelect={(v) => { setDesc(v); setShowDescHints(false); }}
-                isPaidPlan={isPaidPlan}
+                isProPlan={isProPlan}
                 aiLoading={aiLoading}
                 onAISuggest={() => aiSuggest("description")}
               />
@@ -465,7 +479,7 @@ export default function EditForm({ profile, plan }: Props) {
 
       {/* ── 테마 ── */}
       <Section title="테마">
-        <ThemeSelector selected={theme} onChange={setTheme} />
+        <ThemeSelector selected={theme} onChange={setTheme} plan={plan} />
       </Section>
 
       {/* ── 서비스 ── */}
@@ -473,6 +487,8 @@ export default function EditForm({ profile, plan }: Props) {
         <ServiceManager
           services={services}
           isPaidPlan={isPaidPlan}
+          isProPlan={isProPlan}
+          limit={limits.services === Infinity ? undefined : limits.services}
           aiLoading={aiLoading}
           onAISuggest={() => aiSuggest("services")}
           onChange={setServices}
@@ -489,13 +505,100 @@ export default function EditForm({ profile, plan }: Props) {
 
       {/* ── 갤러리 ── */}
       <Section title="포트폴리오 · 갤러리 (선택)">
-        <GalleryManager images={gallery} onChange={setGallery} />
+        <GalleryManager
+          images={gallery}
+          onChange={setGallery}
+          limit={limits.gallery === Infinity ? undefined : limits.gallery}
+        />
       </Section>
 
       {/* ── 후기 ── */}
       <Section title="고객 후기">
-        <ReviewManager reviews={reviews} onChange={setReviews} />
+        <ReviewManager
+          reviews={reviews}
+          onChange={setReviews}
+          limit={limits.reviews === Infinity ? undefined : limits.reviews}
+        />
       </Section>
+
+      {/* ── Pro: 섹션 순서 ── */}
+      {isProPlan && (
+        <Section title="섹션 순서 (Pro)">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-(--muted)">↑ ↓ 버튼으로 공개 페이지의 섹션 순서를 조정하세요.</p>
+            {sectionOrder.map((key, idx) => {
+              const labelMap: Record<string, string> = {
+                services: "서비스 & 가격",
+                gallery:  "포트폴리오 · 갤러리",
+                reviews:  "고객 후기",
+              };
+              return (
+                <div
+                  key={key}
+                  className="flex items-center justify-between rounded-xl bg-(--secondary) px-4 py-2.5"
+                >
+                  <span className="text-sm font-medium text-foreground">{labelMap[key] ?? key}</span>
+                  <div className="flex gap-1.5">
+                    <button
+                      type="button"
+                      disabled={idx === 0}
+                      onClick={() => {
+                        const next = [...sectionOrder];
+                        [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+                        setSectionOrder(next);
+                      }}
+                      className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-sm text-foreground disabled:opacity-30 hover:bg-gray-50 transition-colors"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      disabled={idx === sectionOrder.length - 1}
+                      onClick={() => {
+                        const next = [...sectionOrder];
+                        [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+                        setSectionOrder(next);
+                      }}
+                      className="rounded-lg border border-gray-200 bg-white px-2.5 py-1 text-sm text-foreground disabled:opacity-30 hover:bg-gray-50 transition-colors"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </Section>
+      )}
+
+      {/* ── Pro: 버튼 컬러 ── */}
+      {isProPlan && (
+        <Section title="버튼 컬러 커스텀 (Pro)">
+          <div className="flex flex-col gap-2">
+            <p className="text-xs text-(--muted)">
+              커스텀 링크·전화 버튼에 적용되는 포인트 컬러를 선택하세요.
+            </p>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={buttonColor || "#111827"}
+                onChange={(e) => setButtonColor(e.target.value)}
+                className="h-10 w-12 cursor-pointer rounded-lg border border-gray-200 p-0.5"
+              />
+              <span className="text-sm font-mono text-foreground">{buttonColor || "#111827"}</span>
+              {buttonColor && (
+                <button
+                  type="button"
+                  onClick={() => setButtonColor("")}
+                  className="text-xs text-(--muted) hover:text-foreground"
+                >
+                  초기화
+                </button>
+              )}
+            </div>
+          </div>
+        </Section>
+      )}
 
       {/* ── 저장 버튼 ── */}
       <div className="flex gap-3 pb-8">

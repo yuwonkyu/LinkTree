@@ -64,6 +64,8 @@ export type Profile = {
   kakao_channel_url?: string | null;
   gallery?: GalleryImage[] | null;
   parking_info?: string | null;
+  section_order?: string[] | null; // Pro: 섹션 렌더 순서 (예: ["services","gallery","reviews"])
+  button_color?: string | null;    // Pro: 커스텀 버튼 컬러 (hex, 예: "#7c3aed")
 };
 
 export type Subscription = {
@@ -88,18 +90,18 @@ export const PLAN_META: Record<
     label: "Free",
     price: 0,
     annualPrice: 0,
-    features: ["기본 프로필 페이지", "라이트 테마 1종", "서비스 3개까지", "후기 3개까지"],
+    features: ["기본 프로필 페이지", "라이트 테마 1종", "서비스·후기 3개까지", "카카오 버튼"],
   },
   basic: {
     label: "Basic",
     price: 19900,
     annualPrice: 199000,  // 월 19,900 × 10개월 (2개월 무료)
-    features: ["모든 테마 6종", "서비스 무제한", "후기 무제한", "카카오 문의 버튼"],
+    features: ["테마 3종 (라이트·다크·UCC)", "서비스·후기 6개", "갤러리 6장", "카카오 버튼"],
   },
   pro: {
     label: "Pro",
     price: 29900,
     annualPrice: 299000,  // 월 29,900 × 10개월 (2개월 무료)
-    features: ["Basic 모든 기능", "방문자 통계", "멀티 링크 (예정)", "우선 지원"],
+    features: ["Basic 모든 기능 + 테마 6종", "방문자 통계 + 주간 리포트", "AI 문구 추천", "섹션 순서·버튼 색상 커스텀"],
   },
 };

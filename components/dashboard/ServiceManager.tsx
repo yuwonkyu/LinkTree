@@ -5,7 +5,9 @@ import type { Service } from "@/lib/types";
 
 type Props = {
   services: Service[];
-  isPaidPlan: boolean;
+  isPaidPlan: boolean;   // Basic 이상 — AI 버튼 표시용 (현재 미사용, isProPlan으로 이전 중)
+  isProPlan?: boolean;   // Pro 전용 AI 버튼
+  limit?: number;        // 추가 가능한 최대 개수 (undefined = 무제한)
   aiLoading: string | null;
   onAISuggest: () => void;
   onChange: (services: Service[]) => void;
@@ -19,6 +21,8 @@ const CATEGORIES = ["PT/헬스", "필라테스/요가", "미용실/네일", "카
 export default function ServiceManager({
   services,
   isPaidPlan,
+  isProPlan = false,
+  limit,
   aiLoading,
   onAISuggest,
   onChange,
@@ -26,6 +30,7 @@ export default function ServiceManager({
   onCategoryChange,
   templateServices,
 }: Props) {
+  const atLimit = limit !== undefined && services.length >= limit;
   const [name,  setName]  = useState("");
   const [price, setPrice] = useState("");
   const [note,  setNote]  = useState("");
@@ -110,7 +115,7 @@ export default function ServiceManager({
             >
               📋 예시로 채우기
             </button>
-            {isPaidPlan && (
+            {isProPlan && (
               <button
                 type="button"
                 onClick={onAISuggest}
@@ -173,21 +178,36 @@ export default function ServiceManager({
       )}
 
       {/* 직접 추가 폼 */}
-      <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 p-3">
-        <p className="text-xs font-medium text-(--muted)">직접 추가</p>
-        <div className="flex min-w-0 gap-2">
-          <input type="text" value={name}  onChange={(e) => setName(e.target.value)}  placeholder="서비스명 (예: PT 1회)"
-            className="min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
-          <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="50,000원"
-            className="w-24 shrink-0 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
+      {atLimit ? (
+        <p className="rounded-xl border border-dashed border-gray-200 px-4 py-3 text-center text-xs text-(--muted)">
+          🔒 서비스 {limit}개 한도에 도달했습니다.{" "}
+          <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">
+            업그레이드
+          </a>
+          하면 더 추가할 수 있습니다.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-200 p-3">
+          <p className="text-xs font-medium text-(--muted)">
+            직접 추가
+            {limit !== undefined && (
+              <span className="ml-1 text-gray-400">({services.length}/{limit})</span>
+            )}
+          </p>
+          <div className="flex min-w-0 gap-2">
+            <input type="text" value={name}  onChange={(e) => setName(e.target.value)}  placeholder="서비스명 (예: PT 1회)"
+              className="min-w-0 flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
+            <input type="text" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="50,000원"
+              className="w-24 shrink-0 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
+          </div>
+          <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="메모 (선택)"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
+          <button type="button" onClick={add} disabled={!name.trim() || !price.trim()}
+            className="self-start rounded-lg bg-foreground px-4 py-1.5 text-sm font-medium text-white disabled:opacity-40">
+            + 추가
+          </button>
         </div>
-        <input type="text" value={note} onChange={(e) => setNote(e.target.value)} placeholder="메모 (선택)"
-          className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm outline-none focus:border-gray-400" />
-        <button type="button" onClick={add} disabled={!name.trim() || !price.trim()}
-          className="self-start rounded-lg bg-foreground px-4 py-1.5 text-sm font-medium text-white disabled:opacity-40">
-          + 추가
-        </button>
-      </div>
+      )}
     </div>
   );
 }
