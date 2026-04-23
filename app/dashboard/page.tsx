@@ -4,14 +4,17 @@ import { headers } from "next/headers";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Profile } from "@/lib/types";
 import { PLAN_META } from "@/lib/types";
-import CopyLinkButton from "./CopyLinkButton";
-import SlugEditor from "@/components/dashboard/SlugEditor";
-import ReferralCard from "./ReferralCard";
-import DeleteAccountButton from "./DeleteAccountButton";
-import InstaGuideModal from "./InstaGuideModal";
-import AvailabilityToggle from "./AvailabilityToggle";
-import QRCodeCard from "./QRCodeCard";
-import ReviewLinkCard from "./ReviewLinkCard";
+import dynamic from "next/dynamic";
+import CopyLinkButton      from "@/components/dashboard/CopyLinkButton";
+import SlugEditor           from "@/components/dashboard/SlugEditor";
+import ReferralCard         from "@/components/dashboard/ReferralCard";
+import DeleteAccountButton  from "@/components/dashboard/DeleteAccountButton";
+import AvailabilityToggle   from "@/components/dashboard/AvailabilityToggle";
+import ReviewLinkCard       from "@/components/dashboard/ReviewLinkCard";
+
+// qrcode 라이브러리·모달은 초기 번들에서 분리해 첫 로드 속도 개선 (lazy chunk)
+const QRCodeCard      = dynamic(() => import("@/components/dashboard/QRCodeCard"));
+const InstaGuideModal = dynamic(() => import("@/components/dashboard/InstaGuideModal"));
 
 type ClickStats = { kakao: number; instagram: number; phone: number };
 

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import type { GalleryImage } from "@/lib/types";
 
-const DEFAULT_MAX_GALLERY = 9;
+const DEFAULT_MAX_GALLERY = 15;
 
 // Cloudinary 소스: 로컬 파일 + 카메라만 (구글드라이브·Shutterstock 등 제거)
 const UPLOAD_SOURCES = ["local" as const, "camera" as const];
