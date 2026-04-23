@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import type { Profile } from "@/lib/types";
+import { PLAN_LIMITS, toPlanKey } from "@/lib/plan-limits";
 
 type ProfilePageProps = {
   profile: Profile;
@@ -82,6 +83,10 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
 
   // Pro 버튼 컬러: 커스텀 링크 + 전화 버튼 accent
   const btnColor = profile.button_color?.trim() || null;
+
+  // 플랜별 공개 표시 제한
+  const planKey = toPlanKey(profile.plan);
+  const limits  = PLAN_LIMITS[planKey];
 
   const closeLightbox = useCallback(() => setLightboxIdx(null), []);
 
@@ -303,14 +308,20 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
       {/* ── 동적 섹션 순서: 서비스 · 갤러리 · 후기 ── */}
       {sectionOrder.map((sectionKey) => {
         if (sectionKey === "gallery") {
+          // Free: 갤러리 전체 숨김
+          if (limits.gallery === 0) return null;
           if (!profile.gallery || profile.gallery.length === 0) return null;
+          const visibleGallery = limits.gallery === Infinity
+            ? profile.gallery
+            : profile.gallery.slice(0, limits.gallery);
+          const hiddenGallery  = Math.max(0, profile.gallery.length - visibleGallery.length);
           return (
             <div key="gallery">
               <div className="my-6 h-px bg-black/20" />
               <section>
                 <SectionLabel>포트폴리오 · 갤러리</SectionLabel>
                 <div className="grid grid-cols-3 gap-1.5">
-                  {profile.gallery.map((img, idx) => (
+                  {visibleGallery.map((img, idx) => (
                     <button
                       key={img.url + idx}
                       type="button"
@@ -327,6 +338,11 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
                     </button>
                   ))}
                 </div>
+                {hiddenGallery > 0 && (
+                  <p className="mt-3 text-center text-xs text-(--muted)">
+                    사진 {hiddenGallery}장이 더 있습니다
+                  </p>
+                )}
               </section>
             </div>
           );
@@ -334,13 +350,17 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
 
         if (sectionKey === "services") {
           if (!profile.services || profile.services.length === 0) return null;
+          const visibleServices = limits.services === Infinity
+            ? profile.services
+            : profile.services.slice(0, limits.services);
+          const hiddenServices  = Math.max(0, profile.services.length - visibleServices.length);
           return (
             <div key="services">
               <div className="my-6 h-px bg-black/20" />
               <section>
                 <SectionLabel>서비스 &amp; 가격</SectionLabel>
                 <ul className="space-y-2">
-                  {profile.services.map((service) => (
+                  {visibleServices.map((service) => (
                     <li
                       key={service.name + service.price}
                       className="flex items-center justify-between gap-3 rounded-xl bg-black/[0.035] px-4 py-3"
@@ -355,6 +375,11 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
                     </li>
                   ))}
                 </ul>
+                {hiddenServices > 0 && (
+                  <p className="mt-3 text-center text-xs text-(--muted)">
+                    서비스 {hiddenServices}개가 더 있습니다
+                  </p>
+                )}
               </section>
             </div>
           );
@@ -362,14 +387,10 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
 
         if (sectionKey === "reviews") {
           if (!profile.reviews || profile.reviews.length === 0) return null;
-          const FREE_REVIEW_LIMIT = 3;
-          const isFree = !profile.plan || profile.plan === "free";
-          const visibleReviews = isFree
-            ? profile.reviews.slice(0, FREE_REVIEW_LIMIT)
-            : profile.reviews;
-          const hiddenCount = isFree
-            ? Math.max(0, profile.reviews.length - FREE_REVIEW_LIMIT)
-            : 0;
+          const visibleReviews = limits.reviews === Infinity
+            ? profile.reviews
+            : profile.reviews.slice(0, limits.reviews);
+          const hiddenReviews  = Math.max(0, profile.reviews.length - visibleReviews.length);
           return (
             <div key="reviews">
               <div className="my-6 h-px bg-black/20" />
@@ -392,9 +413,9 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
                     </li>
                   ))}
                 </ul>
-                {hiddenCount > 0 && (
+                {hiddenReviews > 0 && (
                   <p className="mt-3 text-center text-xs text-(--muted)">
-                    후기 {hiddenCount}개가 더 있습니다 — 업그레이드 후 모두 표시
+                    후기 {hiddenReviews}개가 더 있습니다
                   </p>
                 )}
               </section>
