@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "InstaLink",
     title: "InstaLink — 소상공인 인스타 링크 페이지",
-    description: "카페·미용실·PT·필라테스 사장님을 위한 1페이지 링크 사이트 - free플랜(100% 무료)",
+    description: "카페·미용실·PT·필라테스 사장님을 위한 1페이지 링크 사이트",
     images: [
       {
         url: "/instalink_OG.png",
