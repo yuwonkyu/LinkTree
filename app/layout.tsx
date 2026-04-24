@@ -30,8 +30,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/instalink_OG.png",
-         width: 1080,
-    height: 1350,
+         width: 1920,
+    height: 1080,
         alt: "InstaLink Open Graph Image",
       },
     ],
