@@ -29,9 +29,9 @@ export const metadata: Metadata = {
     description: "카페·미용실·PT·필라테스 사장님을 위한 1페이지 링크 사이트",
     images: [
       {
-        url: "/instalinkOG.png",
-        width: 1200,
-        height: 630,
+        url: "/instalink_OG.png",
+         width: 1080,
+    height: 1350,
         alt: "InstaLink Open Graph Image",
       },
     ],
