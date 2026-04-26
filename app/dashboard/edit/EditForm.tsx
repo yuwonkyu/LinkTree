@@ -613,6 +613,7 @@ export default function EditForm({ profile, plan }: Props) {
           reviews={reviews}
           onChange={setReviews}
           limit={limits.reviews === Infinity ? undefined : limits.reviews}
+          reviewUrl={profile.slug ? `/${profile.slug}/review` : undefined}
         />
       </Section>
 

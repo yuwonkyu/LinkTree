@@ -127,6 +127,5 @@ export async function saveProfile(payload: SaveProfilePayload) {
   revalidatePath("/dashboard/edit");
   // 공개 페이지 캐시도 무효화 (slug는 DB에서 읽어야 하지만 전체 revalidate로 대응)
   revalidatePath("/[slug]", "page");
-
-  redirect("/dashboard");
+  // redirect("/dashboard") 는 호출하지 않음 — 클라이언트(EditForm)에서 모달 표시 후 이동
 }

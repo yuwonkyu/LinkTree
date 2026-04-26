@@ -25,7 +25,7 @@ function trackClick(profileId: string, linkType: "kakao" | "instagram" | "phone"
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="mb-3 text-[10px] font-bold uppercase tracking-[0.14em] text-(--muted)">
+    <h2 className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-(--muted)">
       {children}
     </h2>
   );
@@ -533,25 +533,40 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
           </div>
         </>
       )}
-      {/* 워터마크 아래 여백 (Fixed 워터마크 높이만큼) */}
-      {showWatermark && <div className="mt-6 h-14" aria-hidden="true" />}
+      {/* 모바일 하단 워터마크 여백 (md 이상에서는 우측 카드라 여백 불필요) */}
+      {showWatermark && <div className="mt-6 h-14 md:h-0" aria-hidden="true" />}
     </section>
 
-    {/* ── 무료 플랜 고정 워터마크 (화면 하단 항상 표시) ── */}
+    {/* ── 무료 플랜 워터마크 ── */}
     {showWatermark && (
-      <a
-        href="/"
-        className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center gap-2.5 border-t border-black/8 bg-white/95 py-3 backdrop-blur-sm transition-colors hover:bg-white"
-      >
-        <span className="text-sm">⚡</span>
-        <span className="text-sm font-semibold text-foreground">
-          InstaLink
-        </span>
-        <span className="text-xs text-(--muted)">로 만든 페이지</span>
-        <span className="ml-1 rounded-full bg-foreground px-2.5 py-0.5 text-[11px] font-bold text-white">
-          무료로 시작하기
-        </span>
-      </a>
+      <>
+        {/* 모바일 · 태블릿: 하단 고정 바 */}
+        <a
+          href="/"
+          className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden items-center justify-center gap-2.5 border-t border-black/8 bg-white/95 py-3 backdrop-blur-sm transition-colors hover:bg-white"
+        >
+          <span className="text-sm">⚡</span>
+          <span className="text-sm font-semibold text-foreground">InstaLink</span>
+          <span className="text-xs text-(--muted)">로 만든 페이지</span>
+          <span className="ml-1 rounded-full bg-foreground px-2.5 py-0.5 text-[11px] font-bold text-white">
+            무료로 시작하기
+          </span>
+        </a>
+
+        {/* PC (md+): 우측 고정 플로팅 광고 카드 */}
+        <a
+          href="/"
+          className="hidden md:flex fixed right-4 top-1/2 -translate-y-1/2 z-50 w-[108px] flex-col items-center gap-2 rounded-2xl border border-black/8 bg-white/95 px-3 py-5 shadow-[0_4px_20px_rgba(17,24,39,0.12)] backdrop-blur-sm transition-all hover:shadow-[0_8px_30px_rgba(17,24,39,0.18)] hover:-translate-y-[calc(50%+4px)]"
+        >
+          <span className="text-2xl leading-none">⚡</span>
+          <p className="mt-0.5 text-center text-[11px] font-bold leading-snug text-foreground">
+            나도 이런<br />페이지 만들기
+          </p>
+          <span className="mt-1 w-full rounded-xl bg-foreground py-1.5 text-center text-[11px] font-bold text-white">
+            무료 시작
+          </span>
+        </a>
+      </>
     )}
   </>
   );

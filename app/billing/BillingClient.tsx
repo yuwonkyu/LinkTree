@@ -53,6 +53,9 @@ export default function BillingClient({
     currentPlan !== "free" ? currentPlan : "basic",
   );
 
+  // 플랜 티어 순서 (숫자가 높을수록 상위 플랜)
+  const PLAN_TIER: Record<Plan, number> = { free: 0, basic: 1, pro: 2 };
+
   async function handleSelectPlan(plan: Plan) {
     if (plan === "free") {
       if (!confirm("Free 플랜으로 다운그레이드하면 구독이 취소됩니다. 계속하시겠습니까?")) return;
@@ -60,6 +63,17 @@ export default function BillingClient({
       await fetch("/api/billing/cancel", { method: "POST" });
       window.location.href = "/dashboard";
       return;
+    }
+
+    // 유료 플랜 간 다운그레이드 (예: Pro → Basic)
+    if (PLAN_TIER[currentPlan] > PLAN_TIER[plan]) {
+      const confirmed = confirm(
+        `${PLAN_META[currentPlan].label} → ${PLAN_META[plan].label} 다운그레이드\n\n` +
+        `${PLAN_META[plan].label} 결제를 진행하면 기존 ${PLAN_META[currentPlan].label} 구독이 즉시 취소되고\n` +
+        `새 ${PLAN_META[plan].label} 구독이 시작됩니다. 계속하시겠습니까?`
+      );
+      if (!confirmed) return;
+      // 확인 후 Toss 결제 흐름으로 진행 (billing/success에서 기존 구독 자동 취소)
     }
 
     if (!sdkReady || !window.TossPayments) {

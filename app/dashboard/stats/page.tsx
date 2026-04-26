@@ -75,7 +75,7 @@ export default async function StatsPage() {
   const createdAt   = profile.created_at ? new Date(profile.created_at) : null;
   const daysSince   = createdAt ? Math.floor((Date.now() - createdAt.getTime()) / 86_400_000) : 999;
   const inTrial     = !isPaid && daysSince < 14;
-  const trialDaysLeft = Math.max(0, 13 - daysSince);
+  const trialDaysLeft = Math.max(0, 14 - daysSince);
 
   // 유료 플랜도, 무료 체험도 아니면 업그레이드 안내
   if (!isPaid && !inTrial) {

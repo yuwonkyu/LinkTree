@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Review } from "@/lib/types";
 
 type Props = {
   reviews: Review[];
   onChange: (reviews: Review[]) => void;
-  limit?: number; // 추가 가능한 최대 개수 (undefined = 무제한)
+  limit?: number;     // 추가 가능한 최대 개수 (undefined = 무제한)
+  reviewUrl?: string; // 고객용 후기 작성 URL
 };
 
 // "2025-03" → "2025년 3월"
@@ -28,18 +29,36 @@ function DatePicker({
   value: string; // "YYYY-MM" or ""
   onChange: (v: string) => void;
 }) {
-  const [year, month] = value ? value.split("-") : ["", ""];
+  // 로컬 state를 사용해 stale closure 버그 방지
+  // (연도 선택 → month="" → onChange("") 문제 해결)
+  const initParts = value ? value.split("-") : ["", ""];
+  const [localYear,  setLocalYear]  = useState(initParts[0] ?? "");
+  const [localMonth, setLocalMonth] = useState(initParts[1] ?? "");
 
-  function update(y: string, m: string) {
-    if (y && m) onChange(`${y}-${m.padStart(2, "0")}`);
+  // 외부에서 value가 리셋되면 동기화 (예: 새 후기 추가 후 clear)
+  useEffect(() => {
+    const [y = "", m = ""] = value ? value.split("-") : ["", ""];
+    setLocalYear(y);
+    setLocalMonth(m);
+  }, [value]);
+
+  function handleYearChange(y: string) {
+    setLocalYear(y);
+    if (y && localMonth) onChange(`${y}-${localMonth.padStart(2, "0")}`);
+    else onChange("");
+  }
+
+  function handleMonthChange(m: string) {
+    setLocalMonth(m);
+    if (localYear && m) onChange(`${localYear}-${m.padStart(2, "0")}`);
     else onChange("");
   }
 
   return (
     <div className="flex gap-2">
       <select
-        value={year}
-        onChange={(e) => update(e.target.value, month)}
+        value={localYear}
+        onChange={(e) => handleYearChange(e.target.value)}
         className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400"
       >
         <option value="">연도</option>
@@ -50,8 +69,8 @@ function DatePicker({
         ))}
       </select>
       <select
-        value={month}
-        onChange={(e) => update(year, e.target.value)}
+        value={localMonth}
+        onChange={(e) => handleMonthChange(e.target.value)}
         className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-gray-400"
       >
         <option value="">월</option>
@@ -64,7 +83,7 @@ function DatePicker({
       {value && (
         <button
           type="button"
-          onClick={() => onChange("")}
+          onClick={() => { setLocalYear(""); setLocalMonth(""); onChange(""); }}
           className="rounded-lg border border-gray-200 px-2 text-xs text-(--muted) hover:text-foreground"
           title="날짜 제거"
         >
@@ -75,7 +94,7 @@ function DatePicker({
   );
 }
 
-export default function ReviewManager({ reviews, onChange, limit }: Props) {
+export default function ReviewManager({ reviews, onChange, limit, reviewUrl }: Props) {
   const atLimit = limit !== undefined && reviews.length >= limit;
   const [text,   setText]   = useState("");
   const [author, setAuthor] = useState("");
@@ -242,6 +261,20 @@ export default function ReviewManager({ reviews, onChange, limit }: Props) {
           >
             + 추가
           </button>
+        </div>
+      )}
+
+      {/* 후기 작성 페이지 바로가기 */}
+      {reviewUrl && (
+        <div className="mt-3 flex justify-end">
+          <a
+            href={reviewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-(--muted) hover:border-gray-400 hover:text-foreground transition-colors"
+          >
+            ✍️ 후기 쓰러가기 →
+          </a>
         </div>
       )}
     </div>
