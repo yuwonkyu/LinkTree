@@ -32,9 +32,9 @@ export const metadata: Metadata = {
       "포트폴리오 + 예약 + 후기 + 카카오 상담을 한 페이지에. 무료로 시작하는 소상공인 링크 페이지.",
     images: [
       {
-        url: "/sampleop.png",
-        width: 1200,
-        height: 630,
+        url: "/instalink_OG.png",
+        width: 1920,
+        height: 1080,
         alt: "InstaLink — 인스타 바이오 링크 페이지 서비스",
       },
     ],
