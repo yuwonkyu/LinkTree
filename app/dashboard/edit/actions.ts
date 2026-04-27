@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import type { Service, Review, Theme, CustomLink, GalleryImage } from "@/lib/types";
+import type { Service, Review, Theme, CustomLink, GalleryImage, GalleryLayout, BusinessHours } from "@/lib/types";
 
 function isSafeUrl(url: string): boolean {
   if (!url) return true; // 빈 값은 저장 허용
@@ -86,6 +86,9 @@ export type SaveProfilePayload = {
   parking_info?: string;
   section_order?: string[];
   button_color?: string;
+  button_text_color?: string;
+  gallery_layout?: GalleryLayout;
+  business_hours?: BusinessHours;
 };
 
 export async function saveProfile(payload: SaveProfilePayload) {
@@ -139,6 +142,9 @@ export async function saveProfile(payload: SaveProfilePayload) {
       parking_info: payload.parking_info?.trim() || null,
       section_order: payload.section_order?.length ? payload.section_order : null,
       button_color: payload.button_color?.trim() || null,
+      button_text_color: payload.button_text_color?.trim() || null,
+      gallery_layout: payload.gallery_layout ?? null,
+      business_hours: payload.business_hours ?? null,
       is_active: true, // 저장하면 페이지 공개
     })
     .eq("owner_id", user.id);

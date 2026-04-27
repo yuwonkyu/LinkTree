@@ -4,13 +4,14 @@ import { useState, useTransition, useEffect, useRef } from "react";
 import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import { saveProfile, type SaveProfilePayload } from "./actions";
-import type { Profile, Service, Review, Theme, CustomLink, GalleryImage } from "@/lib/types";
+import type { Profile, Service, Review, Theme, CustomLink, GalleryImage, BusinessHours, GalleryLayout } from "@/lib/types";
 import { PLAN_LIMITS, toPlanKey } from "@/lib/plan-limits";
-import ThemeSelector   from "@/components/dashboard/ThemeSelector";
-import ServiceManager  from "@/components/dashboard/ServiceManager";
-import ReviewManager   from "@/components/dashboard/ReviewManager";
-import LinkManager     from "@/components/dashboard/LinkManager";
-import GalleryManager  from "@/components/dashboard/GalleryManager";
+import ThemeSelector        from "@/components/dashboard/ThemeSelector";
+import ServiceManager       from "@/components/dashboard/ServiceManager";
+import ReviewManager        from "@/components/dashboard/ReviewManager";
+import LinkManager          from "@/components/dashboard/LinkManager";
+import GalleryManager       from "@/components/dashboard/GalleryManager";
+import BusinessHoursEditor  from "@/components/dashboard/BusinessHoursEditor";
 
 // ─── 업종별 예시 템플릿 ──────────────────────────────────────
 const CATEGORIES = ["PT/헬스", "필라테스/요가", "미용실/네일", "카페", "프리랜서/크리에이터"];
@@ -255,11 +256,20 @@ export default function EditForm({ profile, plan }: Props) {
   const [gallery,      setGallery]     = useState<GalleryImage[]>(profile.gallery ?? []);
   const [parkingInfo,  setParkingInfo] = useState(profile.parking_info ?? "");
 
-  // Pro 전용: 섹션 순서 + 버튼 컬러
-  const [sectionOrder, setSectionOrder] = useState<string[]>(
+  // Pro 전용: 섹션 순서 + 버튼 컬러 + 버튼 텍스트 컬러 + 갤러리 레이아웃
+  const [sectionOrder,    setSectionOrder]    = useState<string[]>(
     profile.section_order ?? [...DEFAULT_SECTION_ORDER]
   );
-  const [buttonColor,  setButtonColor]  = useState(profile.button_color ?? "");
+  const [buttonColor,     setButtonColor]     = useState(profile.button_color ?? "");
+  const [buttonTextColor, setButtonTextColor] = useState(profile.button_text_color ?? "");
+  const [galleryLayout,   setGalleryLayout]   = useState<GalleryLayout>(
+    profile.gallery_layout ?? "grid3"
+  );
+
+  // Basic+: 영업일 & 운영시간
+  const [businessHours, setBusinessHours] = useState<BusinessHours>(
+    profile.business_hours ?? {}
+  );
 
   // 업종 (예시/AI 공통)
   const [category, setCategory] = useState("카페");
@@ -293,7 +303,8 @@ export default function EditForm({ profile, plan }: Props) {
   }, [name, shopName, tagline, description, kakaoUrl, kakaoBookingUrl,
       naverBookingUrl, phoneUrl, instaDmUrl, kakaoChanUrl, instagramId,
       location, hours, imageUrl, theme, services, reviews, customLinks,
-      gallery, parkingInfo, sectionOrder, buttonColor]);
+      gallery, parkingInfo, sectionOrder, buttonColor, buttonTextColor,
+      galleryLayout, businessHours]);
 
   // ── AI 추천 ──
   async function aiSuggest(type: "tagline" | "description" | "services") {
@@ -340,8 +351,11 @@ export default function EditForm({ profile, plan }: Props) {
       custom_links: customLinks,
       gallery,
       parking_info: parkingInfo,
-      section_order: isProPlan ? sectionOrder : undefined,
-      button_color:  isProPlan ? buttonColor  : undefined,
+      section_order:      isProPlan ? sectionOrder    : undefined,
+      button_color:       isProPlan ? buttonColor      : undefined,
+      button_text_color:  isProPlan ? buttonTextColor  : undefined,
+      gallery_layout:     isProPlan ? galleryLayout    : undefined,
+      business_hours:     isPaidPlan ? businessHours   : undefined,
     };
     startTransition(async () => {
       try {
@@ -608,6 +622,27 @@ export default function EditForm({ profile, plan }: Props) {
         <LinkManager links={customLinks} onChange={setCustomLinks} />
       </Section>
 
+      {/* ── 영업일 & 운영시간 (Basic+) ── */}
+      {isPaidPlan ? (
+        <Section title="영업일 & 운영시간 (Basic+)">
+          <div className="mb-3 rounded-xl bg-blue-50 border border-blue-100 px-3.5 py-3">
+            <p className="text-xs font-semibold text-blue-800">💡 TIP</p>
+            <p className="mt-0.5 text-xs text-blue-700 leading-relaxed">
+              요일 버튼을 눌러 영업일을 설정하면 고객 페이지에 시각적으로 표시됩니다.<br />
+              기존 '운영시간' 텍스트 입력과 함께 사용할 수 있습니다.
+            </p>
+          </div>
+          <BusinessHoursEditor value={businessHours} onChange={setBusinessHours} />
+        </Section>
+      ) : (
+        <Section title="영업일 & 운영시간">
+          <div className="rounded-xl border border-dashed border-gray-200 px-4 py-3 text-center text-xs text-(--muted)">
+            🔒 요일별 영업시간 설정은 Basic 이상 플랜에서 사용 가능합니다.{" "}
+            <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">업그레이드</a>
+          </div>
+        </Section>
+      )}
+
       {/* ── 갤러리 ── */}
       <Section title="포트폴리오 · 갤러리 (선택)">
         <GalleryManager
@@ -677,29 +712,96 @@ export default function EditForm({ profile, plan }: Props) {
         </Section>
       )}
 
-      {/* ── Pro: 버튼 컬러 ── */}
+      {/* ── Pro: 갤러리 레이아웃 ── */}
+      {isProPlan && (
+        <Section title="갤러리 레이아웃 (Pro)">
+          <p className="mb-3 text-xs text-(--muted)">고객 페이지에서 갤러리를 표시할 방식을 선택하세요.</p>
+          <div className="grid grid-cols-2 gap-2">
+            {(["grid3", "grid2"] as GalleryLayout[]).map((layout) => (
+              <button
+                key={layout}
+                type="button"
+                onClick={() => setGalleryLayout(layout)}
+                className={`flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-colors ${
+                  galleryLayout === layout
+                    ? "border-foreground bg-foreground/5"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                {/* 미니 미리보기 */}
+                <div className={`grid w-full gap-0.5 ${layout === "grid2" ? "grid-cols-2" : "grid-cols-3"}`}>
+                  {Array.from({ length: layout === "grid2" ? 4 : 6 }).map((_, i) => (
+                    <div key={i} className="aspect-square rounded-sm bg-gray-200" />
+                  ))}
+                </div>
+                <span className="text-xs font-semibold text-foreground">
+                  {layout === "grid3" ? "3열 (기본)" : "2열 (큰 사진)"}
+                </span>
+                <span className="text-[10px] text-(--muted)">
+                  {layout === "grid3" ? "더 많은 사진 표시" : "사진이 크게 표시됨"}
+                </span>
+              </button>
+            ))}
+          </div>
+        </Section>
+      )}
+
+      {/* ── Pro: 버튼 컬러 & 텍스트 컬러 ── */}
       {isProPlan && (
         <Section title="버튼 컬러 커스텀 (Pro)">
-          <div className="flex flex-col gap-2">
-            <p className="text-xs text-(--muted)">
-              커스텀 링크·전화 버튼에 적용되는 포인트 컬러를 선택하세요.
-            </p>
-            <div className="flex items-center gap-3">
-              <input
-                type="color"
-                value={buttonColor || "#111827"}
-                onChange={(e) => setButtonColor(e.target.value)}
-                className="h-10 w-12 cursor-pointer rounded-lg border border-gray-200 p-0.5"
-              />
-              <span className="text-sm font-mono text-foreground">{buttonColor || "#111827"}</span>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-medium text-(--muted)">버튼 배경색</p>
+              <p className="text-xs text-(--muted)">커스텀 링크·전화 버튼의 배경 컬러를 선택하세요.</p>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={buttonColor || "#111827"}
+                  onChange={(e) => setButtonColor(e.target.value)}
+                  className="h-10 w-12 cursor-pointer rounded-lg border border-gray-200 p-0.5"
+                />
+                <span className="text-sm font-mono text-foreground">{buttonColor || "#111827"}</span>
+                {buttonColor && (
+                  <button
+                    type="button"
+                    onClick={() => setButtonColor("")}
+                    className="text-xs text-(--muted) hover:text-foreground"
+                  >
+                    초기화
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-medium text-(--muted)">버튼 텍스트 색</p>
+              <p className="text-xs text-(--muted)">배경색에 맞게 텍스트 색을 선택하세요. (기본: 흰색)</p>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={buttonTextColor || "#ffffff"}
+                  onChange={(e) => setButtonTextColor(e.target.value)}
+                  className="h-10 w-12 cursor-pointer rounded-lg border border-gray-200 p-0.5"
+                />
+                <span className="text-sm font-mono text-foreground">{buttonTextColor || "#ffffff"}</span>
+                {buttonTextColor && (
+                  <button
+                    type="button"
+                    onClick={() => setButtonTextColor("")}
+                    className="text-xs text-(--muted) hover:text-foreground"
+                  >
+                    초기화 (흰색)
+                  </button>
+                )}
+              </div>
+              {/* 미리보기 */}
               {buttonColor && (
-                <button
-                  type="button"
-                  onClick={() => setButtonColor("")}
-                  className="text-xs text-(--muted) hover:text-foreground"
+                <div
+                  className="flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold"
+                  style={{ backgroundColor: buttonColor, color: buttonTextColor || "#ffffff" }}
                 >
-                  초기화
-                </button>
+                  버튼 미리보기
+                </div>
               )}
             </div>
           </div>

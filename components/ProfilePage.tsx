@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
-import type { Profile } from "@/lib/types";
+import type { Profile, BusinessHours } from "@/lib/types";
 import { PLAN_LIMITS, toPlanKey } from "@/lib/plan-limits";
 
 type ProfilePageProps = {
@@ -20,6 +20,34 @@ function trackClick(profileId: string, linkType: "kakao" | "instagram" | "phone"
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ profileId, linkType }),
   }).catch(() => {});
+}
+
+// ── 영업일 헬퍼 ──────────────────────────────────────────────
+const DAYS_KR = [
+  { key: "mon", short: "월" },
+  { key: "tue", short: "화" },
+  { key: "wed", short: "수" },
+  { key: "thu", short: "목" },
+  { key: "fri", short: "금" },
+  { key: "sat", short: "토" },
+  { key: "sun", short: "일" },
+] as const;
+
+/** 연속된 같은 시간 요일을 묶어서 표시용 배열로 변환 */
+function groupBusinessHours(bh: BusinessHours): { days: string; hours: string }[] {
+  const result: { days: string; hours: string }[] = [];
+  let i = 0;
+  while (i < DAYS_KR.length) {
+    const h = bh[DAYS_KR[i].key as keyof BusinessHours];
+    if (!h?.trim()) { i++; continue; }
+    let j = i + 1;
+    while (j < DAYS_KR.length && bh[DAYS_KR[j].key as keyof BusinessHours] === h) j++;
+    const dayStr =
+      j - i === 1 ? `${DAYS_KR[i].short}` : `${DAYS_KR[i].short}~${DAYS_KR[j - 1].short}`;
+    result.push({ days: dayStr, hours: h! });
+    i = j;
+  }
+  return result;
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -74,14 +102,25 @@ const DEFAULT_SECTION_ORDER = ["services", "gallery", "reviews"];
 
 export default function ProfilePage({ profile }: ProfilePageProps) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  // 스와이프 추적
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  // 갤러리 레이아웃
+  const galleryLayout = profile.gallery_layout ?? "grid3";
+  const gridCols     = galleryLayout === "grid2" ? "grid-cols-2" : "grid-cols-3";
+  const imgSizes     = galleryLayout === "grid2"
+    ? "(max-width: 480px) 45vw, 210px"
+    : "(max-width: 480px) 30vw, 150px";
+
+  // 버튼 컬러
+  const btnColor     = profile.button_color?.trim() || null;
+  const btnTextColor = profile.button_text_color?.trim() || null;
 
   const sectionOrder: string[] =
     Array.isArray(profile.section_order) && profile.section_order.length > 0
       ? profile.section_order
       : DEFAULT_SECTION_ORDER;
-
-  // Pro 버튼 컬러: 커스텀 링크 + 전화 버튼 accent
-  const btnColor = profile.button_color?.trim() || null;
 
   // 플랜별 공개 표시 제한
   const planKey = toPlanKey(profile.plan);
@@ -89,18 +128,47 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
 
   const closeLightbox = useCallback(() => setLightboxIdx(null), []);
 
-  // 라이트박스 열릴 때 body 스크롤 잠금 + ESC 키 닫기
+  // 라이트박스 열릴 때 body 스크롤 잠금 + ESC/화살표 키 닫기·탐색
   useEffect(() => {
     if (lightboxIdx === null) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeLightbox(); };
+    const gallery = profile.gallery;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { closeLightbox(); return; }
+      if (!gallery) return;
+      if (e.key === "ArrowRight") {
+        setLightboxIdx((i) => (i !== null ? (i < gallery.length - 1 ? i + 1 : 0) : 0));
+      }
+      if (e.key === "ArrowLeft") {
+        setLightboxIdx((i) => (i !== null ? (i > 0 ? i - 1 : gallery.length - 1) : 0));
+      }
+    };
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
     };
-  }, [lightboxIdx, closeLightbox]);
+  }, [lightboxIdx, closeLightbox, profile.gallery]);
+
+  // 모바일 스와이프 핸들러
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = touchStartX.current - e.changedTouches[0].clientX;
+    const dy = touchStartY.current - e.changedTouches[0].clientY;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    if (!profile.gallery || Math.abs(dx) <= Math.abs(dy) || Math.abs(dx) < 50) return;
+    if (dx > 0) {
+      setLightboxIdx((i) => (i !== null ? (i < profile.gallery!.length - 1 ? i + 1 : 0) : 0));
+    } else {
+      setLightboxIdx((i) => (i !== null ? (i > 0 ? i - 1 : profile.gallery!.length - 1) : 0));
+    }
+  }
 
   const instagramHandle = profile.instagram_id.startsWith("@")
     ? profile.instagram_id
@@ -255,7 +323,7 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
               onClick={() => trackClick(profile.id, "phone")}
               className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-2 text-sm font-semibold shadow-[0_4px_14px_rgba(17,24,39,0.08)] active:translate-y-px"
               style={btnColor
-                ? { backgroundColor: btnColor, color: "#fff", border: "none" }
+                ? { backgroundColor: btnColor, color: btnTextColor || "#fff", border: "none" }
                 : { backgroundColor: "#fff", color: "#111827", border: "1px solid rgba(0,0,0,0.1)" }
               }
             >
@@ -288,7 +356,7 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
                 rel="noopener noreferrer"
                 className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors active:translate-y-px"
                 style={btnColor
-                  ? { backgroundColor: btnColor, color: "#fff", border: "none" }
+                  ? { backgroundColor: btnColor, color: btnTextColor || "#fff", border: "none" }
                   : { backgroundColor: "#fff", color: "#111827", border: "1px solid rgba(0,0,0,0.1)" }
                 }
               >
@@ -320,7 +388,7 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
               <div className="my-6 h-px bg-black/20" />
               <section>
                 <SectionLabel>포트폴리오 · 갤러리</SectionLabel>
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className={`grid ${gridCols} gap-1.5`}>
                   {visibleGallery.map((img, idx) => (
                     <button
                       key={img.url + idx}
@@ -332,8 +400,9 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
                         src={img.url}
                         alt={img.caption ?? `갤러리 ${idx + 1}`}
                         fill
-                        sizes="(max-width: 480px) 30vw, 150px"
+                        sizes={imgSizes}
                         className="object-cover transition-transform hover:scale-105"
+                        loading="lazy"
                       />
                     </button>
                   ))}
@@ -434,16 +503,19 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
         return null;
       })}
 
-      {/* 라이트박스 — 배경 클릭·ESC로 닫힘, 뒤 스크롤 잠금 */}
+      {/* 라이트박스 — 배경 클릭·ESC·화살표 키·스와이프로 제어 */}
       {lightboxIdx !== null && profile.gallery && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-4"
           onClick={closeLightbox}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           <div
             className="relative w-full max-w-sm"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* 닫기 버튼 */}
             <button
               type="button"
               onClick={closeLightbox}
@@ -452,60 +524,135 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
             >
               ✕ 닫기
             </button>
-            <div className="relative aspect-square overflow-hidden rounded-2xl">
+
+            {/* 이미지 — 세로/가로 모두 자연스럽게 표시 */}
+            <div
+              className="relative w-full overflow-hidden rounded-2xl bg-black/30"
+              style={{ height: "clamp(240px, 60svh, 480px)" }}
+            >
               <Image
                 src={profile.gallery[lightboxIdx].url}
                 alt={profile.gallery[lightboxIdx].caption ?? ""}
                 fill
-                sizes="480px"
+                sizes="(max-width: 640px) 90vw, 480px"
                 className="object-contain"
                 priority
               />
             </div>
+
+            {/* 캡션 */}
             {profile.gallery[lightboxIdx].caption && (
               <p className="mt-2 text-center text-sm text-white/80">
                 {profile.gallery[lightboxIdx].caption}
               </p>
             )}
+
+            {/* 페이지 인디케이터 + 이전/다음 */}
             {profile.gallery.length > 1 && (
               <div className="mt-3 flex items-center justify-between">
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setLightboxIdx((i) =>
                       i !== null && i > 0 ? i - 1 : profile.gallery!.length - 1
-                    )
-                  }
-                  className="rounded-full bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30"
+                    );
+                  }}
+                  className="rounded-full bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/35 transition-colors"
                 >
                   ‹ 이전
                 </button>
-                <span className="text-xs text-white/60">
-                  {lightboxIdx + 1} / {profile.gallery.length}
-                </span>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-xs text-white/60">
+                    {lightboxIdx + 1} / {profile.gallery.length}
+                  </span>
+                  {/* 도트 인디케이터 (최대 9개) */}
+                  {profile.gallery.length <= 9 && (
+                    <div className="flex gap-1">
+                      {profile.gallery.map((_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setLightboxIdx(i); }}
+                          className={`h-1.5 rounded-full transition-all ${
+                            i === lightboxIdx ? "w-4 bg-white" : "w-1.5 bg-white/40"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <button
                   type="button"
-                  onClick={() =>
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setLightboxIdx((i) =>
                       i !== null && i < profile.gallery!.length - 1 ? i + 1 : 0
-                    )
-                  }
-                  className="rounded-full bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/30"
+                    );
+                  }}
+                  className="rounded-full bg-white/20 px-4 py-2 text-sm text-white hover:bg-white/35 transition-colors"
                 >
                   다음 ›
                 </button>
               </div>
+            )}
+
+            {/* 스와이프 힌트 (모바일, 첫 진입시) */}
+            {profile.gallery.length > 1 && (
+              <p className="mt-2 text-center text-[10px] text-white/30 select-none">
+                ← 스와이프하여 이동 →
+              </p>
             )}
           </div>
         </div>
       )}
 
       {/* ── 운영정보 ── */}
-      {(profile.hours || profile.location || profile.parking_info || profile.instagram_id) && (
+      {(profile.hours || profile.business_hours || profile.location || profile.parking_info || profile.instagram_id) && (
         <>
           <div className="my-6 h-px bg-black/20" />
           <div className="space-y-2.5">
-            {profile.hours && (
+            {/* 요일별 영업일 (structured) */}
+            {profile.business_hours && Object.values(profile.business_hours).some(Boolean) && (() => {
+              const grouped = groupBusinessHours(profile.business_hours as BusinessHours);
+              return (
+                <div className="flex flex-col gap-1.5">
+                  {/* 요일 뱃지 행 */}
+                  <div className="flex items-center gap-1.5">
+                    <IconClock />
+                    <div className="flex gap-1">
+                      {DAYS_KR.map(({ key, short }) => {
+                        const isOpen = !!(profile.business_hours as BusinessHours)[key as keyof BusinessHours];
+                        return (
+                          <span
+                            key={key}
+                            className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${
+                              isOpen
+                                ? "bg-foreground text-white"
+                                : "bg-black/[0.05] text-(--muted) opacity-40"
+                            }`}
+                          >
+                            {short}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* 시간 그룹 표시 */}
+                  {grouped.length > 0 && (
+                    <div className="ml-5 flex flex-col gap-0.5">
+                      {grouped.map(({ days, hours }) => (
+                        <span key={days} className="text-xs text-(--muted)">
+                          {days}  {hours}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+            {/* 기존 텍스트 운영시간 (structured 없을 때만 표시) */}
+            {profile.hours && !profile.business_hours && (
               <div className="flex items-center gap-2 text-sm text-(--muted)">
                 <IconClock />
                 <span>{profile.hours}</span>

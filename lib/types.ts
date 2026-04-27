@@ -14,6 +14,18 @@ export type GalleryImage = {
   caption?: string;
 };
 
+export type GalleryLayout = "grid2" | "grid3";
+
+export type BusinessHours = {
+  mon?: string | null; // "09:00-18:00" 또는 null/undefined = 휴무
+  tue?: string | null;
+  wed?: string | null;
+  thu?: string | null;
+  fri?: string | null;
+  sat?: string | null;
+  sun?: string | null;
+};
+
 export type Review = {
   text: string;
   author: string;
@@ -64,8 +76,11 @@ export type Profile = {
   kakao_channel_url?: string | null;
   gallery?: GalleryImage[] | null;
   parking_info?: string | null;
-  section_order?: string[] | null; // Pro: 섹션 렌더 순서 (예: ["services","gallery","reviews"])
-  button_color?: string | null;    // Pro: 커스텀 버튼 컬러 (hex, 예: "#7c3aed")
+  section_order?: string[] | null;        // Pro: 섹션 렌더 순서 (예: ["services","gallery","reviews"])
+  button_color?: string | null;           // Pro: 커스텀 버튼 배경 컬러 (hex, 예: "#7c3aed")
+  button_text_color?: string | null;      // Pro: 커스텀 버튼 텍스트 컬러 (hex)
+  gallery_layout?: GalleryLayout | null;  // Pro: 갤러리 레이아웃 (grid2 | grid3)
+  business_hours?: BusinessHours | null;  // Basic+: 요일별 영업시간
 };
 
 export type Subscription = {
