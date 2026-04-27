@@ -71,7 +71,7 @@ export function getUserByUsername(username: string): User | undefined {
 export const users: User[] = [
   {
     // ── 라이트 테마 예시: 여성 PT 트레이너 ──────────────────────────
-    username: "sample",
+    username: "sample1",
     name: "김지수 트레이너",
     brandName: "FIT WITH JI",
     role: "다이어트 · 체형교정 · 여성 전문 PT",
@@ -81,7 +81,7 @@ export const users: User[] = [
     availability: "평일 07:00 ~ 21:00 / 토 09:00 ~ 17:00",
     ctaLabel: "무료 상담 받기 (카카오톡)",
     instagramUrl: "https://instagram.com/kku._.ui",
-    kakaoUrl: "https://open.kakao.com/o/sample",
+    kakaoUrl: "https://open.kakao.com/o/sample1",
     imageSrc:
       "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
     services: [
@@ -268,7 +268,7 @@ export const users: User[] = [
     links: [
       {
         label: "샘플페이지 보러가기 (기본형)",
-        url: "https://kku-ui.vercel.app/sample",
+        url: "https://kku-ui.vercel.app/sample1",
       },
       {
         label: "샘플페이지 보러가기 (다크테마)",
@@ -305,7 +305,7 @@ export const users: User[] = [
   },
   {
     // ── InstaLink 서비스 홍보 샘플 ──────────────────────────
-    username: "sample4",
+    username: "sample",
     name: "InstaLink",
     brandName: "InstaLink",
     role: "인스타 바이오 링크를 나만의 가게 홍보 페이지로",
@@ -322,7 +322,7 @@ export const users: User[] = [
     links: [
       {
         label: "🌟 PT 트레이너 샘플 페이지 보기",
-        url: "/sample",
+        url: "/sample1",
       },
       {
         label: "🌙 필라테스 강사 샘플 페이지 보기",

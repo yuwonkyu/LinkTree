@@ -8,7 +8,7 @@ import { PLAN_FEATURE_ROWS } from "@/lib/plan-features";
 // ── 정적 데이터 ────────────────────────────────────────────
 const THEME_EXAMPLES = [
   {
-    slug: "/sample",
+    slug: "/sample1",
     theme: "라이트",
     industry: "PT 트레이너",
     bg: "#ffffff",
@@ -184,7 +184,7 @@ export default function Page() {
               지금 무료로 시작하기 →
             </Link>
             <Link
-              href="/sample"
+              href="/sample1"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-xl border border-black/10 bg-white px-6 py-3 text-sm font-semibold transition hover:bg-black/5"
@@ -462,7 +462,7 @@ export default function Page() {
               무료로 내 페이지 만들기 →
             </Link>
             <Link
-              href="/sample"
+              href="/sample1"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full rounded-xl border border-white/30 px-8 py-3.5 text-sm font-semibold text-white transition hover:bg-white/10 sm:w-auto"
