@@ -74,13 +74,39 @@ export default function PrivacyPage() {
             <ul className="flex list-disc flex-col gap-1 pl-5">
               <li>개인정보 열람·정정·삭제·처리정지 요청 가능</li>
               <li>동의 철회는 서비스 내 회원 탈퇴 또는 이메일 문의로 가능</li>
-              <li>만 14세 미만 아동은 서비스 이용 및 개인정보 제공 불가</li>
+              <li>만 14세 미만 아동은 서비스 이용 및 개인정보 제공 불가. 해당 사실 확인 시 계정 즉시 삭제</li>
             </ul>
           </Section>
 
           <Section title="5. 쿠키(Cookie) 사용">
             <p>
-              {COMPANY}는 로그인 상태 유지를 위해 쿠키를 사용합니다.
+              {COMPANY}는 서비스 운영에 필요한 필수 쿠키만 사용합니다.
+              광고 추적·행동 분석 목적의 제3자 쿠키는 사용하지 않습니다.
+            </p>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-gray-100">
+                    <th className="px-3 py-2 text-left font-medium text-(--muted)">쿠키 종류</th>
+                    <th className="px-3 py-2 text-left font-medium text-(--muted)">목적</th>
+                    <th className="px-3 py-2 text-left font-medium text-(--muted)">보유 기간</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-gray-50">
+                    <td className="px-3 py-2 text-(--muted)">인증 세션 쿠키</td>
+                    <td className="px-3 py-2 text-(--muted)">로그인 상태 유지 (Supabase Auth)</td>
+                    <td className="px-3 py-2 text-(--muted)">세션 종료 시</td>
+                  </tr>
+                  <tr className="border-b border-gray-50">
+                    <td className="px-3 py-2 text-(--muted)">보안 토큰</td>
+                    <td className="px-3 py-2 text-(--muted)">CSRF 방지</td>
+                    <td className="px-3 py-2 text-(--muted)">세션 종료 시</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="mt-3 text-xs text-(--muted)">
               브라우저 설정에서 쿠키 저장을 거부할 수 있으나, 이 경우 로그인 등 일부 기능이 제한될 수 있습니다.
             </p>
           </Section>

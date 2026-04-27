@@ -26,7 +26,11 @@ export default function RefundPage() {
           <Section title="제1조 (구독 결제 방식)">
             <p>
               InstaLink 유료 플랜은 월 단위 자동 갱신 구독 방식으로 운영됩니다.
-              결제는 토스페이먼츠를 통해 처리되며, 매월 최초 결제일에 자동으로 청구됩니다.
+              결제는 토스페이먼츠를 통해 처리되며, <b className="text-foreground">최초 결제일을 기준으로 매월 동일 날짜에 자동으로 청구</b>됩니다.
+              (예: 5월 15일 가입 → 매월 15일 청구)
+            </p>
+            <p className="mt-2 text-xs text-(--muted)">
+              결제 실패 시 이메일로 안내드리며, 실패 후 7일 이내 결제가 이루어지지 않으면 유료 플랜이 자동 해지됩니다.
             </p>
           </Section>
 
@@ -54,9 +58,18 @@ export default function RefundPage() {
               구독은 언제든지 해지할 수 있습니다. 해지 신청 후에도 현재 구독 기간이 만료될 때까지 서비스를 이용할 수 있으며,
               잔여 기간에 대한 환불은 제공되지 않습니다.
             </p>
-            <ul className="mt-2 flex list-disc flex-col gap-1.5 pl-5 text-(--muted)">
+            <div className="mt-3 rounded-xl bg-(--secondary) p-4">
+              <p className="font-medium">셀프 해지 방법</p>
+              <p className="mt-1 text-xs text-(--muted)">
+                대시보드 → 구독 관리 메뉴에서 직접 해지할 수 있습니다.<br />
+                별도 이메일 신청 없이 즉시 처리됩니다.
+              </p>
+            </div>
+            <ul className="mt-3 flex list-disc flex-col gap-1.5 pl-5 text-(--muted)">
               <li>해지 신청 즉시 다음 결제일 자동 갱신이 중단됩니다.</li>
-              <li>해지 후 무료 플랜으로 전환되며 기본 기능은 계속 이용 가능합니다.</li>
+              <li>현재 구독 기간 만료일까지 유료 기능을 계속 이용할 수 있습니다.</li>
+              <li>해지 후 무료 플랜으로 전환되며, 기존 적용된 테마·설정은 유지됩니다.</li>
+              <li>계정 삭제를 원하는 경우 대시보드 하단 회원탈퇴 메뉴를 이용해 주세요.</li>
             </ul>
           </Section>
 
