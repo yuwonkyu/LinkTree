@@ -401,6 +401,8 @@ export const users: User[] = [
       },
     ],
     instagramHandle: "@kku._.ui",
+    plan: "pro",
+    sectionOrder: ["services", "reviews"],
     options: {
       showCTA: true,
       showReviews: true,

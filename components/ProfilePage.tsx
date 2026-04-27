@@ -22,6 +22,18 @@ function trackClick(profileId: string, linkType: "kakao" | "instagram" | "phone"
   }).catch(() => {});
 }
 
+// ── 버튼 배경색 → 자동 텍스트 색상 (WCAG 상대 휘도 기준) ──────────────
+function getAutoTextColor(hex: string): string {
+  const clean = hex.replace("#", "");
+  if (clean.length !== 6) return "#ffffff";
+  const r = parseInt(clean.slice(0, 2), 16) / 255;
+  const g = parseInt(clean.slice(2, 4), 16) / 255;
+  const b = parseInt(clean.slice(4, 6), 16) / 255;
+  const lin = (c: number) => (c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
+  const luminance = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+  return luminance > 0.179 ? "#111827" : "#ffffff";
+}
+
 // ── 영업일 헬퍼 ──────────────────────────────────────────────
 const DAYS_KR = [
   { key: "mon", short: "월" },
@@ -113,9 +125,11 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
     ? "(max-width: 480px) 45vw, 210px"
     : "(max-width: 480px) 30vw, 150px";
 
-  // 버튼 컬러
+  // 버튼 컬러: 텍스트는 명시값 → 자동대비 순으로 결정
   const btnColor     = profile.button_color?.trim() || null;
-  const btnTextColor = profile.button_text_color?.trim() || null;
+  const btnTextColor = btnColor
+    ? (profile.button_text_color?.trim() || getAutoTextColor(btnColor))
+    : null;
 
   const sectionOrder: string[] =
     Array.isArray(profile.section_order) && profile.section_order.length > 0
