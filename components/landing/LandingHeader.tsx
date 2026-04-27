@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HeaderAuthButtons from "./HeaderAuthButtons";
 
 type Props = {
   wide?: boolean; // max-w-6xl (랜딩) vs max-w-3xl (카테고리)
@@ -12,20 +13,7 @@ export default function LandingHeader({ wide = true }: Props) {
         <Link href="/" className="text-base font-bold tracking-tight">
           InstaLink
         </Link>
-        <nav className="flex items-center gap-2 text-sm font-medium">
-          <Link
-            href="/auth/login"
-            className="rounded-lg px-3 py-1.5 text-(--muted) transition hover:text-foreground"
-          >
-            로그인
-          </Link>
-          <Link
-            href="/auth/signup"
-            className="rounded-lg bg-foreground px-3 py-1.5 text-sm font-semibold text-white transition hover:opacity-85"
-          >
-            무료 시작
-          </Link>
-        </nav>
+        <HeaderAuthButtons />
       </div>
     </header>
   );

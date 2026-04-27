@@ -11,6 +11,9 @@ const THEME_EXAMPLES = [
     slug: "/sample1",
     theme: "라이트",
     industry: "PT 트레이너",
+    name: "김지수 트레이너",
+    role: "다이어트 · 체형교정 전문 PT",
+    links: ["카카오 상담", "인스타그램"],
     bg: "#ffffff",
     accent: "#111827",
     fg: "#111827",
@@ -21,6 +24,9 @@ const THEME_EXAMPLES = [
     slug: "/sample2",
     theme: "다크",
     industry: "필라테스 강사",
+    name: "박서연 강사",
+    role: "1:1 레슨 · 재활 필라테스",
+    links: ["카카오 예약", "인스타그램"],
     bg: "#121212",
     accent: "#FEE500",
     fg: "#f3f4f6",
@@ -31,6 +37,9 @@ const THEME_EXAMPLES = [
     slug: "/sample3",
     theme: "웜리넨",
     industry: "헤어 디자이너",
+    name: "최지안 디자이너",
+    role: "컬러 · 펌 · 케어 전문",
+    links: ["예약 문의", "포트폴리오"],
     bg: "#f8f2e9",
     accent: "#b58458",
     fg: "#3a2c22",
@@ -217,37 +226,51 @@ export default function Page() {
               className="group flex flex-col overflow-hidden rounded-2xl border border-black/5 shadow-[0_2px_12px_rgba(17,24,39,0.07)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(17,24,39,0.12)]"
               style={{ background: ex.bg }}
             >
-              <div className="p-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-9 w-9 shrink-0 rounded-full" style={{ background: ex.muted, opacity: 0.35 }} />
-                  <div className="flex flex-col gap-1">
-                    <div className="h-2 w-20 rounded-full" style={{ background: ex.fg, opacity: 0.7 }} />
-                    <div className="h-1.5 w-14 rounded-full" style={{ background: ex.accent, opacity: 0.6 }} />
+              <div className="p-5">
+                {/* 프로필 영역 */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-bold"
+                    style={{ background: ex.accent, color: ex.bg }}
+                  >
+                    {ex.name[0]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold leading-tight" style={{ color: ex.fg }}>{ex.name}</p>
+                    <p className="mt-0.5 text-[11px] leading-tight" style={{ color: ex.muted }}>{ex.role}</p>
                   </div>
                 </div>
-                <div className="mt-3 h-6 w-full rounded-lg" style={{ background: ex.accent, opacity: 0.85 }} />
-                <div className="mt-2.5 flex flex-col gap-1.5">
-                  {[{ w: "w-16" }, { w: "w-14" }].map((row, i) => (
-                    <div key={i} className="flex justify-between rounded-lg px-2 py-1.5" style={{ background: ex.card }}>
-                      <div className={`h-1.5 ${row.w} rounded-full self-center`} style={{ background: ex.fg, opacity: 0.5 }} />
-                      <div className="h-1.5 w-10 rounded-full self-center" style={{ background: ex.fg, opacity: 0.7 }} />
+                {/* 링크 버튼 미리보기 */}
+                <div className="mt-4 flex flex-col gap-2">
+                  {ex.links.map((label, i) => (
+                    <div
+                      key={label}
+                      className="flex items-center justify-center rounded-xl px-3 py-2 text-xs font-semibold"
+                      style={
+                        i === 0
+                          ? { background: ex.accent, color: ex.bg }
+                          : { background: ex.card, color: ex.fg, border: `1px solid ${ex.fg}18` }
+                      }
+                    >
+                      {label}
                     </div>
                   ))}
                 </div>
               </div>
+              {/* 카드 하단 레이블 */}
               <div
                 className="flex items-center justify-between border-t px-4 py-2.5"
-                style={{ borderColor: `${ex.fg}15`, background: ex.card }}
+                style={{ borderColor: `${ex.fg}12`, background: ex.card }}
               >
                 <div>
                   <p className="text-xs font-bold" style={{ color: ex.fg }}>{ex.theme}</p>
                   <p className="text-[11px]" style={{ color: ex.muted }}>{ex.industry}</p>
                 </div>
                 <span
-                  className="text-xs font-semibold opacity-60 transition group-hover:opacity-100"
+                  className="text-xs font-semibold opacity-50 transition group-hover:opacity-100"
                   style={{ color: ex.accent }}
                 >
-                  보기 →
+                  미리보기 →
                 </span>
               </div>
             </a>
