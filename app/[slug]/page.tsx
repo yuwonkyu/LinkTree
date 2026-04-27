@@ -160,7 +160,7 @@ export default async function SlugPage({ params }: PageProps) {
       />
       <div className="w-full max-w-md">
         <div className="rounded-2xl bg-(--card) p-2 shadow-[0_4px_20px_rgba(17,24,39,0.06)] backdrop-blur-sm">
-          <ProfilePage profile={profile} showWatermark={!profile.plan || profile.plan === "free"} />
+          <ProfilePage profile={profile} />
         </div>
         <div className="mt-3">
           <ShareButton url={`${SITE}/${slug}`} />
