@@ -1,13 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { COMPANY_INFO } from "@/lib/company-info";
 
 export const metadata: Metadata = {
   title: "콘텐츠 정책 — InstaLink",
   description: "InstaLink 콘텐츠 정책",
 };
 
-const EMAIL = "duck01777@gmail.com";
-const DATE = "2026년 4월 22일";
+const EMAIL = COMPANY_INFO.email;
+const DATE  = "2026년 4월 22일";
 
 export default function ContentPolicyPage() {
   return (

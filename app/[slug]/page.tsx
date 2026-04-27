@@ -6,6 +6,7 @@ import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Profile } from "@/lib/types";
 import { getUserByUsername } from "@/data/users";
 import ShareButton from "./ShareButton";
+import { COMPANY_INFO } from "@/lib/company-info";
 
 type PageProps = {
   params: Promise<{
@@ -166,11 +167,23 @@ export default async function SlugPage({ params }: PageProps) {
         </div>
         <div className="mt-4 text-center">
           <a
-            href={`mailto:duck01777@gmail.com?subject=${encodeURIComponent(`[신고] ${SITE}/${slug}`)}&body=${encodeURIComponent(`신고 페이지 URL: ${SITE}/${slug}\n\n신고 사유:\n\n(자세히 작성해주세요)`)}`}
+            href={`mailto:${COMPANY_INFO.email}?subject=${encodeURIComponent(`[신고] ${SITE}/${slug}`)}&body=${encodeURIComponent(`신고 페이지 URL: ${SITE}/${slug}\n\n신고 사유:\n\n(자세히 작성해주세요)`)}`}
             className="text-xs text-(--muted) hover:text-foreground transition-colors underline underline-offset-2"
           >
             이 페이지 신고하기
           </a>
+        </div>
+
+        {/* 사업자 정보 */}
+        <div className="mt-6 pb-20 text-center space-y-0.5">
+          <p className="text-[11px] text-(--muted)">
+            {COMPANY_INFO.name}({COMPANY_INFO.nameEn}) · 대표 {COMPANY_INFO.ceo}
+          </p>
+          <p className="text-[11px] text-(--muted)">
+            사업자등록번호 {COMPANY_INFO.bizNo}
+            {COMPANY_INFO.reportNo && ` · 통신판매업 ${COMPANY_INFO.reportNo}`}
+          </p>
+          <p className="text-[11px] text-(--muted)">{COMPANY_INFO.email}</p>
         </div>
       </div>
     </main>

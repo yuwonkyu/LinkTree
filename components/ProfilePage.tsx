@@ -554,44 +554,26 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
           </div>
         </>
       )}
-      {/* 모바일 하단 워터마크 여백 (md 이상에서는 우측 카드라 여백 불필요) */}
-      {showWatermark && <div className="mt-6 h-14 md:h-0" aria-hidden="true" />}
+      {/* 워터마크 버튼 여백 */}
+      {showWatermark && <div className="mt-6 h-16" aria-hidden="true" />}
     </section>
 
-    {/* ── 무료 플랜 워터마크 ── */}
+    {/* ── 무료 플랜 워터마크 (노란색 버튼, PC·모바일 통일) ── */}
     {showWatermark && (
-      <>
-        {/* 모바일 · 태블릿: 하단 바 — 최하단 근처에서 자연스럽게 올라감 */}
-        <a
-          href="/"
-          className={`z-50 flex md:hidden items-center justify-center gap-2.5 border-t border-black/8 bg-white/95 py-3 backdrop-blur-sm transition-all duration-300 hover:bg-white ${
-            mobileNearBottom
-              ? "fixed bottom-4 left-3 right-3 rounded-2xl border border-black/8 shadow-[0_4px_20px_rgba(17,24,39,0.12)]"
-              : "fixed bottom-0 left-0 right-0"
-          }`}
-        >
-          <span className="text-sm">⚡</span>
-          <span className="text-sm font-semibold text-foreground">InstaLink</span>
-          <span className="text-xs text-(--muted)">로 만든 페이지</span>
-          <span className="ml-1 rounded-full bg-foreground px-2.5 py-0.5 text-[11px] font-bold text-white">
-            무료로 시작하기
-          </span>
-        </a>
-
-        {/* PC (md+): 컨테이너 바깥 오른쪽 — viewport 중앙 고정 */}
-        <a
-          href="/"
-          className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 z-50 w-[108px] flex-col items-center gap-2 rounded-2xl border border-black/8 bg-white/95 px-3 py-5 shadow-[0_4px_20px_rgba(17,24,39,0.12)] backdrop-blur-sm transition-all hover:shadow-[0_8px_30px_rgba(17,24,39,0.18)] hover:-translate-y-[calc(50%+4px)]"
-        >
-          <span className="text-2xl leading-none">⚡</span>
-          <p className="mt-0.5 text-center text-[11px] font-bold leading-snug text-foreground">
-            나도 이런<br />페이지 만들기
-          </p>
-          <span className="mt-1 w-full rounded-xl bg-foreground py-1.5 text-center text-[11px] font-bold text-white">
-            무료 시작
-          </span>
-        </a>
-      </>
+      <a
+        href="/"
+        className={`z-50 flex items-center justify-center gap-2 rounded-2xl bg-[#FFD600] font-bold text-[#111] shadow-[0_4px_24px_rgba(255,214,0,0.45)] transition-all duration-300 hover:brightness-95 active:scale-[0.98] ${
+          mobileNearBottom
+            ? "fixed bottom-20 left-4 right-4 py-3.5 text-sm"
+            : "fixed bottom-4 left-4 right-4 py-3.5 text-sm md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-auto md:min-w-[280px] md:px-8 md:py-3.5"
+        }`}
+      >
+        <span className="text-base leading-none">⚡</span>
+        <span>나도 이런 페이지 만들기</span>
+        <span className="rounded-xl bg-[#111] px-3 py-1 text-[11px] font-bold text-[#FFD600]">
+          무료 시작
+        </span>
+      </a>
     )}
   </>
   );
