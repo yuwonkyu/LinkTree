@@ -67,17 +67,24 @@ export default function DonationSection() {
               </div>
             )}
             {hasToss && (
-              <button
-                type="button"
-                onClick={copyAccount}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white py-3 text-sm font-bold text-foreground transition hover:bg-black/5 active:scale-[0.98]"
-              >
-                {copied ? (
-                  <><span>✅</span> 계좌번호 복사됨!</>
-                ) : (
-                  <><span>🏦</span> {COMPANY_INFO.donationTossBank}</>
+              <div className="flex flex-col gap-1">
+                <button
+                  type="button"
+                  onClick={copyAccount}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white py-3 text-sm font-bold text-foreground transition hover:bg-black/5 active:scale-[0.98]"
+                >
+                  {copied ? (
+                    <><span>✅</span> 계좌번호 복사됨!</>
+                  ) : (
+                    <><span>🏦</span> 토스뱅크로 후원하기</>
+                  )}
+                </button>
+                {copied && (
+                  <p className="text-center text-xs text-(--muted)">
+                    {COMPANY_INFO.donationTossBank}
+                  </p>
                 )}
-              </button>
+              </div>
             )}
           </div>
         </div>
