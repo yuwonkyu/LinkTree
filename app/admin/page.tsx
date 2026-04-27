@@ -33,7 +33,7 @@ export default async function AdminPage({
   // 전체 고객 조회
   let query = adminClient
     .from("profiles")
-    .select("id, slug, name, shop_name, plan, plan_expires_at, is_active, view_count, created_at");
+    .select("id, owner_id, slug, name, shop_name, plan, plan_expires_at, is_active, view_count, created_at");
 
   // 플랜 필터
   if (planFilter && planFilter !== "all") query = query.eq("plan", planFilter);
@@ -56,6 +56,18 @@ export default async function AdminPage({
   query = query.order(sortCfg.column, { ascending: sortCfg.ascending });
 
   const { data: rawProfiles } = await query;
+
+  // 이메일 맵: owner_id → email
+  const ownerIds = (rawProfiles ?? [])
+    .map((p) => p.owner_id)
+    .filter(Boolean) as string[];
+  let emailMap: Record<string, string> = {};
+  if (ownerIds.length > 0) {
+    const { data: authData } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
+    (authData?.users ?? []).forEach((u) => {
+      if (u.email) emailMap[u.id] = u.email;
+    });
+  }
 
   // 만료 임박 필터 (JS 측): 7일 이내
   let profiles = rawProfiles ?? [];
@@ -328,6 +340,7 @@ WHERE email = '삭제할이메일@example.com';`}
               <tr className="border-b border-gray-100 text-left text-xs text-(--muted)">
                 <th className="px-4 py-3 font-medium">슬러그</th>
                 <th className="px-4 py-3 font-medium">이름 / 상호</th>
+                <th className="px-4 py-3 font-medium">이메일</th>
                 <th className="px-4 py-3 font-medium">플랜</th>
                 <th className="px-4 py-3 font-medium">만료일</th>
                 <th className="px-4 py-3 font-medium">상태</th>
@@ -352,6 +365,11 @@ WHERE email = '삭제할이메일@example.com';`}
                           <span className="text-[11px] text-(--muted)">{p.shop_name}</span>
                         )}
                       </div>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-(--muted)">
+                      {p.owner_id && emailMap[p.owner_id]
+                        ? emailMap[p.owner_id]
+                        : <span className="opacity-40">—</span>}
                     </td>
                     <td className="px-4 py-3">
                       <PlanSelect profileId={p.id} current={(p.plan ?? "free") as Plan} />
@@ -403,7 +421,7 @@ WHERE email = '삭제할이메일@example.com';`}
               })}
               {!profiles.length && (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-sm text-(--muted)">
+                  <td colSpan={11} className="px-4 py-10 text-center text-sm text-(--muted)">
                     조건에 맞는 고객이 없습니다.
                   </td>
                 </tr>
