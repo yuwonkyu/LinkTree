@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
   const webhookSecret = process.env.TOSS_WEBHOOK_SECRET;
   if (!webhookSecret) {
     console.error("TOSS_WEBHOOK_SECRET 환경변수가 설정되지 않았습니다.");
-    return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
+    return NextResponse.json({ error: "Webhook not configured" }, { status: 503 });
   }
   if (payload.secret !== webhookSecret) {
     return NextResponse.json({ error: "Invalid secret" }, { status: 401 });

@@ -46,7 +46,7 @@ export default function LoginForm() {
         <button
           type="button"
           onClick={() => handleSocialLogin("kakao")}
-          className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#e8d600] bg-[#FEE500] py-2.5 text-sm font-semibold text-[#3C1E1E] transition hover:opacity-85 active:opacity-70"
+          className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#e8d600] bg-[#FEE500] py-2.5 text-sm font-semibold text-[#3C1E1E] transition hover:brightness-95 hover:scale-[1.01] active:scale-[0.99] active:brightness-90"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M12 3C6.48 3 2 6.72 2 11.3c0 2.91 1.83 5.47 4.59 6.97L5.5 22l5.06-2.75c.47.06.95.1 1.44.1 5.52 0 10-3.72 10-8.3C22 6.72 17.52 3 12 3z"/>
@@ -56,7 +56,7 @@ export default function LoginForm() {
         <button
           type="button"
           onClick={() => handleSocialLogin("google")}
-          className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 active:bg-gray-100"
+          className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-semibold text-gray-700 transition hover:brightness-95 hover:scale-[1.01] active:scale-[0.99] active:brightness-90"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

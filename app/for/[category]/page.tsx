@@ -140,7 +140,9 @@ export default async function CategoryLandingPage({ params }: PageProps) {
     <main className="min-h-screen bg-(--secondary) text-foreground">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c").replace(/>/g, "\\u003e"),
+        }}
       />
 
       <LandingHeader wide={false} />

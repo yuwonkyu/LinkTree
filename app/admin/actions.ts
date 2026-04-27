@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Plan } from "@/lib/types";
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "duck01777@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "";
 
 const adminClient = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

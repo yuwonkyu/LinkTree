@@ -75,6 +75,19 @@ const DEFAULT_SECTION_ORDER = ["services", "gallery", "reviews"];
 
 export default function ProfilePage({ profile, showWatermark = false }: ProfilePageProps) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const [mobileNearBottom, setMobileNearBottom] = useState(false);
+
+  useEffect(() => {
+    if (!showWatermark) return;
+    function onScroll() {
+      const scrollBottom = window.scrollY + window.innerHeight;
+      const docHeight = document.documentElement.scrollHeight;
+      setMobileNearBottom(docHeight - scrollBottom < 72);
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [showWatermark]);
 
   const sectionOrder: string[] =
     Array.isArray(profile.section_order) && profile.section_order.length > 0
@@ -419,6 +432,14 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
                     후기 {hiddenReviews}개가 더 있습니다
                   </p>
                 )}
+                <div className="mt-4">
+                  <a
+                    href={`/${profile.slug}/review`}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-black/10 bg-white py-3 text-sm font-semibold text-foreground transition-colors hover:bg-black/[0.035] active:scale-[0.99]"
+                  >
+                    ✍️ 후기 남기기
+                  </a>
+                </div>
               </section>
             </div>
           );
@@ -540,10 +561,14 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
     {/* ── 무료 플랜 워터마크 ── */}
     {showWatermark && (
       <>
-        {/* 모바일 · 태블릿: 하단 고정 바 */}
+        {/* 모바일 · 태블릿: 하단 바 — 최하단 근처에서 자연스럽게 올라감 */}
         <a
           href="/"
-          className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden items-center justify-center gap-2.5 border-t border-black/8 bg-white/95 py-3 backdrop-blur-sm transition-colors hover:bg-white"
+          className={`z-50 flex md:hidden items-center justify-center gap-2.5 border-t border-black/8 bg-white/95 py-3 backdrop-blur-sm transition-all duration-300 hover:bg-white ${
+            mobileNearBottom
+              ? "fixed bottom-4 left-3 right-3 rounded-2xl border border-black/8 shadow-[0_4px_20px_rgba(17,24,39,0.12)]"
+              : "fixed bottom-0 left-0 right-0"
+          }`}
         >
           <span className="text-sm">⚡</span>
           <span className="text-sm font-semibold text-foreground">InstaLink</span>
@@ -553,10 +578,10 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
           </span>
         </a>
 
-        {/* PC (md+): 우측 고정 플로팅 광고 카드 */}
+        {/* PC (md+): 컨테이너 바깥 오른쪽 — viewport 중앙 고정 */}
         <a
           href="/"
-          className="hidden md:flex fixed right-4 top-1/2 -translate-y-1/2 z-50 w-[108px] flex-col items-center gap-2 rounded-2xl border border-black/8 bg-white/95 px-3 py-5 shadow-[0_4px_20px_rgba(17,24,39,0.12)] backdrop-blur-sm transition-all hover:shadow-[0_8px_30px_rgba(17,24,39,0.18)] hover:-translate-y-[calc(50%+4px)]"
+          className="hidden md:flex fixed right-8 top-1/2 -translate-y-1/2 z-50 w-[108px] flex-col items-center gap-2 rounded-2xl border border-black/8 bg-white/95 px-3 py-5 shadow-[0_4px_20px_rgba(17,24,39,0.12)] backdrop-blur-sm transition-all hover:shadow-[0_8px_30px_rgba(17,24,39,0.18)] hover:-translate-y-[calc(50%+4px)]"
         >
           <span className="text-2xl leading-none">⚡</span>
           <p className="mt-0.5 text-center text-[11px] font-bold leading-snug text-foreground">

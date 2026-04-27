@@ -377,16 +377,26 @@ export default function EditForm({ profile, plan }: Props) {
             </div>
             <p className="ml-11 text-sm text-(--muted)">변경사항이 내 페이지에 즉시 반영됐어요.</p>
             <div className="mt-5 flex flex-col gap-2">
+              {profile.slug && (
+                <a
+                  href={`/${profile.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full rounded-xl bg-foreground py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-85"
+                >
+                  완성페이지 보러가기 →
+                </a>
+              )}
               <a
                 href="/dashboard"
-                className="block w-full rounded-xl bg-foreground py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-85"
+                className="block w-full rounded-xl border border-gray-200 py-2.5 text-center text-sm font-medium text-foreground hover:bg-(--secondary) transition-colors"
               >
                 대시보드로 이동
               </a>
               <button
                 type="button"
                 onClick={() => setShowPostSave(false)}
-                className="w-full rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-foreground hover:bg-(--secondary) transition-colors"
+                className="w-full py-2 text-xs text-(--muted) hover:text-foreground transition-colors"
               >
                 계속 편집하기
               </button>
@@ -725,7 +735,19 @@ export default function EditForm({ profile, plan }: Props) {
           </a>
         </div>
         {saveStatus === "saved" && !showPostSave && (
-          <p className="text-center text-xs text-green-600">✓ 변경사항이 페이지에 즉시 반영됐습니다.</p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-green-600">✓ 변경사항이 페이지에 즉시 반영됐습니다.</p>
+            {profile.slug && (
+              <a
+                href={`/${profile.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium text-foreground underline underline-offset-2 hover:opacity-70 transition-opacity"
+              >
+                완성페이지 보기 →
+              </a>
+            )}
+          </div>
         )}
       </div>
     </div>

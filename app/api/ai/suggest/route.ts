@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     .eq("owner_id", user.id)
     .maybeSingle();
 
-  if (!profile || profile.plan === "free") {
+  if (!profile || !profile.plan || profile.plan === "free") {
     return NextResponse.json({ error: "유료 플랜 전용 기능입니다." }, { status: 403 });
   }
 
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
     try { errBody = await res.text(); } catch { /* ignore */ }
     console.error(`[AI] Anthropic API 오류 ${res.status}:`, errBody);
     return NextResponse.json(
-      { error: `AI 요청 실패 (${res.status}): ${errBody.slice(0, 200)}` },
+      { error: "AI 요청에 실패했습니다. 잠시 후 다시 시도해주세요." },
       { status: 500 }
     );
   }

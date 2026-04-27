@@ -264,19 +264,6 @@ export default function ReviewManager({ reviews, onChange, limit, reviewUrl }: P
         </div>
       )}
 
-      {/* 후기 작성 페이지 바로가기 */}
-      {reviewUrl && (
-        <div className="mt-3 flex justify-end">
-          <a
-            href={reviewUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-4 py-2 text-xs font-medium text-(--muted) hover:border-gray-400 hover:text-foreground transition-colors"
-          >
-            ✍️ 후기 쓰러가기 →
-          </a>
-        </div>
-      )}
     </div>
   );
 }

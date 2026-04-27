@@ -5,6 +5,16 @@ import { revalidatePath } from "next/cache";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import type { Service, Review, Theme, CustomLink, GalleryImage } from "@/lib/types";
 
+function isSafeUrl(url: string): boolean {
+  if (!url) return true; // 빈 값은 저장 허용
+  try {
+    const u = new URL(url);
+    return u.protocol === "https:" || u.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
 // ──────────────────────────────────────────────
 // 슬러그 커스텀 (Pro 전용)
 // ──────────────────────────────────────────────
@@ -87,6 +97,21 @@ export async function saveProfile(payload: SaveProfilePayload) {
 
   if (!user) {
     redirect("/auth/login");
+  }
+
+  // URL 필드 화이트리스트 검증 (javascript:, data: 등 차단)
+  const urlFields: (string | undefined)[] = [
+    payload.kakao_url,
+    payload.kakao_booking_url,
+    payload.naver_booking_url,
+    payload.instagram_dm_url,
+    payload.kakao_channel_url,
+  ];
+  for (const u of urlFields) {
+    if (u && !isSafeUrl(u)) throw new Error("허용되지 않는 URL 형식입니다.");
+  }
+  for (const link of payload.custom_links ?? []) {
+    if (link.url && !isSafeUrl(link.url)) throw new Error("커스텀 링크에 허용되지 않는 URL이 포함되어 있습니다.");
   }
 
   const { error } = await supabase

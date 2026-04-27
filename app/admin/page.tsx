@@ -7,7 +7,7 @@ import { getSiteUrl } from "@/lib/site-url";
 import PlanSelect from "./PlanSelect";
 import SuspendButton from "./SuspendButton";
 
-const ADMIN_EMAIL = "duck01777@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "";
 const SITE_URL = getSiteUrl();
 
 const adminClient = createClient(
