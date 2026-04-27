@@ -367,7 +367,7 @@ export const users: User[] = [
           "설정 5분이면 끝나요. 사진 올리고 가격 입력하면 끝. 이걸 왜 이제 알았지 싶어요.",
       },
     ],
-    instagramHandle: "@instalink.kr",
+    instagramHandle: "@kku._.ui",
     options: {
       showCTA: true,
       showReviews: true,
