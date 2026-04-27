@@ -70,6 +70,13 @@ async function getProfileBySlug(slug: string): Promise<Profile | null> {
       text: review.content,
       author: review.author,
     })),
+    gallery: localUser.gallery ?? null,
+    custom_links: localUser.links
+      ? localUser.links.map((l) => ({ label: l.label, url: l.url }))
+      : null,
+    plan: localUser.plan ?? "free",
+    button_color: localUser.options?.highlightColor ?? null,
+    section_order: localUser.sectionOrder ?? null,
     is_active: true,
     created_at: new Date().toISOString(),
     theme: localUser.options?.theme,

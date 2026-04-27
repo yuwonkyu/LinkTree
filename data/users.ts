@@ -24,6 +24,11 @@ export type ProfileOptions = {
 };
 // ──────────────────────────────────────────────────────────────────
 
+export type GalleryItem = {
+  url: string;
+  caption?: string;
+};
+
 export type User = {
   username: string;
   name: string;
@@ -41,7 +46,10 @@ export type User = {
   ogImageSrc?: string;
   services: ServiceItem[];
   reviews: ReviewItem[];
+  gallery?: GalleryItem[];
   instagramHandle: string;
+  plan?: "free" | "basic" | "pro";
+  sectionOrder?: string[];
   options?: ProfileOptions;
 };
 
@@ -106,14 +114,39 @@ export const users: User[] = [
         content:
           "가격 대비 관리가 너무 꼼꼼해서 친구들한테 다 소문냈어요. 결과 보장받고 싶은 분께 강력 추천합니다.",
       },
+      {
+        author: "30대 여성 회원",
+        content:
+          "3개월 등록했는데 처음부터 체형 분석을 해줘서 맞춤 케어를 받는 느낌이었어요. 체중보다 체형이 확 달라졌어요.",
+      },
+      {
+        author: "20대 여성",
+        content: "식단 피드백을 카톡으로 매일 해주시는데 이 가격에 이 퀄리티 실화예요?",
+      },
+    ],
+    gallery: [
+      {
+        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+        caption: "1:1 PT 세션",
+      },
+      {
+        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+        caption: "체형교정 프로그램",
+      },
+      {
+        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+        caption: "회원 변화 사진",
+      },
     ],
     instagramHandle: "@fitwithji",
+    plan: "pro",
+    sectionOrder: ["services", "gallery", "reviews"],
     options: {
       showReviews: true,
       showLocation: true,
       theme: "light",
       highlightColor: "#FEE500",
-      showEditableFrame: true,
+      showEditableFrame: false,
       serviceFooterLabel: false,
     },
   },
