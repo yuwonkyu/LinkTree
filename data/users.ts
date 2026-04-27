@@ -303,4 +303,80 @@ export const users: User[] = [
       highlightColor: "#FEE500",
     },
   },
+  {
+    // ── InstaLink 서비스 홍보 샘플 ──────────────────────────
+    username: "sample4",
+    name: "InstaLink",
+    brandName: "InstaLink",
+    role: "인스타 바이오 링크를 나만의 가게 홍보 페이지로",
+    intro:
+      "링크트리는 그냥 링크 목록이에요.\n\nInstaLink는 서비스 소개 + 가격표 + 포트폴리오 + 실제 후기 + 카카오 상담까지 한 페이지에 담아 팔로워를 진짜 고객으로 만드는 프로필 페이지입니다.\n\n✔ 1분 만에 개설\n✔ 카드 등록 없이 무료 시작\n✔ 소상공인 2,000명+ 사용 중",
+    location: "대한민국 어디서나 · 100% 온라인",
+    availability: "365일 24시간 언제든지",
+    ctaLabel: "지금 무료로 시작하기 →",
+    instagramUrl: "https://instagram.com/instalink.kr",
+    instagramUrls: ["https://instagram.com/instalink.kr"],
+    kakaoUrl: "https://open.kakao.com/o/instalink",
+    imageSrc:
+      "https://res.cloudinary.com/diicetn0t/image/upload/v1776352551/%EB%80%A8_vtat3u.png",
+    links: [
+      {
+        label: "🌟 PT 트레이너 샘플 페이지 보기",
+        url: "/sample",
+      },
+      {
+        label: "🌙 필라테스 강사 샘플 페이지 보기",
+        url: "/sample2",
+      },
+      {
+        label: "✂️ 헤어 디자이너 샘플 페이지 보기",
+        url: "/sample3",
+      },
+    ],
+    services: [
+      {
+        name: "Free 플랜",
+        price: "₩0 / 영원히 무료",
+        note: "기본 프로필 · 서비스·후기 3개 · 카카오 버튼",
+      },
+      {
+        name: "Basic 플랜",
+        price: "₩19,900 / 월",
+        note: "테마 3종 · 갤러리 6장 · 서비스·후기 6개",
+      },
+      {
+        name: "Pro 플랜",
+        price: "₩29,900 / 월",
+        note: "테마 6종 · 방문자 통계 · AI 문구 추천 · 모든 기능",
+      },
+    ],
+    reviews: [
+      {
+        author: "박○○ PT 트레이너 · 강남",
+        content:
+          "링크트리는 그냥 링크 모음인데, InstaLink는 진짜 내 가게 소개 페이지예요. 고객들이 \"홈페이지 있어요?\" 하면 이거 보내줘요.",
+      },
+      {
+        author: "이○○ 헤어 디자이너 · 홍대",
+        content:
+          "카카오 버튼 달고 나서 DM으로 가격 묻는 사람이 확 줄었어요. 다들 페이지 보고 바로 상담 신청해요.",
+      },
+      {
+        author: "김○○ 필라테스 원장 · 성수",
+        content:
+          "설정 5분이면 끝나요. 사진 올리고 가격 입력하면 끝. 이걸 왜 이제 알았지 싶어요.",
+      },
+    ],
+    instagramHandle: "@instalink.kr",
+    options: {
+      showCTA: true,
+      showReviews: true,
+      showLocation: true,
+      showExternalLinks: true,
+      showEditableFrame: false,
+      serviceFooterLabel: false,
+      theme: "dark",
+      highlightColor: "#FFD600",
+    },
+  },
 ];
