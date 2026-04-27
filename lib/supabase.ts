@@ -1,5 +1,5 @@
 import { createBrowserClient, createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+// "next/headers"는 서버 전용이므로 최상단 import 금지 → 함수 내부에서 동적 import 사용
 
 function getSupabaseEnv() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -22,6 +22,7 @@ export function getSupabaseBrowserClient() {
 }
 
 export async function getSupabaseServerClient() {
+  const { cookies } = await import("next/headers");
   const { url, anonKey } = getSupabaseEnv();
   const cookieStore = await cookies();
 
