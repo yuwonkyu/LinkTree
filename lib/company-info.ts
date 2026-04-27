@@ -6,7 +6,7 @@ export const COMPANY_INFO = {
   bizNo:      "492-13-02963",
   email:      "duck01777@gmail.com",
   reportNo:   "", // 통신판매업 신고 후 입력
-  // 후원 링크 — 본인 계정 URL로 교체하세요
-  donationKakao: "", // 예: "https://qr.kakaopay.com/XXXX"
-  donationToss:  "", // 예: "https://toss.me/yourname"
+  // 후원 계좌
+  donationKakao:    "", // 예: "https://qr.kakaopay.com/XXXX"
+  donationTossBank: "토스뱅크 100-253-021786 유원규",
 } as const;
