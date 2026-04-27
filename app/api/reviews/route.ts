@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { checkContent } from "@/lib/content-filter";
 
 const admin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -24,6 +25,16 @@ export async function POST(req: NextRequest) {
   }
   if (author.trim().length > 30) {
     return NextResponse.json({ error: "이름은 30자 이내로 작성해주세요." }, { status: 400 });
+  }
+
+  // 콘텐츠 필터 (욕설·비방·성적 표현)
+  const textCheck = checkContent(text);
+  if (!textCheck.ok) {
+    return NextResponse.json({ error: textCheck.reason }, { status: 422 });
+  }
+  const authorCheck = checkContent(author);
+  if (!authorCheck.ok) {
+    return NextResponse.json({ error: `이름: ${authorCheck.reason}` }, { status: 422 });
   }
 
   // 프로필 조회
