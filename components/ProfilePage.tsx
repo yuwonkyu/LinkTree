@@ -7,7 +7,6 @@ import { PLAN_LIMITS, toPlanKey } from "@/lib/plan-limits";
 
 type ProfilePageProps = {
   profile: Profile;
-  showWatermark?: boolean;
 };
 
 function toInstagramUrl(instagramId: string) {
@@ -73,21 +72,8 @@ function IconInstagram() {
 
 const DEFAULT_SECTION_ORDER = ["services", "gallery", "reviews"];
 
-export default function ProfilePage({ profile, showWatermark = false }: ProfilePageProps) {
+export default function ProfilePage({ profile }: ProfilePageProps) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-  const [mobileNearBottom, setMobileNearBottom] = useState(false);
-
-  useEffect(() => {
-    if (!showWatermark) return;
-    function onScroll() {
-      const scrollBottom = window.scrollY + window.innerHeight;
-      const docHeight = document.documentElement.scrollHeight;
-      setMobileNearBottom(docHeight - scrollBottom < 72);
-    }
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [showWatermark]);
 
   const sectionOrder: string[] =
     Array.isArray(profile.section_order) && profile.section_order.length > 0
@@ -554,27 +540,7 @@ export default function ProfilePage({ profile, showWatermark = false }: ProfileP
           </div>
         </>
       )}
-      {/* 워터마크 버튼 여백 */}
-      {showWatermark && <div className="mt-6 h-16" aria-hidden="true" />}
     </section>
-
-    {/* ── 무료 플랜 워터마크 (노란색 버튼, PC·모바일 통일) ── */}
-    {showWatermark && (
-      <a
-        href="/"
-        className={`z-50 flex items-center justify-center gap-2 rounded-2xl bg-[#FFD600] font-bold text-[#111] shadow-[0_4px_24px_rgba(255,214,0,0.45)] transition-all duration-300 hover:brightness-95 active:scale-[0.98] ${
-          mobileNearBottom
-            ? "fixed bottom-20 left-4 right-4 py-3.5 text-sm"
-            : "fixed bottom-4 left-4 right-4 py-3.5 text-sm md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-auto md:min-w-[280px] md:px-8 md:py-3.5"
-        }`}
-      >
-        <span className="text-base leading-none">⚡</span>
-        <span>나도 이런 페이지 만들기</span>
-        <span className="rounded-xl bg-[#111] px-3 py-1 text-[11px] font-bold text-[#FFD600]">
-          무료 시작
-        </span>
-      </a>
-    )}
   </>
   );
 }
