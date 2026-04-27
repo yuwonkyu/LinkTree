@@ -314,9 +314,9 @@ export const users: User[] = [
     location: "대한민국 어디서나 · 100% 온라인",
     availability: "365일 24시간 언제든지",
     ctaLabel: "지금 무료로 시작하기 →",
-    instagramUrl: "https://instagram.com/instalink.kr",
-    instagramUrls: ["https://instagram.com/instalink.kr"],
-    kakaoUrl: "https://open.kakao.com/o/instalink",
+    instagramUrl: "https://instagram.com/kku._.ui",
+    instagramUrls: ["https://instagram.com/kku._.ui"],
+    kakaoUrl: "https://open.kakao.com/o/sU3EIJqi",
     imageSrc:
       "https://res.cloudinary.com/diicetn0t/image/upload/v1776352551/%EB%80%A8_vtat3u.png",
     links: [
