@@ -47,6 +47,11 @@ export const metadata: Metadata = {
     title: "나만의 링크 페이지를 1분 만에 — InstaLink",
     description: "포트폴리오·예약·카카오 상담을 한 페이지에. 무료로 시작하세요.",
   },
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
