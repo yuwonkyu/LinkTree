@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import type { Review } from "@/lib/types";
 
 type Props = {
@@ -38,6 +39,7 @@ function DatePicker({
   // 외부에서 value가 리셋되면 동기화 (예: 새 후기 추가 후 clear)
   useEffect(() => {
     const [y = "", m = ""] = value ? value.split("-") : ["", ""];
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalYear(y);
     setLocalMonth(m);
   }, [value]);
@@ -94,7 +96,7 @@ function DatePicker({
   );
 }
 
-export default function ReviewManager({ reviews, onChange, limit, reviewUrl }: Props) {
+export default function ReviewManager({ reviews, onChange, limit }: Props) {
   const atLimit = limit !== undefined && reviews.length >= limit;
   const [text,   setText]   = useState("");
   const [author, setAuthor] = useState("");
@@ -185,7 +187,7 @@ export default function ReviewManager({ reviews, onChange, limit, reviewUrl }: P
               ) : (
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm text-foreground">"{rev.text}"</span>
+                    <span className="text-sm text-foreground">&quot;{rev.text}&quot;</span>
                     <span className="text-xs font-semibold text-(--muted)">
                       — {rev.author}
                       {rev.date && (
@@ -222,9 +224,9 @@ export default function ReviewManager({ reviews, onChange, limit, reviewUrl }: P
       {atLimit ? (
         <p className="rounded-xl border border-dashed border-gray-200 px-4 py-3 text-center text-xs text-(--muted)">
           🔒 후기 {limit}개 한도에 도달했습니다.{" "}
-          <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">
+          <Link href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">
             업그레이드
-          </a>
+          </Link>
           하면 더 추가할 수 있습니다.
         </p>
       ) : (

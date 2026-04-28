@@ -26,7 +26,7 @@ export default function TermsPage() {
 
           <Section title="제1조 (목적)">
             <p>
-              이 약관은 {COMPANY}(이하 "회사")가 제공하는 인스타 링크 페이지 서비스(이하 "서비스")의
+              이 약관은 {COMPANY}(이하 &quot;회사&quot;)가 제공하는 인스타 링크 페이지 서비스(이하 &quot;서비스&quot;)의
               이용 조건 및 절차, 회사와 이용자의 권리·의무 및 책임에 관한 사항을 규정함을 목적으로 합니다.
             </p>
           </Section>

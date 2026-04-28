@@ -73,6 +73,7 @@ export default async function StatsPage() {
 
   // 14일 무료 체험: 가입일로부터 14일 이내의 무료 사용자
   const createdAt   = profile.created_at ? new Date(profile.created_at) : null;
+  // eslint-disable-next-line react-hooks/purity
   const daysSince   = createdAt ? Math.floor((Date.now() - createdAt.getTime()) / 86_400_000) : 999;
   const inTrial     = !isPaid && daysSince < 14;
   const trialDaysLeft = Math.max(0, 14 - daysSince);

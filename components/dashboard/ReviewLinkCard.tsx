@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 type Props = {
   slug: string;
@@ -43,12 +44,12 @@ export default function ReviewLinkCard({ slug, siteUrl, reviewCount, isPaid }: P
           <p className="mt-0.5 text-xs text-amber-700">
             베이직 이상으로 업그레이드하면 무제한으로 수집·표시됩니다.
           </p>
-          <a
+          <Link
             href="/billing"
             className="mt-2 inline-block rounded-lg bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:opacity-80 transition-opacity"
           >
             업그레이드
-          </a>
+          </Link>
         </div>
       ) : (
         <div className="flex flex-col gap-2">

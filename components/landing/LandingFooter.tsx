@@ -30,18 +30,18 @@ export default function LandingFooter() {
               메뉴
             </p>
             <nav className="mt-3 flex flex-col gap-2">
-              <a href="/terms" className="text-sm text-(--muted) transition hover:text-foreground">
+              <Link href="/terms" className="text-sm text-(--muted) transition hover:text-foreground">
                 이용약관
-              </a>
-              <a href="/content-policy" className="text-sm text-(--muted) transition hover:text-foreground">
+              </Link>
+              <Link href="/content-policy" className="text-sm text-(--muted) transition hover:text-foreground">
                 콘텐츠 정책
-              </a>
-              <a href="/refund" className="text-sm text-(--muted) transition hover:text-foreground">
+              </Link>
+              <Link href="/refund" className="text-sm text-(--muted) transition hover:text-foreground">
                 환불 정책
-              </a>
-              <a href="/privacy" className="text-sm text-(--muted) transition hover:text-foreground">
+              </Link>
+              <Link href="/privacy" className="text-sm text-(--muted) transition hover:text-foreground">
                 개인정보처리방침
-              </a>
+              </Link>
             </nav>
           </div>
 

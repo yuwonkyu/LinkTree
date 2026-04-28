@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { getSupabaseServerClient } from "@/lib/supabase";
 import OnboardingForm from "./OnboardingForm";
 
@@ -39,9 +40,9 @@ export default async function OnboardingPage() {
 
       <p className="mt-4 text-xs text-(--muted)">
         나중에 설정하려면{" "}
-        <a href="/dashboard" className="underline hover:text-foreground">
+        <Link href="/dashboard" className="underline hover:text-foreground">
           대시보드로 이동
-        </a>
+        </Link>
       </p>
     </div>
   );

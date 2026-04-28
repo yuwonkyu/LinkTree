@@ -17,6 +17,7 @@ function ProgressBar() {
     prevRef.current = current;
 
     // 새 경로 도착 → 빠르게 100%로 채우고 사라짐
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setWidth(100);
     setVisible(true);
     timerRef.current = setTimeout(() => {

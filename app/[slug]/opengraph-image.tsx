@@ -55,6 +55,7 @@ export default async function OgImage({ params }: { params: Promise<{ slug: stri
       >
         {/* 프로필 이미지 */}
         {profile?.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={profile.image_url}
             alt="사무실 책상위에 바이오링크 관련된 요소모음"

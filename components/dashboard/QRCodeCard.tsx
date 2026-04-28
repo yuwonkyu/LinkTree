@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import QRCode from "qrcode";
 
 type Props = {
@@ -34,9 +35,9 @@ export default function QRCodeCard({ url, isPaid }: Props) {
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-sm font-semibold text-foreground">QR코드</h2>
         {!isPaid && (
-          <a href="/billing" className="text-xs font-medium text-foreground hover:underline">
+          <Link href="/billing" className="text-xs font-medium text-foreground hover:underline">
             다운로드 →
-          </a>
+          </Link>
         )}
       </div>
 
@@ -53,12 +54,12 @@ export default function QRCodeCard({ url, isPaid }: Props) {
           <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-white/60 backdrop-blur-[1px]">
             <span className="text-lg mb-1">🔒</span>
             <p className="text-xs font-semibold text-foreground">베이직 이상</p>
-            <a
+            <Link
               href="/billing"
               className="mt-1.5 rounded-lg bg-foreground px-3 py-1 text-xs font-semibold text-white hover:opacity-80 transition-opacity"
             >
               업그레이드
-            </a>
+            </Link>
           </div>
         )}
       </div>

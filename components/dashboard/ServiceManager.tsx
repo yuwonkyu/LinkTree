@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import type { Service } from "@/lib/types";
 
 type Props = {
@@ -20,7 +21,6 @@ const CATEGORIES = ["PT/헬스", "필라테스/요가", "미용실/네일", "카
 
 export default function ServiceManager({
   services,
-  isPaidPlan,
   isProPlan = false,
   limit,
   aiLoading,
@@ -181,9 +181,9 @@ export default function ServiceManager({
       {atLimit ? (
         <p className="rounded-xl border border-dashed border-gray-200 px-4 py-3 text-center text-xs text-(--muted)">
           🔒 서비스 {limit}개 한도에 도달했습니다.{" "}
-          <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">
+          <Link href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">
             업그레이드
-          </a>
+          </Link>
           하면 더 추가할 수 있습니다.
         </p>
       ) : (

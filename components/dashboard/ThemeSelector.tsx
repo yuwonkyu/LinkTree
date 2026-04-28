@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Theme } from "@/lib/types";
 import { PLAN_LIMITS, toPlanKey } from "@/lib/plan-limits";
 
@@ -62,13 +63,13 @@ export default function ThemeSelector({ selected, onChange, plan }: Props) {
       {planKey === "free" && (
         <p className="text-xs text-(--muted)">
           🔒 다크·UCC 테마는 Basic 이상, 나머지 3종은 Pro 전용입니다.{" "}
-          <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">업그레이드</a>
+          <Link href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">업그레이드</Link>
         </p>
       )}
       {planKey === "basic" && (
         <p className="text-xs text-(--muted)">
           🔒 소프트세이지·웜리넨·에너지스틸 테마는 Pro 전용입니다.{" "}
-          <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">업그레이드</a>
+          <Link href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">업그레이드</Link>
         </p>
       )}
     </div>

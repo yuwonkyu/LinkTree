@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getSupabaseServerClient } from "@/lib/supabase";
-import type { Plan, Profile } from "@/lib/types";
+import type { Plan } from "@/lib/types";
 import { getSiteUrl } from "@/lib/site-url";
 import BillingClient from "./BillingClient";
 
@@ -84,7 +84,7 @@ export default async function BillingPage() {
             <h2 className="mb-1 text-sm font-semibold text-foreground">환불 신청</h2>
             <p className="mb-3 text-xs text-(--muted)">
               결제일로부터 7일 이내 미사용 시 전액 환불 가능합니다.{" "}
-              <a href="/refund" className="underline hover:text-foreground">환불 정책 보기</a>
+              <Link href="/refund" className="underline hover:text-foreground">환불 정책 보기</Link>
             </p>
             <a
               href={`mailto:duck01777@gmail.com?subject=${encodeURIComponent(`[환불 신청] ${user.email ?? ""}`)}&body=${encodeURIComponent(`가입 이메일: ${user.email ?? ""}\n현재 플랜: ${currentPlan}\n\n결제일:\n\n환불 사유:\n\n(자세히 작성해주세요)`)}`}

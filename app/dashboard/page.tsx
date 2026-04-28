@@ -93,6 +93,14 @@ export default async function DashboardPage({
       ])
     : [null, 0];
 
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
+  const statsIsFree = !profile?.plan || profile?.plan === "free";
+  const statsCreatedAt = profile?.created_at ? new Date(profile.created_at) : null;
+  const statsDaysSince = statsCreatedAt ? Math.floor((now - statsCreatedAt.getTime()) / 86_400_000) : 999;
+  const statsInTrial = statsIsFree && statsDaysSince < 14;
+  const statsLocked = statsIsFree && !statsInTrial;
+
   return (
     <div className="flex flex-col gap-6">
       {/* 온보딩 완료 배너 */}
@@ -187,9 +195,9 @@ export default async function DashboardPage({
               <CopyLinkButton slug={profile.slug} />
               <p className="mt-3 text-xs text-(--muted)">
                 🔒 주소 커스텀은{" "}
-                <a href="/billing" className="font-medium text-foreground underline underline-offset-2">
+                <Link href="/billing" className="font-medium text-foreground underline underline-offset-2">
                   Pro 플랜
-                </a>
+                </Link>
                 에서 사용할 수 있습니다.
               </p>
             </>
@@ -206,9 +214,9 @@ export default async function DashboardPage({
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground">방문자 현황</h2>
             {(!profile.plan || profile.plan === "free") ? (
-              <a href="/billing" className="text-xs font-medium text-foreground hover:underline">
+              <Link href="/billing" className="text-xs font-medium text-foreground hover:underline">
                 업그레이드 →
-              </a>
+              </Link>
             ) : (
               <Link href="/dashboard/stats" className="text-xs font-medium text-foreground hover:underline">
                 통계 상세 →
@@ -225,16 +233,7 @@ export default async function DashboardPage({
           </div>
 
           {/* 주간 분석 — 2주 트라이얼 or 유료 잠금 */}
-          {(() => {
-            const isFree = !profile.plan || profile.plan === "free";
-            const createdAt = profile.created_at ? new Date(profile.created_at) : null;
-            const daysSince = createdAt
-              ? Math.floor((Date.now() - createdAt.getTime()) / 86_400_000)
-              : 999;
-            const inTrial = isFree && daysSince < 14;
-            const locked  = isFree && !inTrial;
-
-            return locked ? (
+          {statsLocked ? (
               <div className="relative rounded-xl border border-dashed border-gray-200 p-4 overflow-hidden">
                 <div className="flex justify-between items-end h-12 mb-2 blur-sm select-none pointer-events-none">
                   {[4, 7, 3, 12, 8, 15, 10].map((h, i) => (
@@ -249,16 +248,16 @@ export default async function DashboardPage({
                   <span className="text-lg mb-1">🔒</span>
                   <p className="text-xs font-semibold text-foreground">주간 방문자 분석</p>
                   <p className="mt-0.5 text-[11px] text-(--muted)">베이직 플랜에서 확인하세요</p>
-                  <a href="/billing"
+                  <Link href="/billing"
                     className="mt-2 rounded-lg bg-foreground px-3 py-1 text-xs font-semibold text-white hover:opacity-80 transition-opacity">
                     업그레이드
-                  </a>
+                  </Link>
                 </div>
               </div>
-            ) : inTrial ? (
+            ) : statsInTrial ? (
               <div className="rounded-xl bg-blue-50 border border-blue-100 px-4 py-3">
                 <p className="text-xs font-semibold text-blue-800">
-                  🎁 무료 체험 중 ({14 - daysSince}일 남음)
+                  🎁 무료 체험 중 ({14 - statsDaysSince}일 남음)
                 </p>
                 <p className="mt-0.5 text-xs text-blue-700">
                   가입 후 14일간 상세 통계를 무료로 이용할 수 있어요.
@@ -268,8 +267,7 @@ export default async function DashboardPage({
               <p className="text-xs text-(--muted) rounded-xl bg-(--secondary) px-4 py-3">
                 📊 일별 방문자 그래프는 곧 제공될 예정입니다.
               </p>
-            );
-          })()}
+            )}
         </div>
       )}
 

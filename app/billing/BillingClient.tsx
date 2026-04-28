@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { PLAN_META, type Plan, type BillingPeriod } from "@/lib/types";
 import { PLAN_FEATURE_ROWS } from "@/lib/plan-features";
@@ -45,6 +46,7 @@ export default function BillingClient({
   clientKey,
   siteUrl,
 }: Props) {
+  const router = useRouter();
   const [loading, setLoading] = useState<Plan | null>(null);
   const [sdkReady, setSdkReady] = useState(false);
   const [period, setPeriod] = useState<BillingPeriod>("monthly");
@@ -61,7 +63,7 @@ export default function BillingClient({
       if (!confirm("Free 플랜으로 다운그레이드하면 구독이 취소됩니다. 계속하시겠습니까?")) return;
       setLoading("free");
       await fetch("/api/billing/cancel", { method: "POST" });
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
       return;
     }
 

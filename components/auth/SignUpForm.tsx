@@ -60,6 +60,7 @@ export default function SignUpForm({ refCode }: Props) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (!email) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmailStatus("idle");
       setEmailMsg("");
       return;

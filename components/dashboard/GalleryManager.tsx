@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { CldUploadWidget } from "next-cloudinary";
 import type { GalleryImage } from "@/lib/types";
@@ -186,7 +187,7 @@ export default function GalleryManager({ images, onChange, limit }: Props) {
       ) : limit === 0 ? (
         <p className="rounded-xl border border-dashed border-gray-200 px-4 py-3 text-center text-xs text-(--muted)">
           🔒 갤러리는 Basic 이상 플랜에서 사용 가능합니다.{" "}
-          <a href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">업그레이드</a>
+          <Link href="/billing" className="font-medium underline underline-offset-2 hover:text-foreground">업그레이드</Link>
         </p>
       ) : (
         <p className="text-center text-xs text-(--muted)">

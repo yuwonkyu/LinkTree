@@ -26,6 +26,7 @@ export default function SlugEditor({ currentSlug, siteUrl }: Props) {
     const val = slug.trim().toLowerCase();
 
     if (!val || val === currentSlug) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStatus("idle");
       setMsg("");
       return;
