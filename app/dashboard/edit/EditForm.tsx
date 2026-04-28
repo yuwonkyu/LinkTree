@@ -425,7 +425,7 @@ export default function EditForm({ profile, plan }: Props) {
 
       {/* ── 탭 바 ── */}
       <div className="sticky top-0 z-30 -mx-1 overflow-x-auto">
-        <div className="flex min-w-max gap-0.5 rounded-2xl bg-(--secondary) p-1 shadow-[0_2px_8px_rgba(17,24,39,0.06)]">
+        <div className="flex min-w-max gap-0.5 rounded-2xl bg-(--secondary) p-1 ">
           {(
             [
               { key: "basic",    label: "기본 정보",    icon: "📋" },
@@ -487,7 +487,7 @@ export default function EditForm({ profile, plan }: Props) {
       )}
 
       {/* ══ TAB: basic ══ */}
-      <div className={activeTab === "basic" ? "" : "hidden"}>
+      <div className={activeTab === "basic" ? "flex flex-col gap-4" : "hidden"}>
 
       {/* ── 기본 정보 ── */}
       <Section title="기본 정보">
@@ -635,7 +635,7 @@ export default function EditForm({ profile, plan }: Props) {
       </div> {/* /TAB basic */}
 
       {/* ══ TAB: design ══ */}
-      <div className={activeTab === "design" ? "" : "hidden"}>
+      <div className={activeTab === "design" ? "flex flex-col gap-4" : "hidden"}>
 
       {/* ── 테마 ── */}
       <Section title="테마">
@@ -645,7 +645,7 @@ export default function EditForm({ profile, plan }: Props) {
       </div> {/* /TAB design */}
 
       {/* ══ TAB: service ══ */}
-      <div className={activeTab === "service" ? "" : "hidden"}>
+      <div className={activeTab === "service" ? "flex flex-col gap-4" : "hidden"}>
 
       {/* ── 서비스 ── */}
       <Section title="서비스 &amp; 가격">
@@ -692,7 +692,7 @@ export default function EditForm({ profile, plan }: Props) {
       </div> {/* /TAB service */}
 
       {/* ══ TAB: content ══ */}
-      <div className={activeTab === "content" ? "" : "hidden"}>
+      <div className={activeTab === "content" ? "flex flex-col gap-4" : "hidden"}>
 
       {/* ── 갤러리 ── */}
       <Section title="포트폴리오 · 갤러리 (선택)">
@@ -716,7 +716,7 @@ export default function EditForm({ profile, plan }: Props) {
       </div> {/* /TAB content */}
 
       {/* ══ TAB: advanced (Pro only) ══ */}
-      <div className={activeTab === "advanced" ? "" : "hidden"}>
+      <div className={activeTab === "advanced" ? "flex flex-col gap-4" : "hidden"}>
 
       {/* ── Pro: 섹션 순서 ── */}
       {isProPlan && (
