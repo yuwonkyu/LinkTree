@@ -243,7 +243,7 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
 
       {/* ── 소개 ── */}
       {profile.description && (
-        <p className="mt-5 rounded-xl bg-black/[0.035] px-4 py-3.5 text-sm leading-6 text-(--muted) whitespace-pre-line wrap-break-word">
+        <p className="mt-5 rounded-xl bg-black/[0.035] px-4 py-3.5 text-sm leading-6 text-(--muted) whitespace-pre-wrap [word-break:keep-all]">
           {profile.description}
         </p>
       )}
@@ -703,5 +703,4 @@ export default function ProfilePage({ profile }: ProfilePageProps) {
       )}
     </section>
   </>
-  );
-}
+  )
