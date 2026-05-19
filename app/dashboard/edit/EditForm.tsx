@@ -9,6 +9,8 @@ import { PLAN_LIMITS, toPlanKey } from "@/lib/plan-limits";
 import { getFirstServiceValidationIssue, getServiceValidationMessage } from "@/lib/service-validation";
 // BasicTab은 초기 화면에서 즉시 필요 → 정적 임포트 유지
 import BasicTab from "@/components/edit/tabs/BasicTab";
+import SaveSuccessModal from "@/components/edit/SaveSuccessModal";
+import SaveErrorModal from "@/components/edit/SaveErrorModal";
 // 나머지 탭은 클릭 시점에만 필요 → 동적 임포트로 초기 번들에서 분리
 const DesignTab   = dynamic(() => import("@/components/edit/tabs/DesignTab"),   { loading: () => <TabLoading /> });
 const ServiceTab  = dynamic(() => import("@/components/edit/tabs/ServiceTab"),  { loading: () => <TabLoading /> });
@@ -322,74 +324,12 @@ export default function EditForm({ profile, plan }: Props) {
 
       {/* ── 저장 후 모달 ── */}
       {showPostSave && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
-          onClick={() => setShowPostSave(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-1 flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-xl">🎉</span>
-              <p className="text-base font-bold text-foreground">저장 완료!</p>
-            </div>
-            <p className="ml-11 text-sm text-(--muted)">변경사항이 내 페이지에 즉시 반영됐어요.</p>
-            <div className="mt-5 flex flex-col gap-2">
-              {profile.slug && (
-                <a
-                  href={`/${profile.slug}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full rounded-xl bg-foreground py-2.5 text-center text-sm font-semibold text-white transition hover:opacity-85"
-                >
-                  완성페이지 보러가기 →
-                </a>
-              )}
-              <Link
-                href="/dashboard"
-                className="block w-full rounded-xl border border-gray-200 py-2.5 text-center text-sm font-medium text-foreground hover:bg-(--secondary) transition-colors"
-              >
-                대시보드로 이동
-              </Link>
-              <button
-                type="button"
-                onClick={() => setShowPostSave(false)}
-                className="w-full py-2 text-xs text-(--muted) hover:text-foreground transition-colors"
-              >
-                계속 편집하기
-              </button>
-            </div>
-          </div>
-        </div>
+        <SaveSuccessModal slug={profile.slug} onClose={() => setShowPostSave(false)} />
       )}
 
       {/* ── 저장 실패 모달 ── */}
       {showSaveErrorModal && saveError && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
-          onClick={() => setShowSaveErrorModal(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-1 flex items-center gap-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-red-100 text-xl">⚠️</span>
-              <p className="text-base font-bold text-foreground">저장 실패</p>
-            </div>
-            <p className="ml-11 text-sm text-(--muted) whitespace-pre-wrap break-keep">{saveError}</p>
-            <div className="mt-5 flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => setShowSaveErrorModal(false)}
-                className="w-full rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white transition hover:opacity-85"
-              >
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
+        <SaveErrorModal error={saveError} onClose={() => setShowSaveErrorModal(false)} />
       )}
 
       {/* ── 탭 가이드 배너 ── */}
