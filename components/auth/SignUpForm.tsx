@@ -102,6 +102,10 @@ export default function SignUpForm({ refCode }: Props) {
         setEmailMsg("");
       }
     }, 500);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [email]);
 
   // 제출 버튼 비활성화 조건: 이메일 미확인 또는 동의 미체크

@@ -15,9 +15,13 @@ export default function CopyLinkButton({ slug }: { slug: string }) {
 
   async function copy() {
     const fullUrl = `${window.location.origin}/${slug}`;
-    await navigator.clipboard.writeText(fullUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(fullUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert(`직접 복사해주세요:\n${fullUrl}`);
+    }
   }
 
   return (

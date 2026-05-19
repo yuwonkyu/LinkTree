@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const SLIDES = [
   {
@@ -53,6 +53,7 @@ const SLIDES = [
 export default function HeroCarousel() {
   const [active, setActive] = useState(0);
   const [animating, setAnimating] = useState(false);
+  const goTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -66,11 +67,13 @@ export default function HeroCarousel() {
   }, []);
 
   function goTo(i: number) {
-    if (i === active) return;
+    if (i === active || animating) return;
+    if (goTimerRef.current) clearTimeout(goTimerRef.current);
     setAnimating(true);
-    setTimeout(() => {
+    goTimerRef.current = setTimeout(() => {
       setActive(i);
       setAnimating(false);
+      goTimerRef.current = null;
     }, 150);
   }
 

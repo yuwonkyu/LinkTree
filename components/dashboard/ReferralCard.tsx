@@ -23,9 +23,16 @@ export default function ReferralCard({
   const shareUrl = `${siteUrl}/auth/signup?ref=${referralCode}`;
 
   async function copyCode() {
-    await navigator.clipboard.writeText(shareUrl).catch(() => {
-      navigator.clipboard.writeText(referralCode);
-    });
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      try {
+        await navigator.clipboard.writeText(referralCode);
+      } catch {
+        alert(`직접 복사해주세요:\n${shareUrl}`);
+        return;
+      }
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }

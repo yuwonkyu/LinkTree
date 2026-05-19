@@ -35,6 +35,8 @@ export default function InstaGuideModal({ slug, siteUrl, highlight = false }: Pr
     navigator.clipboard.writeText(pageUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      alert(`직접 복사해주세요:\n${pageUrl}`);
     });
   }
 

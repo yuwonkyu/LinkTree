@@ -75,6 +75,10 @@ export default function SlugEditor({ currentSlug, siteUrl }: Props) {
         setMsg("");
       }
     }, 500);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [slug, currentSlug]);
 
   const isChanged = slug.trim().toLowerCase() !== currentSlug;

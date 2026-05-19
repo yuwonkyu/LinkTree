@@ -18,6 +18,8 @@ export default function ReviewLinkCard({ slug, siteUrl, reviewCount, isPaid }: P
     navigator.clipboard.writeText(reviewUrl).then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      alert(`직접 복사해주세요:\n${reviewUrl}`);
     });
   }
 

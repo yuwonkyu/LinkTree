@@ -17,9 +17,13 @@ export default function DonationSection() {
   if (!hasKakao && !hasToss) return null;
 
   async function copyAccount() {
-    await navigator.clipboard.writeText(COMPANY_INFO.donationTossBank);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(COMPANY_INFO.donationTossBank);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      alert(`직접 복사해주세요:\n${COMPANY_INFO.donationTossBank}`);
+    }
   }
 
   function handleKakaoClick(e: React.MouseEvent<HTMLAnchorElement>) {
