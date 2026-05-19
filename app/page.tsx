@@ -124,6 +124,18 @@ const TESTIMONIALS = [
 
 const FAQS = [
   {
+    q: "인스타 프로필에 링크는 어떻게 넣나요?",
+    a: "인스타그램 앱에서 프로필 편집 → 웹사이트 칸에 인스타링크(InstaLink) 주소를 붙여넣으면 됩니다. InstaLink는 인스타 바이오에 넣을 수 있는 링크 페이지를 1분 만에 만들어 줍니다.",
+  },
+  {
+    q: "인스타 바이오 링크(링크인바이오)가 무엇인가요?",
+    a: "인스타그램은 게시물에 클릭되는 링크를 넣을 수 없어 프로필 한 줄에만 링크를 둘 수 있습니다. 그 한 줄에 여러 링크·서비스·후기를 모아 보여주는 페이지가 인스타 바이오 링크입니다.",
+  },
+  {
+    q: "링크트리와 무엇이 다른가요?",
+    a: "링크트리는 단순한 링크 목록입니다. InstaLink는 서비스·가격·후기·카카오 상담까지 한 페이지에 담는 한국 소상공인용 링크 페이지라, 고객을 바로 문의·예약으로 이끕니다.",
+  },
+  {
     q: "무료 플랜은 정말 무료인가요?",
     a: "네, 카드 등록 없이 영원히 무료로 사용할 수 있습니다. 기본 프로필 페이지를 무제한으로 운영할 수 있어요.",
   },
@@ -209,6 +221,19 @@ const landingJsonLd = {
   },
 };
 
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQS.map((faq) => ({
+    "@type": "Question",
+    name: faq.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: faq.a,
+    },
+  })),
+};
+
 export default function Page() {
   return (
     <main className="min-h-screen bg-(--secondary) pb-20 text-foreground sm:pb-0">
@@ -216,6 +241,12 @@ export default function Page() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(landingJsonLd).replace(/</g, "\\u003c").replace(/>/g, "\\u003e"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c").replace(/>/g, "\\u003e"),
         }}
       />
       <LandingHeader wide />

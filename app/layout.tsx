@@ -11,7 +11,7 @@ const SITE = getSiteUrl();
 
 export const metadata: Metadata = {
   title: {
-    default: "InstaLink — 인스타 바이오 링크 페이지를 1분 만에",
+    default: "인스타링크 — 인스타 바이오 링크 페이지 만들기 | InstaLink",
     template: "%s | InstaLink",
   },
   description:
@@ -87,6 +87,7 @@ const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
   name: "InstaLink",
+  alternateName: ["인스타링크", "인스타 링크", "인스타링크 InstaLink"],
   url: SITE,
   description:
     "인스타그램 바이오 링크 페이지를 1분 만에 만드는 소상공인 전용 서비스. PT·필라테스·미용·카페 사장님 무료 사용 가능.",
@@ -101,6 +102,7 @@ const websiteJsonLd = {
   publisher: {
     "@type": "Organization",
     name: "InstaLink",
+    alternateName: ["인스타링크", "인스타 링크"],
     url: SITE,
     logo: {
       "@type": "ImageObject",
