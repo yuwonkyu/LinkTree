@@ -64,7 +64,7 @@ export default function DashboardGuideWidget() {
       {/* 모달 */}
       {open && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center px-4 pb-6"
+          className="fixed inset-0 z-60 flex items-center justify-center px-4 pb-6"
           style={{ background: "rgba(0,0,0,0.8)" }}
           onClick={handleClose}
         >

@@ -71,7 +71,7 @@ export default function GuideWidget() {
       {/* 모달 오버레이 */}
       {open && (
         <div
-          className="fixed inset-0 z-[60] flex items-end justify-center px-4 pb-6"
+          className="fixed inset-0 z-60 flex items-end justify-center px-4 pb-6"
           style={{ background: "rgba(0,0,0,0.45)" }}
           onClick={handleClose}
         >
@@ -118,7 +118,7 @@ export default function GuideWidget() {
             </div>
 
             {/* 스텝 콘텐츠 */}
-            <div className="mb-6 min-h-[100px]">
+            <div className="mb-6 min-h-25">
               <div className="mb-3 text-4xl">{STEPS[step].emoji}</div>
               <h3
                 className="mb-2 text-lg font-bold"

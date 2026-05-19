@@ -89,12 +89,12 @@ export default function HeroCarousel() {
       >
         {/* 폰 외곽 프레임 */}
         <div
-          className="relative w-[200px] rounded-[32px] border-[5px] border-white shadow-[0_24px_64px_rgba(17,24,39,0.20)]"
+          className="relative w-50 rounded-4xl border-[5px] border-white shadow-[0_24px_64px_rgba(17,24,39,0.20)]"
           style={{ background: ex.bg }}
         >
           {/* 노치 */}
           <div className="flex justify-center py-2">
-            <div className="h-[5px] w-14 rounded-full" style={{ background: `${ex.fg}20` }} />
+            <div className="h-1.25 w-14 rounded-full" style={{ background: `${ex.fg}20` }} />
           </div>
 
           {/* 앱 콘텐츠 */}
@@ -159,7 +159,7 @@ export default function HeroCarousel() {
 
           {/* 홈 바 */}
           <div className="flex justify-center pb-2.5 pt-1">
-            <div className="h-[3px] w-10 rounded-full" style={{ background: `${ex.fg}30` }} />
+            <div className="h-0.75 w-10 rounded-full" style={{ background: `${ex.fg}30` }} />
           </div>
         </div>
 
