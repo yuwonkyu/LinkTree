@@ -231,8 +231,7 @@ export const users: User[] = [
     ctaLabel: "예약 문의 (카카오톡)",
     instagramUrl: "https://instagram.com/kku._.ui",
     kakaoUrl: "https://open.kakao.com/o/sample3",
-    imageSrc:
-      "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+    imageSrc: "/sample3-profile.jpg",
     services: [
       {
         name: "컬러 (기본)",
@@ -262,15 +261,15 @@ export const users: User[] = [
     ],
     gallery: [
       {
-        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+        url: "/sample3-a1.jpg",
         caption: "컬러 시술",
       },
       {
-        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+        url: "/sample3-a2.jpg",
         caption: "탈색 & 컬러",
       },
       {
-        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+        url: "/sample3-a3.jpg",
         caption: "케어 트리트먼트",
       },
     ],
