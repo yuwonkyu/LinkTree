@@ -270,7 +270,7 @@ export const users: User[] = [
       },
       {
         url: "/sample3-a3.jpg",
-        caption: "케어 트리트먼트",
+        caption: "투톤 컬러 시술",
       },
     ],
     instagramHandle: "@jian.hair",
