@@ -168,8 +168,7 @@ export const users: User[] = [
     ctaLabel: "무료 상담 가능 (카카오 오픈채팅)",
     instagramUrl: "https://instagram.com/kku._.ui",
     kakaoUrl: "https://open.kakao.com/o/sample2",
-    imageSrc:
-      "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+    imageSrc: "/sample2-profile.jpg",
     services: [
       { name: "체험 레슨 (1회)", price: "30,000원" },
       { name: "월정기 8회", price: "220,000원", note: "27,500원/회" },
@@ -199,16 +198,12 @@ export const users: User[] = [
     ],
     gallery: [
       {
-        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
+        url: "/sample2-a1.jpg",
         caption: "프라이빗 레슨 공간",
       },
       {
-        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
-        caption: "소도구 필라테스",
-      },
-      {
-        url: "https://res.cloudinary.com/diicetn0t/image/upload/v1776169513/Pilates_woman_ayigqf.png",
-        caption: "재활 케어 프로그램",
+        url: "/sample2-a2.jpg",
+        caption: "1:1 자세교정 케어",
       },
     ],
     instagramHandle: "@move.pilates",
