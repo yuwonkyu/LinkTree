@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import type { GalleryImage } from "@/lib/types";
 
@@ -13,7 +15,11 @@ type Props = {
 export default function ProfileLightbox({
   gallery, lightboxIdx, setLightboxIdx, closeLightbox, handleTouchStart, handleTouchEnd,
 }: Props) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 px-4"
       onClick={closeLightbox}
@@ -103,10 +109,12 @@ export default function ProfileLightbox({
 
         {gallery.length > 1 && (
           <p className="mt-2 text-center text-[10px] text-white/30 select-none">
-            ← 스와이프하여 이동 →
+            <span className="sm:hidden">← 스와이프하여 이동 →</span>
+            <span className="hidden sm:inline">← → 키보드 화살표로 이동 · ESC로 닫기</span>
           </p>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
